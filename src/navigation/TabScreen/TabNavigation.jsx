@@ -13,6 +13,7 @@ import MenuIcon from '../../assets/svg/BottomTabSVG/MenuIcon';
 import ProductIcon from '../../assets/svg/BottomTabSVG/ProductIcon';
 import OrderIcon from '../../assets/svg/BottomTabSVG/OrderIcon';
 import ChatIcon from '../../assets/svg/BottomTabSVG/ChatIcon';
+import OrderTab from '../../screens/OrderScreenTab/OrderTab';
 
 // Create bottom tab navigator
 const Tab = createBottomTabNavigator();
@@ -83,7 +84,7 @@ const TabNavigation = () => {
       />
       <Tab.Screen
         name="Order"
-        component={MyAccountScreen}
+        component={OrderTab}
         options={{
           tabBarLabel: 'Orders',
           tabBarIcon: ({ focused }) => (
