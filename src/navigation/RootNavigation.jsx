@@ -5,11 +5,12 @@ import {
     getFocusedRouteNameFromRoute,
   } from '@react-navigation/native';
 import TabNavigation from './TabScreen/TabNavigation'
+import DrawerNavigation from './TabScreen/TabNavigation';
 
 const RootNavigation = () => {
   return (
     <NavigationContainer>
-      <TabNavigation/>
+      <DrawerNavigation />
     </NavigationContainer>
   )
 }

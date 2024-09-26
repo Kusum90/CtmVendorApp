@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import MenuScreen from '../../screens/MenuScreen/MenuScreen';
 import HomeScreen from '../../screens/HomeScreen/HomeScreen';
 import NotificationScreen from '../../screens/NotificationScreen/NotificationScreen';
@@ -13,22 +13,15 @@ import MenuIcon from '../../assets/svg/BottomTabSVG/MenuIcon';
 import ProductIcon from '../../assets/svg/BottomTabSVG/ProductIcon';
 import OrderIcon from '../../assets/svg/BottomTabSVG/OrderIcon';
 import ChatIcon from '../../assets/svg/BottomTabSVG/ChatIcon';
+import CustomDrawerContent from '../DrawerScreen/CustomDrawerContents';
+
 // Create bottom tab navigator
 const Tab = createBottomTabNavigator();
 // Create drawer navigator
 const Drawer = createDrawerNavigator();
 
-// Create the drawer navigation
-const DrawerNavigation = () => {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Menu" component={MenuScreen} />
-    </Drawer.Navigator>
-  );
-};
-
 // Tab Navigation
-const TabNavigation = () => {
+const TabNavigation = ({ navigation }) => {
   return (
     <Tab.Navigator
       initialRouteName="Home" // Home is the default active tab
@@ -45,7 +38,7 @@ const TabNavigation = () => {
       {/* Individual tab screens with their respective icons */}
       <Tab.Screen
         name="Menu"
-        component={DrawerNavigation}
+        component={HomeScreen}  // Use a dummy component or leave it as it is
         options={{
           tabBarLabel: 'Menu',
           tabBarIcon: ({ focused }) => (
@@ -53,6 +46,12 @@ const TabNavigation = () => {
               <MenuIcon color={focused ? 'green' : 'black'} width={26} height={26} />
             </View>
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();  // Prevent default navigation behavior
+            navigation.toggleDrawer();  // Open the drawer
+          },
         }}
       />
       
@@ -108,6 +107,16 @@ const TabNavigation = () => {
   );
 };
 
+// Create the drawer navigation
+const DrawerNavigation = () => {
+  return (
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen name="Tabs" component={TabNavigation} options={{ headerShown: false }} />
+      <Drawer.Screen name="MenuScreen" component={MenuScreen} />
+    </Drawer.Navigator>
+  );
+};
+
 const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
@@ -119,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabNavigation;
+export default DrawerNavigation;
