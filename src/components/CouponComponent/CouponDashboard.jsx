@@ -1,12 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
+import axios from 'axios'; // Import Axios
 import Active from '../../assets/svg/Couponsvg/Active';
-import Paushed from '../../assets/svg/Couponsvg/Paushed'
+import Paused from '../../assets/svg/Couponsvg/Paushed';
 import Expire from '../../assets/svg/Couponsvg/Expire';
 
-
 const DashboardCard = ({ item }) => {
-  const isExpired = item.label === 'Expired';  // Check if it's the "Expired" card
+  const isExpired = item.label === 'Expired'; // Check if it's the "Expired" card
 
   return (
     <View style={[styles.card, isExpired && styles.expiredCard]}>
@@ -17,7 +17,7 @@ const DashboardCard = ({ item }) => {
       <View style={styles.cardContent}>
         <Text style={styles.mainValue}>{item.value}</Text>
 
-        {/* Display icon using emoji */}
+        {/* Display icon */}
         <View style={styles.iconContainer}>
           {item.icon}
         </View>
@@ -30,11 +30,33 @@ const DashboardCard = ({ item }) => {
 };
 
 const CouponDashboard = () => {
-  const dashboardData = [
-    { id: '1', label: 'Active', value: '47', additionalInfo: 'Draft (3)', icon: <Active /> },
-    { id: '2', label: 'Paushed', value: '352', additionalInfo: 'Archived (3)', icon: <Paushed /> },
-    { id: '3', label: 'Expired', value: '134.5k', additionalInfo: '+28%', icon: <Expire /> },
-  ];
+  const [dashboardData, setDashboardData] = useState([]); // State to store dashboard data
+  const [loading, setLoading] = useState(true); // State to manage loading spinner
+
+  useEffect(() => {
+    // Fetch coupon counts from API when component mounts
+    axios.get('https://cm-backend-yk2y.onrender.com/user/coupon-counts')
+      .then((response) => {
+        const data = response.data.counts;
+        // Prepare the data for rendering
+        const updatedData = [
+          { id: '1', label: 'Active', value: data.active.toString(), additionalInfo: 'Draft (3)', icon: <Active /> },
+          { id: '2', label: 'Paused', value: data.paused.toString(), additionalInfo: 'Archived (3)', icon: <Paused /> },
+          { id: '3', label: 'Expired', value: data.expired.toString(), additionalInfo: '+28%', icon: <Expire /> },
+        ];
+        setDashboardData(updatedData);
+        setLoading(false); // Stop loading
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setLoading(false); // Stop loading even if there’s an error
+      });
+  }, []);
+
+  // Show a loading spinner while the data is being fetched
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -54,6 +76,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#F5F5F5',
   },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   card: {
     flex: 1,
     backgroundColor: '#fff',
@@ -65,10 +92,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
   },
-  // Style for the "Expired" card to make it smaller or different
   expiredCard: {
-    flex: 0.5,  // You can reduce the flex to make it smaller
-    backgroundColor: '#f8f8f8',  // You can also change its background color to differentiate
+    flex: 0.5, // Smaller flex for the expired card
+    backgroundColor: '#f8f8f8',
   },
   cardContent: {
     flexDirection: 'row',

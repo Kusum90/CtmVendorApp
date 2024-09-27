@@ -148,9 +148,9 @@ const CustomDrawerContent = props => {
           <TouchableOpacity
             onPress={() =>
               handleSubItemPress('Coupons', 'Stack', {
-                screen: 'CouponNav', // Navigate to the parent navigator (CouponNav)
+                screen: 'CouponNav',
                 params: {
-                  screen: 'CouponScreen', // Target the CouponScreen inside CouponNav
+                  screen: 'CouponScreen',
                 },
               })
             }
