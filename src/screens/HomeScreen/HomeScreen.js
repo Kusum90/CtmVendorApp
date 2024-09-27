@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import Header from '../../utils/header'
+import SalesReport from '../../components/HomeScreen/SalesReport'
 
 const HomeScreen = () => {
   return (
     <View>
-      <Header />
+      <SalesReport/>
     </View>
   )
 }

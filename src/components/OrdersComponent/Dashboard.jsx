@@ -1,8 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import Active from '../../assets/svg/Couponsvg/Active';
-import Paushed from '../../assets/svg/Couponsvg/Paushed'
-import Expire from '../../assets/svg/Couponsvg/Expire';
+import Category from '../../assets/svg/Productsvg/Category';
+import Products from '../../assets/svg/Productsvg/Products'
+import Sales from '../../assets/svg/Productsvg/Sales';
+import TopSelling from '../../assets/svg/Productsvg/TopSelling';
+import LowStocks from '../../assets/svg/Productsvg/LowStocks';
+import NotInStock from '../../assets/svg/Productsvg/NotInStock';
+
 const DashboardCard = ({ item }) => {
   return (
     <View style={styles.card}>
@@ -25,11 +29,14 @@ const DashboardCard = ({ item }) => {
   );
 };
 
-const Coupondashboard = () => {
+const Dashboard = () => {
   const dashboardData = [
-    { id: '1', label: 'Active', value: '47', additionalInfo: 'Draft (3)', icon: <Active/> },  // Emoji for box
-    { id: '2', label: 'Paushed', value: '352', additionalInfo: 'Archived (3)', icon: <Paushed/> },  // Emoji for store
-    { id: '3', label: 'Expired', value: '134.5k', additionalInfo: '+28%', icon: <Expire/> },  // 
+    { id: '1', label: 'Completed', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
+    { id: '2', label: 'Processing', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
+    { id: '3', label: 'On Hold', value: '134.5k', additionalInfo: '+28%', icon: <Sales/> },  // Emoji for graph
+    { id: '4', label: 'Shipped', value: '5', additionalInfo: '+13%', icon: <TopSelling/> },  // Emoji for trophy
+    { id: '5', label: 'Refunded', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
+    { id: '6', label: 'Cancelled', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
   ];
 
   return (
@@ -101,4 +108,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Coupondashboard;
+export default Dashboard;

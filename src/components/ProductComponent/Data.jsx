@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import Upload from '../assets/svg/Productsvg/Upload';
-import Edit from '../assets/svg/Productsvg/Edit';
-import Delete from '../assets/svg/Productsvg/Delete';
+import Edit from '../../assets/svg/Productsvg/Edit';
+import Delete from '../../assets/svg/Productsvg/Delete';
 
 // Main Screen Component
 const Data = () => {
@@ -18,7 +17,7 @@ const Data = () => {
       type: 'Sale',
       views: 10,
       date: '24.12.2020',
-      image: require('../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
+      image: require('../../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
     },
     {
       id: 2,
@@ -31,7 +30,7 @@ const Data = () => {
       type: 'Sale',
       views: 15,
       date: '25.12.2020',
-      image: require('../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
+      image: require('../../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
     },
     {
       id: 3,
@@ -44,7 +43,7 @@ const Data = () => {
       type: 'Sale',
       views: 15,
       date: '25.12.2020',
-      image: require('../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
+      image: require('../../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
     },
     {
       id: 4,
@@ -57,7 +56,7 @@ const Data = () => {
       type: 'Sale',
       views: 15,
       date: '25.12.2020',
-      image: require('../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
+      image: require('../../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
     },
     {
       id: 5,
@@ -70,7 +69,7 @@ const Data = () => {
       type: 'Sale',
       views: 15,
       date: '25.12.2020',
-      image: require('../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
+      image: require('../../assets/images/ProductScreenImages/product1.png'), // Change this path to actual image
     },
     // Add more data as needed
   ];

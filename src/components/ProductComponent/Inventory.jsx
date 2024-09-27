@@ -1,10 +1,14 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Plus from '../assets/svg/Productsvg/Plus';
-import Upload from '../assets/svg/Productsvg/Upload';
-import Download from '../assets/svg/Productsvg/Download';
+
+import { useNavigation } from '@react-navigation/native';
+
+import Plus from '../../assets/svg/Productsvg/Plus';
+import Upload from '../../assets/svg/Productsvg/Upload';
+import Download from '../../assets/svg/Productsvg/Download';
 
 const Inventory = () => {
+    const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Inventory Title */}
@@ -13,7 +17,7 @@ const Inventory = () => {
       {/* Buttons on the right */}
       <View style={styles.buttonsContainer}>
         {/* Green Button */}
-        <TouchableOpacity style={[styles.iconButton, styles.greenButton]}>
+        <TouchableOpacity style={[styles.iconButton, styles.greenButton]} onPress={()=>navigation.navigate('ProductDetails')}>
         <Plus width={50} height={50} />  
         </TouchableOpacity>
 

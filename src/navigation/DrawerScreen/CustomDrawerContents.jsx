@@ -42,8 +42,9 @@ const CustomDrawerContent = (props) => {
     setActiveItem(isOpen ? '' : section);
   };
 
-  const handleSubItemPress = (section) => {
+  const handleSubItemPress = (section, route) => {
     setActiveItem(section);
+    props.navigation.navigate(route);  // Navigate to the specified route
   };
 
   return (
@@ -89,7 +90,7 @@ const CustomDrawerContent = (props) => {
       {isShopOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Products')}
+            onPress={() => handleSubItemPress('Products', 'ProductsScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Products' ? styles.activeMenuItem : null,
@@ -101,7 +102,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Orders')}
+            onPress={() => handleSubItemPress('Orders', 'OrdersScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Orders' ? styles.activeMenuItem : null,
@@ -113,7 +114,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Coupons')}
+            onPress={() => handleSubItemPress('Coupons', 'CouponScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Coupons' ? styles.activeMenuItem : null,
@@ -125,7 +126,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Customer')}
+            onPress={() => handleSubItemPress('Customer', 'CustomerScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Customer' ? styles.activeMenuItem : null,
@@ -137,7 +138,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Refunds')}
+            onPress={() => handleSubItemPress('Refunds', 'RefundsScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Refunds' ? styles.activeMenuItem : null,
@@ -149,7 +150,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('AddToStore')}
+            onPress={() => handleSubItemPress('AddToStore', 'AddToStoreScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'AddToStore' ? styles.activeMenuItem : null,
@@ -182,7 +183,7 @@ const CustomDrawerContent = (props) => {
       {isFinanceOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Payments')}
+            onPress={() => handleSubItemPress('Payments', 'PaymentsScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Payments' ? styles.activeMenuItem : null,
@@ -194,7 +195,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('LedgerBook')}
+            onPress={() => handleSubItemPress('LedgerBook', 'LedgerBookScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'LedgerBook' ? styles.activeMenuItem : null,
@@ -206,7 +207,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Reports')}
+            onPress={() => handleSubItemPress('Reports', 'ReportsScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Reports' ? styles.activeMenuItem : null,
@@ -239,7 +240,7 @@ const CustomDrawerContent = (props) => {
       {isSocialOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Followers')}
+            onPress={() => handleSubItemPress('Followers', 'FollowersScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'Followers' ? styles.activeMenuItem : null,
@@ -251,7 +252,7 @@ const CustomDrawerContent = (props) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('ChatBox')}
+            onPress={() => handleSubItemPress('ChatBox', 'ChatBoxScreen')}
             style={[
               styles.subMenuItem,
               activeItem === 'ChatBox' ? styles.activeMenuItem : null,
@@ -268,6 +269,7 @@ const CustomDrawerContent = (props) => {
       <TouchableOpacity
       onPress={() => {
         setActiveItem('Setting');
+        props.navigation.navigate('SettingScreenNav');
       }}
         style={[
           styles.menuItem,

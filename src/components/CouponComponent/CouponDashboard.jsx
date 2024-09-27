@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import Category from '../../assets/svg/Productsvg/category';
-import Products from '../../assets/svg/Productsvg/Products';
-import Sales from '../../assets/svg/Productsvg/Sales';
-import TopSelling from '../../assets/svg/Productsvg/TopSelling';
-import LowStocks from '../../assets/svg/Productsvg/LowStocks';
-import NotInStock from '../../assets/svg/Productsvg/NotInStock';
+import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import Active from '../../assets/svg/Couponsvg/Active';
+import Paushed from '../../assets/svg/Couponsvg/Paushed'
+import Expire from '../../assets/svg/Couponsvg/Expire';
+
 
 const DashboardCard = ({ item }) => {
+  const isExpired = item.label === 'Expired';  // Check if it's the "Expired" card
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isExpired && styles.expiredCard]}>
       {/* Display label at the top */}
       <Text style={styles.label}>{item.label}</Text>
 
@@ -19,7 +19,7 @@ const DashboardCard = ({ item }) => {
 
         {/* Display icon using emoji */}
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>{item.icon}</Text>
+          {item.icon}
         </View>
       </View>
 
@@ -29,27 +29,21 @@ const DashboardCard = ({ item }) => {
   );
 };
 
-const Dashboard = () => {
+const CouponDashboard = () => {
   const dashboardData = [
-    { id: '1', label: 'Completed', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
-    { id: '2', label: 'Processing', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
-    { id: '3', label: 'On Hold', value: '134.5k', additionalInfo: '+28%', icon: <Sales/> },  // Emoji for graph
-    { id: '4', label: 'Shipped', value: '5', additionalInfo: '+13%', icon: <TopSelling/> },  // Emoji for trophy
-    { id: '5', label: 'Refunded', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
-    { id: '6', label: 'Cancelled', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
+    { id: '1', label: 'Active', value: '47', additionalInfo: 'Draft (3)', icon: <Active /> },
+    { id: '2', label: 'Paushed', value: '352', additionalInfo: 'Archived (3)', icon: <Paushed /> },
+    { id: '3', label: 'Expired', value: '134.5k', additionalInfo: '+28%', icon: <Expire /> },
   ];
 
   return (
     <ScrollView style={styles.container}>
-
-    
       <FlatList
         data={dashboardData}
         numColumns={2}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DashboardCard item={item} />}
       />
-    
     </ScrollView>
   );
 };
@@ -64,7 +58,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     borderRadius: 12,
-    // padding: 3,
     margin: 8,
     elevation: 2,
     shadowColor: '#000',
@@ -72,40 +65,39 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
   },
+  // Style for the "Expired" card to make it smaller or different
+  expiredCard: {
+    flex: 0.5,  // You can reduce the flex to make it smaller
+    backgroundColor: '#f8f8f8',  // You can also change its background color to differentiate
+  },
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 10,
-    marginLeft:2
+    marginLeft: 2,
   },
   label: {
     fontSize: 16,
     color: '#666',
     fontWeight: '500',
-    marginLeft:2
+    marginLeft: 2,
   },
   mainValue: {
     fontSize: 26,
     fontWeight: 'bold',
     color: '#333',
-    marginLeft:2
+    marginLeft: 2,
   },
   iconContainer: {
     borderRadius: 50,
-    // padding: 10,
-  },
-  icon: {
-    fontSize: 24,
-    marginRight:3
-    
   },
   additionalInfo: {
     fontSize: 12,
     color: '#373737',
     marginTop: 1,
-    marginLeft:7
+    marginLeft: 7,
   },
 });
 
-export default Dashboard;
+export default CouponDashboard;

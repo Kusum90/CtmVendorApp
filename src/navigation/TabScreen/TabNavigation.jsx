@@ -14,6 +14,12 @@ import ProductIcon from '../../assets/svg/BottomTabSVG/ProductIcon';
 import OrderIcon from '../../assets/svg/BottomTabSVG/OrderIcon';
 import ChatIcon from '../../assets/svg/BottomTabSVG/ChatIcon';
 import CustomDrawerContent from '../DrawerScreen/CustomDrawerContents';
+import ProductScreen from '../../screens/ProductScreen/ProductScreen';
+import ProductScreenNav from '../StackScreen/ProductScreenNav';
+import OrderScreenNav from '../StackScreen/OrderScreenNav';
+import StoreSettings from '../../components/SettingComponent/StoreSettings';
+import SettingScreen from '../../screens/SettingScreen/SettingScreen';
+import SettingScreenNav from '../StackScreen/SettingScreenNav';
 
 // Create bottom tab navigator
 const Tab = createBottomTabNavigator();
@@ -56,8 +62,8 @@ const TabNavigation = ({ navigation }) => {
       />
       
       <Tab.Screen
-        name="Products"
-        component={NotificationScreen}
+        name="ProductScreenNav"
+        component={ProductScreenNav}
         options={{
           tabBarLabel: 'Products',
           tabBarIcon: ({ focused }) => (
@@ -80,8 +86,8 @@ const TabNavigation = ({ navigation }) => {
         }}
       />
       <Tab.Screen
-        name="Order"
-        component={MyAccountScreen}
+        name="OrderScreenNav"
+        component={OrderScreenNav}
         options={{
           tabBarLabel: 'Orders',
           tabBarIcon: ({ focused }) => (
@@ -112,7 +118,8 @@ const DrawerNavigation = () => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Tabs" component={TabNavigation} options={{ headerShown: false }} />
-      <Drawer.Screen name="MenuScreen" component={MenuScreen} />
+      <Drawer.Screen name="SettingScreenNav" component={SettingScreenNav} options={{ headerShown: false }} />
+      
     </Drawer.Navigator>
   );
 };

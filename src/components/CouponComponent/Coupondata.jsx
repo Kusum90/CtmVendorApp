@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'rea
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
 
+
 // Main Screen Component
 const Coupondata = () => {
   const inventoryData = [

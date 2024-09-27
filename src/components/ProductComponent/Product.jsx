@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import Category from '../assets/svg/Productsvg/category';
-import Products from '../assets/svg/Productsvg/Products';
-import Sales from '../assets/svg/Productsvg/Sales';
-import TopSelling from '../assets/svg/Productsvg/TopSelling';
-import LowStocks from '../assets/svg/Productsvg/LowStocks';
-import NotInStock from '../assets/svg/Productsvg/NotInStock';
+import Category from '../../assets/svg/Productsvg/Category';
+import Products from '../../assets/svg/Productsvg/Products'
+import Sales from '../../assets/svg/Productsvg/Sales';
+import TopSelling from '../../assets/svg/Productsvg/TopSelling';
+import LowStocks from '../../assets/svg/Productsvg/LowStocks';
+import NotInStock from '../../assets/svg/Productsvg/NotInStock';
 
 const DashboardCard = ({ item }) => {
   return (
@@ -33,8 +33,8 @@ const Product = () => {
   const dashboardData = [
     { id: '1', label: 'Category', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
     { id: '2', label: 'Products', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
-    { id: '3', label: 'Sales', value: '134.5k', additionalInfo: '+28%', icon: <Sales/> },  // Emoji for graph
-    { id: '4', label: 'Top Selling', value: '5', additionalInfo: '+13%', icon: <TopSelling/> },  // Emoji for trophy
+    // { id: '3', label: 'Sales', value: '134.5k', additionalInfo: '+28%', icon: <Sales/> },  // Emoji for graph
+    // { id: '4', label: 'Top Selling', value: '5', additionalInfo: '+13%', icon: <TopSelling/> },  // Emoji for trophy
     { id: '5', label: 'Low Stocks', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
     { id: '6', label: 'Not In Stock', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
   ];
