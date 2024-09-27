@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {DrawerContentScrollView} from '@react-navigation/drawer';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 // Use RefundIcon for all icons (you can replace it with your actual SVG file)
 import ShopIcon from '../../assets/svg/DrawerSVG/ShopIcon';
@@ -27,8 +27,8 @@ import SupportIcon from '../../assets/svg/DrawerSVG/SupportIcon';
 
 import ArrowIcon from '../../assets/svg/DrawerSVG/ArrowIcon';
 
-const CustomDrawerContent = (props) => {
-  const { top } = useSafeAreaInsets();
+const CustomDrawerContent = props => {
+  const {top} = useSafeAreaInsets();
   const paddingTop = top > 0 ? top + 10 : 15;
 
   const [activeItem, setActiveItem] = useState('');
@@ -42,13 +42,13 @@ const CustomDrawerContent = (props) => {
     setActiveItem(isOpen ? '' : section);
   };
 
-  const handleSubItemPress = (section, route) => {
-    setActiveItem(section);
-    props.navigation.navigate(route);  // Navigate to the specified route
+  const handleSubItemPress = (section, route, params = {}) => {
+    setActiveItem(section); // Set active item
+    props.navigation.navigate(route, params); // Navigate to the specified route with params
   };
 
   return (
-    <DrawerContentScrollView {...props} style={{ paddingTop }}>
+    <DrawerContentScrollView {...props} style={{paddingTop}}>
       {/* Header Section */}
       <View style={styles.drawerHeader}>
         <Text style={styles.drawerTitle}>MAIN MENU</Text>
@@ -64,8 +64,16 @@ const CustomDrawerContent = (props) => {
           styles.menuItem,
           activeItem === 'Home' ? styles.activeMenuItem : null,
         ]}>
-        <ArrowIcon color={activeItem === 'Home' ? 'green' : 'black'} width={30} height={30} />
-        <Text style={[styles.menuLabel, activeItem === 'Home' ? styles.activeMenuLabel : null]}>
+        <ArrowIcon
+          color={activeItem === 'Home' ? 'green' : 'black'}
+          width={30}
+          height={30}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Home' ? styles.activeMenuLabel : null,
+          ]}>
           Home
         </Text>
       </TouchableOpacity>
@@ -77,8 +85,16 @@ const CustomDrawerContent = (props) => {
           styles.menuItem,
           activeItem === 'Shop' ? styles.activeMenuItem : null,
         ]}>
-        <ShopIcon color={activeItem === 'Shop' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Shop' ? styles.activeMenuLabel : null]}>
+        <ShopIcon
+          color={activeItem === 'Shop' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Shop' ? styles.activeMenuLabel : null,
+          ]}>
           Shop
         </Text>
         <ArrowIcon
@@ -90,37 +106,68 @@ const CustomDrawerContent = (props) => {
       {isShopOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Products', 'ProductsScreen')}
+            onPress={() => handleSubItemPress('Products', 'ProductScreenNav')}
             style={[
               styles.subMenuItem,
               activeItem === 'Products' ? styles.activeMenuItem : null,
             ]}>
-            <ProductIcon color={activeItem === 'Products' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Products' ? styles.activeMenuLabel : null]}>
+            <ProductIcon
+              color={activeItem === 'Products' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Products' ? styles.activeMenuLabel : null,
+              ]}>
               Products
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Orders', 'OrdersScreen')}
+            onPress={() => handleSubItemPress('Orders', 'OrderScreenNav')}
             style={[
               styles.subMenuItem,
               activeItem === 'Orders' ? styles.activeMenuItem : null,
             ]}>
-            <OrderIcon color={activeItem === 'Orders' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Orders' ? styles.activeMenuLabel : null]}>
+            <OrderIcon
+              color={activeItem === 'Orders' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Orders' ? styles.activeMenuLabel : null,
+              ]}>
               Orders
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Coupons', 'CouponScreen')}
+            onPress={() =>
+              handleSubItemPress('Coupons', 'Stack', {
+                screen: 'CouponNav', // Navigate to the parent navigator (CouponNav)
+                params: {
+                  screen: 'CouponScreen', // Target the CouponScreen inside CouponNav
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'Coupons' ? styles.activeMenuItem : null,
             ]}>
-            <CouponIcon color={activeItem === 'Coupons' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Coupons' ? styles.activeMenuLabel : null]}>
+            <CouponIcon
+              color={activeItem === 'Coupons' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Coupons' ? styles.activeMenuLabel : null,
+              ]}>
               Coupons
             </Text>
           </TouchableOpacity>
@@ -131,8 +178,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'Customer' ? styles.activeMenuItem : null,
             ]}>
-            <CustomerIcon color={activeItem === 'Customer' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Customer' ? styles.activeMenuLabel : null]}>
+            <CustomerIcon
+              color={activeItem === 'Customer' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Customer' ? styles.activeMenuLabel : null,
+              ]}>
               Customer
             </Text>
           </TouchableOpacity>
@@ -143,8 +198,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'Refunds' ? styles.activeMenuItem : null,
             ]}>
-            <RefundIcon color={activeItem === 'Refunds' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Refunds' ? styles.activeMenuLabel : null]}>
+            <RefundIcon
+              color={activeItem === 'Refunds' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Refunds' ? styles.activeMenuLabel : null,
+              ]}>
               Refunds
             </Text>
           </TouchableOpacity>
@@ -155,8 +218,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'AddToStore' ? styles.activeMenuItem : null,
             ]}>
-            <AddToMyStoreIcon color={activeItem === 'AddToStore' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'AddToStore' ? styles.activeMenuLabel : null]}>
+            <AddToMyStoreIcon
+              color={activeItem === 'AddToStore' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'AddToStore' ? styles.activeMenuLabel : null,
+              ]}>
               Add To My Store
             </Text>
           </TouchableOpacity>
@@ -165,13 +236,23 @@ const CustomDrawerContent = (props) => {
 
       {/* Finance Section */}
       <TouchableOpacity
-        onPress={() => handleSectionPress('Finance', setFinanceOpen, isFinanceOpen)}
+        onPress={() =>
+          handleSectionPress('Finance', setFinanceOpen, isFinanceOpen)
+        }
         style={[
           styles.menuItem,
           activeItem === 'Finance' ? styles.activeMenuItem : null,
         ]}>
-        <FinanceIcon color={activeItem === 'Finance' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Finance' ? styles.activeMenuLabel : null]}>
+        <FinanceIcon
+          color={activeItem === 'Finance' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Finance' ? styles.activeMenuLabel : null,
+          ]}>
           Finance
         </Text>
         <ArrowIcon
@@ -188,8 +269,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'Payments' ? styles.activeMenuItem : null,
             ]}>
-            <PaymentsIcon color={activeItem === 'Payments' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Payments' ? styles.activeMenuLabel : null]}>
+            <PaymentsIcon
+              color={activeItem === 'Payments' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Payments' ? styles.activeMenuLabel : null,
+              ]}>
               Payments
             </Text>
           </TouchableOpacity>
@@ -200,8 +289,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'LedgerBook' ? styles.activeMenuItem : null,
             ]}>
-            <LedgerBookIcon color={activeItem === 'LedgerBook' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'LedgerBook' ? styles.activeMenuLabel : null]}>
+            <LedgerBookIcon
+              color={activeItem === 'LedgerBook' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'LedgerBook' ? styles.activeMenuLabel : null,
+              ]}>
               Ledger Book
             </Text>
           </TouchableOpacity>
@@ -212,8 +309,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'Reports' ? styles.activeMenuItem : null,
             ]}>
-            <ReportIcon color={activeItem === 'Reports' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Reports' ? styles.activeMenuLabel : null]}>
+            <ReportIcon
+              color={activeItem === 'Reports' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Reports' ? styles.activeMenuLabel : null,
+              ]}>
               Reports
             </Text>
           </TouchableOpacity>
@@ -222,13 +327,23 @@ const CustomDrawerContent = (props) => {
 
       {/* Social Section */}
       <TouchableOpacity
-        onPress={() => handleSectionPress('Social', setSocialOpen, isSocialOpen)}
+        onPress={() =>
+          handleSectionPress('Social', setSocialOpen, isSocialOpen)
+        }
         style={[
           styles.menuItem,
           activeItem === 'Social' ? styles.activeMenuItem : null,
         ]}>
-        <SocialIcon color={activeItem === 'Social' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Social' ? styles.activeMenuLabel : null]}>
+        <SocialIcon
+          color={activeItem === 'Social' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Social' ? styles.activeMenuLabel : null,
+          ]}>
           Social
         </Text>
         <ArrowIcon
@@ -245,8 +360,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'Followers' ? styles.activeMenuItem : null,
             ]}>
-            <FollowersIcon color={activeItem === 'Followers' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'Followers' ? styles.activeMenuLabel : null]}>
+            <FollowersIcon
+              color={activeItem === 'Followers' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Followers' ? styles.activeMenuLabel : null,
+              ]}>
               Followers
             </Text>
           </TouchableOpacity>
@@ -257,8 +380,16 @@ const CustomDrawerContent = (props) => {
               styles.subMenuItem,
               activeItem === 'ChatBox' ? styles.activeMenuItem : null,
             ]}>
-            <ChatIcon color={activeItem === 'ChatBox' ? 'green' : 'black'} width={18} height={18} />
-            <Text style={[styles.subMenuLabel, activeItem === 'ChatBox' ? styles.activeMenuLabel : null]}>
+            <ChatIcon
+              color={activeItem === 'ChatBox' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'ChatBox' ? styles.activeMenuLabel : null,
+              ]}>
               Chat Box
             </Text>
           </TouchableOpacity>
@@ -267,16 +398,29 @@ const CustomDrawerContent = (props) => {
 
       {/* Setting Section */}
       <TouchableOpacity
-      onPress={() => {
-        setActiveItem('Setting');
-        props.navigation.navigate('SettingScreenNav');
-      }}
+        onPress={() => {
+          setActiveItem('Setting');
+          props.navigation.navigate('Stack', {
+            screen: 'SettingsScreen',
+            params: {
+              screen: 'StoreSettings',
+            },
+          });
+        }}
         style={[
           styles.menuItem,
           activeItem === 'Setting' ? styles.activeMenuItem : null,
         ]}>
-        <SettingIcon color={activeItem === 'Setting' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Setting' ? styles.activeMenuLabel : null]}>
+        <SettingIcon
+          color={activeItem === 'Setting' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Setting' ? styles.activeMenuLabel : null,
+          ]}>
           Setting
         </Text>
       </TouchableOpacity>
@@ -291,8 +435,16 @@ const CustomDrawerContent = (props) => {
           styles.menuItem,
           activeItem === 'Support' ? styles.activeMenuItem : null,
         ]}>
-        <SupportIcon color={activeItem === 'Support' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Support' ? styles.activeMenuLabel : null]}>
+        <SupportIcon
+          color={activeItem === 'Support' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Support' ? styles.activeMenuLabel : null,
+          ]}>
           Support
         </Text>
       </TouchableOpacity>
@@ -307,12 +459,19 @@ const CustomDrawerContent = (props) => {
           styles.menuItem,
           activeItem === 'Logout' ? styles.activeMenuItem : null,
         ]}>
-        <LogoutIcon color={activeItem === 'Logout' ? 'green' : 'black'} width={20} height={20} />
-        <Text style={[styles.menuLabel, activeItem === 'Logout' ? styles.activeMenuLabel : null]}>
+        <LogoutIcon
+          color={activeItem === 'Logout' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Logout' ? styles.activeMenuLabel : null,
+          ]}>
           Logout
         </Text>
       </TouchableOpacity>
-
     </DrawerContentScrollView>
   );
 };
@@ -345,7 +504,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   arrowOpen: {
-    transform: [{ rotate: '180deg' }],
+    transform: [{rotate: '180deg'}],
     marginLeft: 'auto',
   },
   arrowClosed: {

@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // For dropdown
+import { ScrollView } from 'react-native-gesture-handler';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
 const StoreSettings = () => {
+const navigation = useNavigation();
+
   const [storeName, setStoreName] = useState('');
   const [storeSlug, setStoreSlug] = useState('');
   const [storeEmail, setStoreEmail] = useState('');
@@ -16,7 +21,7 @@ const StoreSettings = () => {
     const newErrors = {};
 
     if (!storeName) newErrors.storeName = 'Store Name is required';
-    if (!storeSlug) newErrors.storeSlug = 'Store Slug is required';
+    // if (!storeSlug) newErrors.storeSlug = 'Store Slug is required';
     if (!storeEmail) newErrors.storeEmail = 'Store Email is required';
     if (!storePhone) newErrors.storePhone = 'Store Phone is required';
 
@@ -32,10 +37,11 @@ const StoreSettings = () => {
     } else {
       console.log("Validation failed");
     }
+    navigation.navigate('LocationScreen')
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
         <Text style={styles.heading}>Store Settings</Text>
@@ -160,7 +166,7 @@ const StoreSettings = () => {
           <Text style={styles.saveButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

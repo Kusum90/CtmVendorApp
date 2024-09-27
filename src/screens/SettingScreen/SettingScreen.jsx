@@ -4,9 +4,9 @@ import { ScrollView } from 'react-native-gesture-handler'
 
 const SettingScreen = () => {
   return (
-    <ScrollView>
-      
-    </ScrollView>
+    <View>
+      <Text>gygughjghhj</Text>
+    </View>
   )
 }
 

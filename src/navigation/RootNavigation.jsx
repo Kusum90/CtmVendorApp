@@ -1,18 +1,21 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import {
-    NavigationContainer,
-    getFocusedRouteNameFromRoute,
-  } from '@react-navigation/native';
-import TabNavigation from './TabScreen/TabNavigation'
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DrawerNavigation from './TabScreen/TabNavigation';
+import StackNavigation from './StackScreen/StackNavigation';
+
+const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
   return (
     <NavigationContainer>
-      <DrawerNavigation />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* DrawerNavigation which includes the TabNavigation */}
+        <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} />
+        <Stack.Screen name="Stack" component={StackNavigation} />
+      </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
-export default RootNavigation
+export default RootNavigation;

@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import OrderScreen from '../../screens/OrdersScreen/OrderScreen';
-import StoreSettings from '../../components/SettingComponent/StoreSettings';
-import LocationScreen from '../../components/SettingComponent/LocationScreen';
-import PayScreen from '../../components/SettingComponent/PayScreen';
+import OrderScreen from '../../../screens/OrdersScreen/OrderScreen';
+import StoreSettings from '../../../components/SettingComponent/StoreSettings';
+import LocationScreen from '../../../components/SettingComponent/LocationScreen';
+import PayScreen from '../../../components/SettingComponent/PayScreen';
 
 
 const Stack = createNativeStackNavigator();

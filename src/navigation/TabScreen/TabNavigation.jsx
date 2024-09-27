@@ -15,11 +15,11 @@ import OrderIcon from '../../assets/svg/BottomTabSVG/OrderIcon';
 import ChatIcon from '../../assets/svg/BottomTabSVG/ChatIcon';
 import CustomDrawerContent from '../DrawerScreen/CustomDrawerContents';
 import ProductScreen from '../../screens/ProductScreen/ProductScreen';
-import ProductScreenNav from '../StackScreen/ProductScreenNav';
-import OrderScreenNav from '../StackScreen/OrderScreenNav';
+import ProductScreenNav from '../StackScreen/AllScreen/ProductScreenNav';
+import OrderScreenNav from '../StackScreen/AllScreen/OrderScreenNav';
 import StoreSettings from '../../components/SettingComponent/StoreSettings';
 import SettingScreen from '../../screens/SettingScreen/SettingScreen';
-import SettingScreenNav from '../StackScreen/SettingScreenNav';
+import SettingScreenNav from '../StackScreen/AllScreen/SettingScreenNav';
 
 // Create bottom tab navigator
 const Tab = createBottomTabNavigator();
@@ -118,7 +118,7 @@ const DrawerNavigation = () => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Tabs" component={TabNavigation} options={{ headerShown: false }} />
-      <Drawer.Screen name="SettingScreenNav" component={SettingScreenNav} options={{ headerShown: false }} />
+      {/* <Drawer.Screen name="Settings" component={TabNavigation} /> */}
       
     </Drawer.Navigator>
   );
