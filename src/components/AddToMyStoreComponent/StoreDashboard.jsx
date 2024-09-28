@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import Active from '../../assets/svg/Couponsvg/Active';
-import Paushed from '../../assets/svg/Couponsvg/Paushed'
+import Category from '../../assets/svg/Productsvg/Category';
 
 const DashboardCard = ({ item }) => {
   return (
@@ -18,17 +17,13 @@ const DashboardCard = ({ item }) => {
           <Text style={styles.icon}>{item.icon}</Text>
         </View>
       </View>
-
-      {/* Additional Info below */}
-      <Text style={styles.additionalInfo}>{item.additionalInfo}</Text>
     </View>
   );
 };
 
-const RefundDashboard = () => {
+const StoreDashboard = () => {
   const dashboardData = [
-    { id: '1', label: 'Total Refund Item', value: '47', additionalInfo: 'Draft (3)', icon: <Active/> },  // Emoji for box
-    { id: '2', label: 'Total Refunds Amount', value: '352', additionalInfo: 'Archived (3)', icon: <Paushed/> },  // Emoji for store
+    { id: '1', label: 'Total Product', value: '47', icon: <Category/> },  // Emoji for box
    
   ];
 
@@ -50,11 +45,11 @@ const RefundDashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 5,
     backgroundColor: '#F5F5F5',
   },
   card: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: '#fff',
     borderRadius: 12,
     // padding: 3,
@@ -68,7 +63,7 @@ const styles = StyleSheet.create({
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    // alignItems: 'center',
     marginTop: 10,
     marginLeft:2
   },
@@ -79,18 +74,21 @@ const styles = StyleSheet.create({
     marginLeft:2
   },
   mainValue: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
     marginLeft:2
   },
   iconContainer: {
     borderRadius: 50,
+    marginBottom:8,
     // padding: 10,
   },
   icon: {
-    fontSize: 24,
-    marginRight:3
+    fontSize: 15,
+    marginRight:10,
+    marginLeft:20,
+    marginBottom:5,
     
   },
   additionalInfo: {
@@ -101,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RefundDashboard;
+export default StoreDashboard;

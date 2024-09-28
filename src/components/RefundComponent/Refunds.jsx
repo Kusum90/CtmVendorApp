@@ -1,22 +1,12 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Plus from '../../assets/svg/Productsvg/Plus';
-import Upload from '../../assets/svg/Productsvg/Upload';
 import Download from '../../assets/svg/Productsvg/Download';
 
-const Order = () => {
+const Refunds = () => {
   return (
     <View style={styles.container}>
-      {/* Title and Buttons on the same row */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.title}>Orders</Text>
-        <View style={styles.buttonsContainer}>
-          {/* Blue Button */}
-          <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
-            <Download width={50} height={50} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* Inventory Title */}
+      <Text style={styles.title}>Refunds</Text>
 
       {/* Filter and Search Section */}
       <View style={styles.filterContainer}>
@@ -43,26 +33,21 @@ const Order = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#373737',
-    marginBottom:20
+    color:'#373737'
+    // marginBottom: 3,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: 15,
   },
   iconButton: {
     width: 40,
@@ -100,4 +85,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Order;
+export default Refunds;
+

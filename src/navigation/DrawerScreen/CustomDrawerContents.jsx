@@ -173,7 +173,14 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Customer', 'CustomerScreen')}
+            onPress={() =>
+              handleSubItemPress('Customer', 'Stack', {
+                screen: 'CustomerNav',
+                params: {
+                  screen: 'CustomersScreen',
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'Customer' ? styles.activeMenuItem : null,
@@ -193,7 +200,14 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Refunds', 'RefundsScreen')}
+           onPress={() =>
+            handleSubItemPress('Refunds', 'Stack', {
+              screen: 'RefundNav',
+              params: {
+                screen: 'RefundScreen',
+              },
+            })
+          }
             style={[
               styles.subMenuItem,
               activeItem === 'Refunds' ? styles.activeMenuItem : null,
@@ -213,7 +227,14 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('AddToStore', 'AddToStoreScreen')}
+           onPress={() =>
+            handleSubItemPress('AddToStore', 'Stack', {
+              screen: 'AddToStoreNav',
+              params: {
+                screen: 'AddtomyStoreScreen',
+              },
+            })
+          }
             style={[
               styles.subMenuItem,
               activeItem === 'AddToStore' ? styles.activeMenuItem : null,

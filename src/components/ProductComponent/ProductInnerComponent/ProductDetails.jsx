@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-const ProductDetails = () => {
+const ProductDetails = ({ navigation }) => {
   const [productType, setProductType] = useState('');
   const [isCatalogue, setIsCatalogue] = useState(false);
   const [isVirtual, setIsVirtual] = useState(false);
@@ -27,6 +27,10 @@ const ProductDetails = () => {
   const [isSearchResultOnly, setIsSearchResultOnly] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
 
+  const handleNext = () => {
+    navigation.navigate('ProductInventoryScreen'); // Navigate to ProductInventoryScreen
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerCard}>
@@ -36,7 +40,6 @@ const ProductDetails = () => {
       <View style={styles.contentCard}>
         {/* Image Upload Section */}
         <View style={styles.imageUploadContainer}>
-          {/* Replace with actual image upload component */}
           <View style={styles.imagePlaceholder}>
             <Text style={styles.imagePlaceholderText}>Upload Image</Text>
           </View>
@@ -55,7 +58,6 @@ const ProductDetails = () => {
           style={styles.picker}
           onValueChange={(itemValue) => setProductType(itemValue)}>
           <Picker.Item label="Select Type" value="" />
-          {/* Add your product types here */}
           <Picker.Item label="Type 1" value="type1" />
           <Picker.Item label="Type 2" value="type2" />
         </Picker>
@@ -63,24 +65,15 @@ const ProductDetails = () => {
         {/* Checkboxes */}
         <View style={styles.checkboxContainer}>
           <View style={styles.checkboxItem}>
-            <Switch
-              value={isCatalogue}
-              onValueChange={setIsCatalogue}
-            />
+            <Switch value={isCatalogue} onValueChange={setIsCatalogue} />
             <Text>Catalogue</Text>
           </View>
           <View style={styles.checkboxItem}>
-            <Switch
-              value={isVirtual}
-              onValueChange={setIsVirtual}
-            />
+            <Switch value={isVirtual} onValueChange={setIsVirtual} />
             <Text>Virtual</Text>
           </View>
           <View style={styles.checkboxItem}>
-            <Switch
-              value={isDownloadable}
-              onValueChange={setIsDownloadable}
-            />
+            <Switch value={isDownloadable} onValueChange={setIsDownloadable} />
             <Text>Downloadable</Text>
           </View>
         </View>
@@ -99,7 +92,7 @@ const ProductDetails = () => {
           style={styles.input}
           value={salePrice}
           onChangeText={setSalePrice}
-          keyboardType="numeric" // Allow only numbers
+          keyboardType="numeric"
         />
 
         {/* Regular Price */}
@@ -136,115 +129,104 @@ const ProductDetails = () => {
           style={styles.picker}
           onValueChange={(itemValue) => setCategory(itemValue)}>
           <Picker.Item label="Select Category" value="" />
-          {/* Add your categories here */}
           <Picker.Item label="Category 1" value="category1" />
-          <Picker.Item label="Category 2" value="category2"/>
-  </Picker>
+          <Picker.Item label="Category 2" value="category2" />
+        </Picker>
 
-{/* Tags */}
-<Text style={styles.label}>Tags</Text>
-<TextInput
-  style={styles.input}
-  value={tags}
-  onChangeText={setTags}
-/>
+        {/* Tags */}
+        <Text style={styles.label}>Tags</Text>
+        <TextInput
+          style={styles.input}
+          value={tags}
+          onChangeText={setTags}
+        />
 
-{/* Category Visibility */}
-<Text style={styles.label}>Category Visibility</Text>
-<View style={styles.checkboxContainer}>
-  <View style={styles.checkboxItem}>
-    <Switch
-      value={isShopAndSearch}
-      onValueChange={setIsShopAndSearch}
-    />
-    <Text>Shop & Search Results</Text>
-  </View>
-  <View style={styles.checkboxItem}>
-    <Switch
-      value={isShopOnly}
-      onValueChange={setIsShopOnly}
-    />
-    <Text>Shop Only</Text>
-  </View>
-  <View style={styles.checkboxItem}>
-    <Switch
-      value={isSearchResultOnly}
-      onValueChange={setIsSearchResultOnly}
-    />
-    <Text>Search Result only</Text>
-  </View>
-  <View style={styles.checkboxItem}>
-    <Switch value={isHidden} onValueChange={setIsHidden} />
-    <Text>Hidden</Text>
-  </View>
-</View>
+        {/* Category Visibility */}
+        <Text style={styles.label}>Category Visibility</Text>
+        <View style={styles.checkboxContainer}>
+          <View style={styles.checkboxItem}>
+            <Switch value={isShopAndSearch} onValueChange={setIsShopAndSearch} />
+            <Text>Shop & Search Results</Text>
+          </View>
+          <View style={styles.checkboxItem}>
+            <Switch value={isShopOnly} onValueChange={setIsShopOnly} />
+            <Text>Shop Only</Text>
+          </View>
+          <View style={styles.checkboxItem}>
+            <Switch value={isSearchResultOnly} onValueChange={setIsSearchResultOnly} />
+            <Text>Search Result Only</Text>
+          </View>
+          <View style={styles.checkboxItem}>
+            <Switch value={isHidden} onValueChange={setIsHidden} />
+            <Text>Hidden</Text>
+          </View>
+        </View>
 
-{/* Next Button */}
-<TouchableOpacity style={styles.nextButton}>
-  <Text style={styles.nextButtonText}>Next</Text>
-</TouchableOpacity>
-</View>
-</ScrollView>
-);
+        {/* Next Button */}
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
-container: {
-flex: 1,
-padding: 10,
-},
-headerCard: {
-backgroundColor: 'white',
-padding: 16,
-marginBottom: 16,
-borderRadius: 8,
-shadowColor: '#000',
-shadowOffset: { width: 0, height: 2 },
-shadowOpacity: 0.2,
-shadowRadius: 2,
-elevation: 2,
-},
-header: {
-fontSize: 20,
-fontWeight: 'bold',
-},
-contentCard: {
-backgroundColor: 'white',
-padding: 16,
-borderRadius: 8,
-shadowColor: '#000',
-shadowOffset: { width: 0, height: 2 },
-shadowOpacity: 0.2,
-shadowRadius: 2,
-elevation: 2,
-},
-// ... (rest of the styles)
-imageUploadContainer: {
-flexDirection: 'row',
-alignItems: 'center',
-marginBottom: 16,
-},
-imagePlaceholder: {
-width: 80,
-height: 80,
-borderWidth: 1,
-borderColor: '#ccc',
-justifyContent: 'center',
-alignItems: 'center',
-marginRight: 16,
-},
-imagePlaceholderText: {
-color: '#aaa',
-},
-addButton: {
-backgroundColor: '#4CAF50', // Green color for add button
-width: 40,
-height: 40,
-borderRadius: 20,
-justifyContent: 'center',
-alignItems: 'center',
-marginLeft: 16,
-},
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  headerCard: {
+    backgroundColor: 'white',
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  contentCard: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  imageUploadContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  imagePlaceholder: {
+    width: 80,
+    height: 80,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  imagePlaceholderText: {
+    color: '#aaa',
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 16,
+  },
   addButtonText: {
     fontSize: 24,
     color: '#fff',
@@ -277,16 +259,15 @@ marginLeft: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  saveButton: {
+  nextButton: {
     backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 10,
-    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  saveButtonText: {
-    fontSize: 18,
+  nextButtonText: {
     color: '#fff',
+    fontSize: 18,
   },
 });
 

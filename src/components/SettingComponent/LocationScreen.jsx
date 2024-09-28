@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
-const LocationScreen = () => {
+const LocationScreen = ({ navigation }) => {  // Inject navigation prop
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [country, setCountry] = useState('');
@@ -9,13 +9,13 @@ const LocationScreen = () => {
   const [zip, setZip] = useState('');
 
   const handlePrevious = () => {
-    Alert.alert('Previous button clicked!');
+    navigation.navigate('StoreSetting');
     // Implement navigation to the previous screen if needed
   };
 
   const handleNext = () => {
-    Alert.alert('Next button clicked!');
-    // Implement navigation to the next screen if needed
+    // Navigate to the PayScreen
+    navigation.navigate('PayScreen');
   };
 
   return (
