@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const PoliciesScreen = () => {
+const PoliciesScreen = ({ navigation }) => { // Add navigation prop here
   const [shippingPolicy, setShippingPolicy] = useState('');
   const [refundPolicy, setRefundPolicy] = useState('');
   const [cancelPolicy, setCancelPolicy] = useState('');
 
   const handlePrevious = () => {
     Alert.alert('Navigating to the previous screen!');
-    // Implement navigation to the previous screen if needed
+    navigation.goBack(); // Navigate to the previous screen
   };
 
   const handleNext = () => {
-    Alert.alert('Navigating to the next screen!');
-    // Implement navigation to the next screen if needed
+    navigation.navigate('CustomerSupportScreen'); // Navigate to CustomerScreen
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
         <Text style={styles.heading}>Store Policies</Text>
@@ -25,8 +25,8 @@ const PoliciesScreen = () => {
 
       {/* Card for Policies Input Fields */}
       <View style={styles.card}>
-      <Text style={styles.subheading}>Policies Setting</Text>
-      <Text style={styles.label}>Policy Tab Label</Text>
+        <Text style={styles.subheading}>Policies Setting</Text>
+        <Text style={styles.label}>Policy Tab Label</Text>
         <TextInput
           style={styles.input}
           value={shippingPolicy}
@@ -76,7 +76,7 @@ const PoliciesScreen = () => {
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     color: '#373737',
     textAlign: 'left',
   },
-  subheading:{
+  subheading: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     color: '#373737',
-    fontWeight:'bold'
+    fontWeight: 'bold',
   },
   input: {
     borderWidth: 1,

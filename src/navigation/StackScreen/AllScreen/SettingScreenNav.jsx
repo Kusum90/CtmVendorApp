@@ -4,6 +4,10 @@ import OrderScreen from '../../../screens/OrdersScreen/OrderScreen';
 import StoreSettings from '../../../components/SettingComponent/StoreSettings';
 import LocationScreen from '../../../components/SettingComponent/LocationScreen';
 import PayScreen from '../../../components/SettingComponent/PayScreen';
+import PoliciesScreen from '../../../components/SettingComponent/PoliciesScreen';
+import CustomerSupportScreen from '../../../components/SettingComponent/CustomerSupportScreen';
+import StoreInvoiceScreen from '../../../components/SettingComponent/StoreInvoiceScreen';
+import SocialScreen from '../../../components/SettingComponent/SocialScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -26,6 +30,26 @@ function SettingScreenNav() {
           name="PayScreen" 
           component={PayScreen} 
           options={{ title: 'PayScreen' }} 
+        />
+        <Stack.Screen 
+          name="PoliciesScreen" 
+          component={PoliciesScreen} 
+          options={{ title: 'PoliciesScreen' }} 
+        />
+        <Stack.Screen 
+          name="CustomerSupportScreen" 
+          component={CustomerSupportScreen} 
+          options={{ title: 'CustomerSupportScreen' }} 
+        />
+         <Stack.Screen 
+          name="StoreInvoiceScreen" 
+          component={StoreInvoiceScreen} 
+          options={{ title: 'StoreInvoiceScreen' }} 
+        />
+         <Stack.Screen 
+          name="SocialScreen" 
+          component={SocialScreen} 
+          options={{ title: 'SocialScreen' }} 
         />
         
       </Stack.Navigator>

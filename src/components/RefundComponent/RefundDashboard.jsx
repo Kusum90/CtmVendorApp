@@ -1,9 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import Category from '../../assets/svg/Productsvg/Category';
-import Products from '../../assets/svg/Productsvg/Products';
-import LowStocks from '../../assets/svg/Productsvg/LowStocks';
-import NotInStock from '../../assets/svg/Productsvg/NotInStock';
+import Active from '../../assets/svg/Couponsvg/Active';
+import Paushed from '../../assets/svg/Couponsvg/Paushed'
 
 const DashboardCard = ({ item }) => {
   return (
@@ -27,18 +25,15 @@ const DashboardCard = ({ item }) => {
   );
 };
 
-const Dashboard = () => {
+const RefundDashboard = () => {
   const dashboardData = [
-    { id: '1', label: 'Completed', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
-    { id: '2', label: 'Processing', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
-    { id: '5', label: 'Refunded', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
-    { id: '6', label: 'Cancelled', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
+    { id: '1', label: 'Total Refund Item', value: '250', icon: <Active/> },  // Emoji for box
+    { id: '2', label: 'Total Refunds Amount', value: '34.4k', icon: <Paushed/> },  // Emoji for store
+   
   ];
 
   return (
     <ScrollView style={styles.container}>
-
-    
       <FlatList
         data={dashboardData}
         numColumns={2}
@@ -99,9 +94,9 @@ const styles = StyleSheet.create({
   additionalInfo: {
     fontSize: 12,
     color: '#373737',
-    marginTop: 1,
+    // marginTop: 1,
     marginLeft:7
   },
 });
 
-export default Dashboard;
+export default RefundDashboard;

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Dashboard from '../../components/OrdersComponent/Dashboard'
 import Order from '../../components/OrdersComponent/Order'
-import OrdersData from './OrdersData'
+import OrdersData from '../../components/OrdersComponent/OrdersData'
 import { ScrollView } from 'react-native-gesture-handler'
 
 

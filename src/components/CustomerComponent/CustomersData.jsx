@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
+import Seen from '../../assets/svg/Productsvg/Seen';
 
 // Main Screen Component
 const CustomersData = () => {
@@ -89,10 +90,7 @@ const CustomersData = () => {
             {/* Actions (Edit/Delete Buttons) */}
             <View style={styles.actionsContainer}>
               <TouchableOpacity style={styles.deleteButton}>
-              <Edit width={50} height={50} /> 
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton}>
-              <Delete width={50} height={50} /> 
+              <Seen width={50} height={50} /> 
               </TouchableOpacity>
             </View>
 

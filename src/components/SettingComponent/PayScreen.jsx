@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const PayScreen = () => {
   const [selectedMethod, setSelectedMethod] = useState('');
+  const navigation = useNavigation(); // Initialize navigation
 
   const paymentMethods = [
     { label: 'Choose Withdrawal Method', value: '' },
@@ -16,18 +18,11 @@ const PayScreen = () => {
 
   const handlePrevious = () => {
     Alert.alert('Navigating to the previous screen!');
-    // Implement navigation to the previous screen if needed
   };
 
   const handleNext = () => {
-    if (selectedMethod === '') {
-      Alert.alert('Please select a payment method!');
-    } else {
-    //   Alert.alert(Navigating to the next screen! Selected payment method: ${selectedMethod});
-    console.log('a');
-    
-      // Implement navigation to the next screen if needed
-    }
+      // Navigate to the Policies screen when "Next" is clicked
+      navigation.navigate('PoliciesScreen');
   };
 
   return (
@@ -89,7 +84,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     marginBottom: 8,
     color: '#373737',
-    fontWeight:'bold'
+    fontWeight: 'bold',
   },
   picker: {
     height: 50,
