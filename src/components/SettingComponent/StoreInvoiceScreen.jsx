@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
-const StoreInvoiceScreen = () => {
+const StoreInvoiceScreen = ({ navigation }) => {
   const [invoiceNoPrefix, setInvoiceNoPrefix] = useState('');
   const [invoiceNoSuffix, setInvoiceNoSuffix] = useState('');
   const [invoiceNoDigit, setInvoiceNoDigit] = useState('');
@@ -10,23 +10,19 @@ const StoreInvoiceScreen = () => {
   const [digitalSignature, setDigitalSignature] = useState('');
 
   const handlePrevious = () => {
-    Alert.alert('Navigating to the previous screen!');
-    // Implement navigation to the previous screen
+    navigation.goBack(); // Navigate back to the previous screen
   };
 
   const handleNext = () => {
-    Alert.alert('Navigating to the next screen!');
-    // Implement navigation to the next screen
+    navigation.navigate('SocialScreen'); // Navigate to SocialScreen
   };
 
   return (
-    <View style={styles.container}>
-      {/* Card for Heading */}
+    <ScrollView style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.heading}>Store Invoice</Text>
       </View>
 
-      {/* Card for Input Fields */}
       <View style={styles.card}>
         <Text style={styles.label}>Invoice No Prefix</Text>
         <TextInput
@@ -35,7 +31,6 @@ const StoreInvoiceScreen = () => {
           onChangeText={setInvoiceNoPrefix}
           placeholder=" "
         />
-
         <Text style={styles.label}>Invoice No Suffix</Text>
         <TextInput
           style={styles.input}
@@ -43,7 +38,6 @@ const StoreInvoiceScreen = () => {
           onChangeText={setInvoiceNoSuffix}
           placeholder=" "
         />
-
         <Text style={styles.label}>Invoice No Digit</Text>
         <TextInput
           style={styles.input}
@@ -52,7 +46,6 @@ const StoreInvoiceScreen = () => {
           placeholder=" "
           keyboardType="numeric"
         />
-
         <Text style={styles.label}>GST No.</Text>
         <TextInput
           style={styles.input}
@@ -60,7 +53,6 @@ const StoreInvoiceScreen = () => {
           onChangeText={setGstNo}
           placeholder=" "
         />
-
         <Text style={styles.label}>Disclaimer</Text>
         <TextInput
           style={styles.input}
@@ -70,7 +62,6 @@ const StoreInvoiceScreen = () => {
           multiline
           numberOfLines={4}
         />
-
         <Text style={styles.label}>Digital Signature</Text>
         <TextInput
           style={styles.input}
@@ -80,17 +71,15 @@ const StoreInvoiceScreen = () => {
         />
       </View>
 
-      {/* Navigation Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.navButton} onPress={handlePrevious}>
           <Text style={styles.buttonText}>Previous</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.navButton} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

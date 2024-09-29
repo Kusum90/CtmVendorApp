@@ -1,19 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Download from '../../assets/svg/Productsvg/Download';
+import Plus from '../../assets/svg/Productsvg/Plus';
 
 const Customer = () => {
   return (
     <View style={styles.container}>
-      {/* Inventory Title */}
-      <Text style={styles.title}>Coupons</Text>
-
-      {/* Buttons on the right */}
-      <View style={styles.buttonsContainer}>
-        {/* Blue Button */}
-        <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
-        <Download width={50} height={50} /> 
-        </TouchableOpacity>
+      {/* Title and Buttons on the same row */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Customer</Text>
       </View>
 
       {/* Filter and Search Section */}
@@ -41,20 +35,26 @@ const Customer = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#fff',
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 3,
+    color: '#373737',
+    marginBottom:20
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 15,
+    alignItems: 'center',
   },
   iconButton: {
     width: 40,
@@ -93,4 +93,3 @@ const styles = StyleSheet.create({
 });
 
 export default Customer;
-

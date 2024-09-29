@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const CustomerSupportScreen = () => {
+const CustomerSupportScreen = ({ navigation }) => {
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [country, setCountry] = useState('');
@@ -15,12 +16,11 @@ const CustomerSupportScreen = () => {
   };
 
   const handleNext = () => {
-    Alert.alert('Next button clicked!');
-    // Implement navigation to the next screen if needed
+    navigation.navigate('StoreInvoiceScreen'); // Navigate to StoreInvoiceScreen
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
         <Text style={styles.heading}>Customer Support</Text>
@@ -28,7 +28,7 @@ const CustomerSupportScreen = () => {
 
       {/* Card for Input Fields and Buttons */}
       <View style={styles.card}>
-      <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
           value={address1}
@@ -36,13 +36,13 @@ const CustomerSupportScreen = () => {
           placeholder=" Enter Email"
         />
         <Text style={styles.label}>Store Phone</Text>
-          <TextInput 
-            style={styles.input} 
-            value={storePhone} 
-            onChangeText={setStorePhone} 
-            placeholder="Enter Store Phone" 
-            keyboardType="phone-pad"
-          />
+        <TextInput
+          style={styles.input}
+          value={storePhone}
+          onChangeText={setStorePhone}
+          placeholder="Enter Store Phone"
+          keyboardType="phone-pad"
+        />
         <Text style={styles.label}>Address 1</Text>
         <TextInput
           style={styles.input}
@@ -94,7 +94,7 @@ const CustomerSupportScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
