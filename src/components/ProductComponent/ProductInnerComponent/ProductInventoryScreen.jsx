@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductInventoryScreen = ({ navigation }) => {
   const [sku, setSku] = useState('');
@@ -122,11 +123,11 @@ const ProductInventoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: wp(5),                   // Responsive padding
     backgroundColor: '#fff',
   },
   titleCard: {
-    padding: 20,
+    padding: wp(5),                   // Responsive padding
     borderRadius: 10,
     backgroundColor: '#f8f8f8',
     shadowColor: '#000',
@@ -134,10 +135,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 5,
-    marginBottom: 20,
+    marginBottom: hp(2.5),           // Responsive margin
   },
   inputCard: {
-    padding: 20,
+    padding: wp(5),                   // Responsive padding
     borderRadius: 10,
     backgroundColor: '#f8f8f8',
     shadowColor: '#000',
@@ -147,63 +148,63 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 24,
+    fontSize: FontSize(24),           // Responsive font size
     fontWeight: 'bold',
     textAlign: 'left',
     color: '#373737',
   },
   inputContainer: {
-    marginBottom: 15,
+    marginBottom: hp(1.5),           // Responsive margin
   },
   label: {
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: FontSize(16),           // Responsive font size
+    marginBottom: hp(0.5),            // Responsive margin
   },
   input: {
-    height: 40,
+    height: hp(5),                    // Responsive height
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
+    padding: wp(2.5),                 // Responsive padding
     borderRadius: 5,
   },
   statusContainer: {
-    marginBottom: 15,
+    marginBottom: hp(1.5),            // Responsive margin
   },
   checkboxRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: hp(1),              // Responsive margin
   },
   checkboxItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 20,
+    marginRight: wp(5),               // Responsive margin
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2),                // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),         // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),         // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(16),           // Responsive font size
     color: 'black',
   },
   buttonTextAdd: {
-    fontSize: 16,
+    fontSize: FontSize(16),           // Responsive font size
     color: '#fff',
   },
 });

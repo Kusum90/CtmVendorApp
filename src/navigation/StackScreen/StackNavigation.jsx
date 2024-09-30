@@ -10,6 +10,7 @@ import AddToMyStoreScreen from './AllScreen/AddToMyStoreScreenNav';
 import AddToMyStoreScreenNav from './AllScreen/AddToMyStoreScreenNav';
 
 import PaymentsScreenNav from './AllScreen/PaymentsScreenNav';
+import LedgerBookScreenNav from './AllScreen/LedgerBookScreenNav';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,7 @@ const StackNavigation = () => {
         <Stack.Screen name="RefundNav" component={RefundsScreenNav} />
         <Stack.Screen name="AddToStoreNav" component={AddToMyStoreScreenNav} />
         <Stack.Screen name="PaymentsScreenNav" component={PaymentsScreenNav} />
+        <Stack.Screen name="LedgerBookScreenNav" component={LedgerBookScreenNav} />
       </Stack.Navigator>
 
   );
