@@ -152,14 +152,17 @@ const ProductShippingScreen = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.previousButton}
+            onPress={() => navigation.goBack()} // Navigate to previous screen
+          >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('ProductTaxScreen')}>
-            {/* Navigate to ProductTaxScreen */}
-            <Text style={styles.buttonText}>Next</Text>
+            style={styles.addButton}
+            onPress={() => navigation.navigate('ProductTaxScreen')} // Navigate to next screen
+          >
+            <Text style={styles.buttonTextAdd}>Next</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -245,16 +248,27 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 16,
   },
-  button: {
-    width: 100,
-    height: 40,
-    borderRadius: 5,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
+  previousButton: {
+    backgroundColor: '#fff',
+    borderColor: '#28a745',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  addButton: {
+    backgroundColor: '#28a745',
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
   },
   buttonText: {
+    fontSize: 16,
+    color: 'black',
+  },
+  buttonTextAdd: {
     fontSize: 16,
     color: '#fff',
   },

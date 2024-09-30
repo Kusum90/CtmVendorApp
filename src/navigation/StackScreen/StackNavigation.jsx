@@ -9,6 +9,8 @@ import RefundsScreenNav from './AllScreen/RefundsScreenNav';
 import AddToMyStoreScreen from './AllScreen/AddToMyStoreScreenNav';
 import AddToMyStoreScreenNav from './AllScreen/AddToMyStoreScreenNav';
 
+import PaymentsScreenNav from './AllScreen/PaymentsScreenNav';
+
 const Stack = createNativeStackNavigator();
 
 const StackNavigation = () => {
@@ -21,6 +23,7 @@ const StackNavigation = () => {
         <Stack.Screen name="CustomerNav" component={CustomerScreenNav} />
         <Stack.Screen name="RefundNav" component={RefundsScreenNav} />
         <Stack.Screen name="AddToStoreNav" component={AddToMyStoreScreenNav} />
+        <Stack.Screen name="PaymentsScreenNav" component={PaymentsScreenNav} />
       </Stack.Navigator>
 
   );
