@@ -8,6 +8,8 @@ import {
   Switch,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { ScrollView } from 'react-native-gesture-handler';
+import axios from 'axios';
 
 const AddCoupon = () => {
   const [couponCode, setCouponCode] = useState('');
@@ -39,29 +41,87 @@ const AddCoupon = () => {
     { label: 'Category 3', value: 'category3' },
   ];
 
-  const handleSaveCoupon = () => {
-    console.log('Coupon Data:', {
-      couponCode,
-      description,
-      discountType,
-      couponAmount,
-      expiryDate,
-      allowFreeShipping,
-      showOnStore,
-      minimumSpend,
-      maximumSpend,
-      individualUseOnly,
-      excludeSaleItem,
-      selectedProducts,
-      excludedProducts,
-      selectedCategories,
-      excludedCategories,
-      emailRestriction,
-    });
+  const handleSaveCoupon = async () => {
+    try {
+      // Log the input expiry date
+      console.log('Expiry Date:', expiryDate);
+  
+      // Assuming the user inputs the expiry date in the format 'YYYY-MM-DD', we can directly use it.
+      const parsedExpiryDate = new Date(expiryDate).toISOString(); // Convert to ISO string
+  
+      // Log the parsed date
+      console.log('Parsed Expiry Date:', parsedExpiryDate);
+  
+      // Ensure all number inputs are valid numbers
+      const couponAmountNum = parseFloat(couponAmount);
+      const minimumSpendNum = parseFloat(minimumSpend);
+      const maximumSpendNum = parseFloat(maximumSpend);
+  
+      // Validate the numerical values
+      if (isNaN(couponAmountNum) || isNaN(minimumSpendNum) || isNaN(maximumSpendNum)) {
+        console.error('Invalid numbers for coupon amount, minimum spend, or maximum spend.');
+        return;
+      }
+  
+      // Log validation of number inputs
+      console.log('Coupon Amount:', couponAmountNum);
+      console.log('Minimum Spend:', minimumSpendNum);
+      console.log('Maximum Spend:', maximumSpendNum);
+  
+      // Ensure fields that need arrays are passed as arrays
+      const couponData = {
+        couponCode,
+        description,
+        discountType,
+        couponAmount: couponAmount.toString(), // Convert to string
+        expiry: parsedExpiryDate, // Use the manually parsed ISO date
+        allowFreeShipping,
+        showOnStore,
+        minimumSpend: minimumSpendNum,
+        maximumSpend: maximumSpendNum,
+        individualUseOnly,
+        excludeSaleItems: excludeSaleItem,
+        products: selectedProducts ? [selectedProducts] : [], // Ensure it's an array
+        excludedProducts: excludedProducts ? [excludedProducts] : [], // Ensure it's an array
+        productCategories: selectedCategories ? [selectedCategories] : [], // Ensure it's an array
+        excludedProductCategories: excludedCategories ? [excludedCategories] : [], // Ensure it's an array
+        emailRestrictions: emailRestriction ? [emailRestriction] : [],
+        usageLimitPerCoupon: 100, // Example value, adjust as necessary
+        limitUsageToXItems: 10, // Example value, adjust as necessary
+        usageLimitPerUser: 5, // Example value, adjust as necessary
+        action: 'Active', // Default action, can be adjusted
+        usageCount: 0, // Default usage count
+      };
+  
+      // Log the data to be sent
+      console.log('Coupon Data:', couponData);
+  
+      const response = await axios.post(
+        'https://cm-backend-yk2y.onrender.com/user/coupon',
+        couponData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      // Log the success response
+      console.log('Coupon saved successfully:', response.data);
+      // Handle success (e.g., show success message or redirect)
+    } catch (error) {
+      // Log error details
+      console.error('Error saving coupon:', error.response ? error.response.data : error.message);
+    }
   };
+  
+  
+  
+  
+  
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Create New Coupon</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Coupon Code</Text>
@@ -88,8 +148,8 @@ const AddCoupon = () => {
           onValueChange={(itemValue) => setDiscountType(itemValue)}
         >
           <Picker.Item label="Select Discount Type" value="" />
-          <Picker.Item label="Percentage" value="percentage" />
-          <Picker.Item label="Fixed Amount" value="fixedAmount" />
+          <Picker.Item label="Percentage Discount" value="Percentage Discount" />
+          <Picker.Item label="Fixed Product Discount" value="Fixed Product Discount" />
         </Picker>
       </View>
       <View style={styles.inputContainer}>
@@ -217,7 +277,7 @@ const AddCoupon = () => {
       <TouchableOpacity style={styles.saveButton} onPress={handleSaveCoupon}>
         <Text style={styles.saveButtonText}>Add Coupon</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

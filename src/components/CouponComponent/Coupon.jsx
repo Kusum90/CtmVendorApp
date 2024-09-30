@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Plus from '../../assets/svg/Productsvg/Plus';
 
 const Coupon = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Title and Buttons on the same row */}
@@ -10,7 +12,7 @@ const Coupon = () => {
         <Text style={styles.title}>Coupons</Text>
         <View style={styles.buttonsContainer}>
           {/* Blue Button */}
-          <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
+          <TouchableOpacity style={[styles.iconButton, styles.blueButton]} onPress={()=>navigation.navigate('AddCoupon')}>
             <Plus width={50} height={50} />
           </TouchableOpacity>
         </View>
