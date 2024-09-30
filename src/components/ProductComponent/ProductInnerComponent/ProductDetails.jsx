@@ -1,273 +1,233 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Switch,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet, ScrollView, Switch, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 const ProductDetails = ({ navigation }) => {
-  const [productType, setProductType] = useState('');
+  const [selectedProductType, setSelectedProductType] = useState('');
+  const [category, setCategory] = useState('');
+  
+  // Toggles for Catalogue, Virtual, and Downloadable
   const [isCatalogue, setIsCatalogue] = useState(false);
   const [isVirtual, setIsVirtual] = useState(false);
   const [isDownloadable, setIsDownloadable] = useState(false);
-  const [productName, setProductName] = useState('');
-  const [salePrice, setSalePrice] = useState('');
-  const [regularPrice, setRegularPrice] = useState('');
-  const [shortDescription, setShortDescription] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [tags, setTags] = useState('');
-  const [isShopAndSearch, setIsShopAndSearch] = useState(false);
-  const [isShopOnly, setIsShopOnly] = useState(false);
-  const [isSearchResultOnly, setIsSearchResultOnly] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
+  
+  // Category Visibility Toggles
+  const [categoryVisibility, setCategoryVisibility] = useState({
+    shopSearch: false,
+    shopOnly: false,
+    searchResultOnly: false,
+    hidden: false,
+  });
+
+  const toggleVisibility = (key) => {
+    setCategoryVisibility((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const handleNext = () => {
-    navigation.navigate('ProductInventoryScreen'); // Navigate to ProductInventoryScreen
+    // Navigate to the next screen when the Next button is pressed
+    navigation.navigate('ProductInventoryScreen');  // Replace 'NextScreen' with your screen name
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerCard}>
-        <Text style={styles.header}>Product details</Text>
-      </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header */}
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Text style={styles.backText}> Product details</Text>
+      </TouchableOpacity>
 
-      <View style={styles.contentCard}>
-        {/* Image Upload Section */}
-        <View style={styles.imageUploadContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderText}>Upload Image</Text>
-          </View>
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Product Type */}
-        <Text style={styles.label}>Product Type</Text>
-        <Picker
-          selectedValue={productType}
-          style={styles.picker}
-          onValueChange={(itemValue) => setProductType(itemValue)}>
-          <Picker.Item label="Select Type" value="" />
-          <Picker.Item label="Type 1" value="type1" />
-          <Picker.Item label="Type 2" value="type2" />
-        </Picker>
-
-        {/* Checkboxes */}
-        <View style={styles.checkboxContainer}>
-          <View style={styles.checkboxItem}>
-            <Switch value={isCatalogue} onValueChange={setIsCatalogue} />
-            <Text>Catalogue</Text>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={isVirtual} onValueChange={setIsVirtual} />
-            <Text>Virtual</Text>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={isDownloadable} onValueChange={setIsDownloadable} />
-            <Text>Downloadable</Text>
-          </View>
-        </View>
-
-        {/* Product Name */}
-        <Text style={styles.label}>Product Name</Text>
-        <TextInput
-          style={styles.input}
-          value={productName}
-          onChangeText={setProductName}
-        />
-
-        {/* Sale Price */}
-        <Text style={styles.label}>Sale Price</Text>
-        <TextInput
-          style={styles.input}
-          value={salePrice}
-          onChangeText={setSalePrice}
-          keyboardType="numeric"
-        />
-
-        {/* Regular Price */}
-        <Text style={styles.label}>Regular Price</Text>
-        <TextInput
-          style={styles.input}
-          value={regularPrice}
-          onChangeText={setRegularPrice}
-          keyboardType="numeric"
-        />
-
-        {/* Short Description */}
-        <Text style={styles.label}>Short Description</Text>
-        <TextInput
-          style={styles.input}
-          value={shortDescription}
-          onChangeText={setShortDescription}
-          multiline
-        />
-
-        {/* Description */}
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={[styles.input, styles.descriptionInput]}
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-
-        {/* Category */}
-        <Text style={styles.label}>Category</Text>
-        <Picker
-          selectedValue={category}
-          style={styles.picker}
-          onValueChange={(itemValue) => setCategory(itemValue)}>
-          <Picker.Item label="Select Category" value="" />
-          <Picker.Item label="Category 1" value="category1" />
-          <Picker.Item label="Category 2" value="category2" />
-        </Picker>
-
-        {/* Tags */}
-        <Text style={styles.label}>Tags</Text>
-        <TextInput
-          style={styles.input}
-          value={tags}
-          onChangeText={setTags}
-        />
-
-        {/* Category Visibility */}
-        <Text style={styles.label}>Category Visibility</Text>
-        <View style={styles.checkboxContainer}>
-          <View style={styles.checkboxItem}>
-            <Switch value={isShopAndSearch} onValueChange={setIsShopAndSearch} />
-            <Text>Shop & Search Results</Text>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={isShopOnly} onValueChange={setIsShopOnly} />
-            <Text>Shop Only</Text>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={isSearchResultOnly} onValueChange={setIsSearchResultOnly} />
-            <Text>Search Result Only</Text>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={isHidden} onValueChange={setIsHidden} />
-            <Text>Hidden</Text>
-          </View>
-        </View>
-
-        {/* Next Button */}
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Next</Text>
+      {/* Image Upload Section */}
+      <View style={styles.imageContainer}>
+        <TouchableOpacity style={styles.imageBox}>
+          {/* <Image style={styles.image} source={require('./path_to_image_placeholder.png')} /> */}
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.imageBox}>
+          <Text style={styles.addText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.imageBox}>
+          <Text style={styles.addText}>+</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Form Inputs */}
+      <Text style={styles.label}>Product Type</Text>
+      <Picker
+        selectedValue={selectedProductType}
+        style={styles.picker}
+        onValueChange={(itemValue) => setSelectedProductType(itemValue)}
+      >
+        <Picker.Item label="Select Product Type" value="" />
+        <Picker.Item label="Simple Product" value="Simple Product" />
+        <Picker.Item label="Variable Product" value="Variable Product" />
+      </Picker>
+
+      {/* Catalogue, Virtual, and Downloadable Toggles */}
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Catalogue</Text>
+        <Switch
+          value={isCatalogue}
+          onValueChange={(value) => setIsCatalogue(value)}
+        />
+      </View>
+
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Virtual</Text>
+        <Switch
+          value={isVirtual}
+          onValueChange={(value) => setIsVirtual(value)}
+        />
+      </View>
+
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Downloadable</Text>
+        <Switch
+          value={isDownloadable}
+          onValueChange={(value) => setIsDownloadable(value)}
+        />
+      </View>
+
+      <TextInput placeholder="Product Name" style={styles.input} />
+      <TextInput placeholder="Sale Price" style={styles.input} />
+      <TextInput placeholder="Regular Price" style={styles.input} />
+      <TextInput placeholder="Short Description" style={styles.textArea} multiline />
+      <TextInput placeholder="Description" style={styles.textArea} multiline />
+
+      {/* Category and Tags */}
+      <Text style={styles.label}>Category</Text>
+      <Picker
+        selectedValue={category}
+        style={styles.picker}
+        onValueChange={(itemValue) => setCategory(itemValue)}
+      >
+        <Picker.Item label="Select Category" value="" />
+        <Picker.Item label="Category 1" value="category1" />
+        <Picker.Item label="Category 2" value="category2" />
+      </Picker>
+
+      <TextInput placeholder="Tags" style={styles.input} />
+
+      {/* Category Visibility Toggle */}
+      <Text style={styles.label1}>Category Visibility</Text>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Shop & Search Results</Text>
+        <Switch
+          value={categoryVisibility.shopSearch}
+          onValueChange={() => toggleVisibility('shopSearch')}
+        />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Shop Only</Text>
+        <Switch
+          value={categoryVisibility.shopOnly}
+          onValueChange={() => toggleVisibility('shopOnly')}
+        />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Search Result Only</Text>
+        <Switch
+          value={categoryVisibility.searchResultOnly}
+          onValueChange={() => toggleVisibility('searchResultOnly')}
+        />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Hidden</Text>
+        <Switch
+          value={categoryVisibility.hidden}
+          onValueChange={() => toggleVisibility('hidden')}
+        />
+      </View>
+
+      {/* Next Button */}
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <Text style={styles.nextButtonText}>Next</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 10,
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  headerCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+  backButton: {
+    marginBottom: 20,
   },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  backText: {
+    fontSize: 18,
+    color: '#000',
+    fontWeight:'400'
   },
-  contentCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  imageUploadContainer: {
+  imageContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
-  imagePlaceholder: {
+  imageBox: {
     width: 80,
     height: 80,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
   },
-  imagePlaceholderText: {
-    color: '#aaa',
+  image: {
+    width: '100%',
+    height: '100%',
   },
-  addButton: {
-    backgroundColor: '#4CAF50',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 16,
-  },
-  addButtonText: {
+  addText: {
     fontSize: 24,
-    color: '#fff',
+    color: '#000',
   },
   label: {
+    fontSize: 16,
+    marginBottom: 8,
+   
+  },
+  label1: {
     fontSize: 18,
-    marginBottom: 10,
+    marginBottom: 8,
+    color:'#373737'
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
     borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    borderColor: '#ddd',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 8,
   },
-  descriptionInput: {
+  textArea: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 8,
     height: 100,
   },
   picker: {
-    width: '100%',
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
   },
-  checkboxContainer: {
+  toggleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
   },
-  checkboxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   nextButton: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: 'green',
+    paddingVertical: 15,
+    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
+    marginLeft:255
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
   },
 });
 

@@ -40,7 +40,7 @@ const ProductInventoryScreen = ({ navigation }) => {
   };
 
   const handlePrevious = () => {
-    Alert.alert('Previous button clicked!');
+    navigation.goBack()
   };
 
   const handleNext = () => {
@@ -106,12 +106,12 @@ const ProductInventoryScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handlePrevious}>
+          <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>Next</Text>
+          <TouchableOpacity style={styles.addButton} onPress={handleNext}>
+            <Text style={styles.buttonTextAdd}>Next</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -182,19 +182,29 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 16,
   },
-  button: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
+  previousButton: {
+    backgroundColor: '#fff',
+    borderColor: '#28a745',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  addButton: {
+    backgroundColor: '#28a745',
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
   },
   buttonText: {
+    fontSize: 16,
+    color: 'black',
+  },
+  buttonTextAdd: {
+    fontSize: 16,
     color: '#fff',
-    fontWeight: 'bold',
   },
 });
 
