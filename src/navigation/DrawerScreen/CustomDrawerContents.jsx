@@ -285,7 +285,14 @@ const CustomDrawerContent = props => {
       {isFinanceOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Payments', 'PaymentsScreen')}
+            onPress={() =>
+              handleSubItemPress('Payments', 'Stack', {
+                screen: 'PaymentsScreenNav',
+                params: {
+                  screen: 'PaymentSCreen',
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'Payments' ? styles.activeMenuItem : null,

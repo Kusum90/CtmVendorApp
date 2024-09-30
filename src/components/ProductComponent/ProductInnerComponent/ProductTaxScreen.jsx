@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const ProductTaxScreen = () => {
+  const navigation = useNavigation(); // Get the navigation prop
+
   // Using arrays to hold the selected options
   const [taxStatus, setTaxStatus] = useState([]);
   const [taxClass, setTaxClass] = useState([]);
@@ -54,11 +57,17 @@ const ProductTaxScreen = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.previousButton}
+            onPress={() => navigation.goBack()} // Navigate to previous screen
+          >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Next</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate('ProductAttributeScreen')} // Navigate to next screen
+          >
+            <Text style={styles.buttonTextAdd}>Next</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -110,18 +119,29 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 16,
   },
-  button: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
-    width: 100,
+  previousButton: {
+    backgroundColor: '#fff',
+    borderColor: '#28a745',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  addButton: {
+    backgroundColor: '#28a745',
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
   },
   buttonText: {
     fontSize: 16,
+    color: 'black',
+  },
+  buttonTextAdd: {
+    fontSize: 16,
     color: '#fff',
-    textAlign: 'center',
   },
 });
 
