@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductLinkedScreen = ({ navigation }) => {
   const [selectedUpSell, setSelectedUpSell] = useState('');
@@ -53,47 +54,47 @@ const ProductLinkedScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: wp(5), // Responsive padding
   },
   section: {
-    marginBottom: 20,
+    marginBottom: hp(2.5), // Responsive margin
   },
   header: {
-    fontSize: 18,
+    fontSize: FontSize(22), // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: hp(1), // Responsive margin
+    color:'#373737'
   },
   picker: {
-    height: 50,
+    height: hp(6), // Responsive height
     width: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2), // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(2), // Responsive vertical padding
+    paddingHorizontal: wp(6), // Responsive horizontal padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(2), // Responsive vertical padding
+    paddingHorizontal: wp(6), // Responsive horizontal padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: 'black',
   },
   buttonTextAdd: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: '#fff',
   },
 });
-
 export default ProductLinkedScreen;

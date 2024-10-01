@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductTaxScreen = () => {
   const navigation = useNavigation(); // Get the navigation prop
@@ -78,69 +79,70 @@ const ProductTaxScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: wp(5),                    // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     borderRadius: 10,
     backgroundColor: '#f9f9f9',
-    padding: 15,
-    marginBottom: 20,
-    elevation: 3, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
+    padding: wp(4),                    // Responsive padding
+    marginBottom: hp(2.5),             // Responsive margin
+    elevation: 3,                      // For Android shadow
+    shadowColor: '#000',               // For iOS shadow
     shadowOffset: { width: 0, height: 1 }, // For iOS shadow
-    shadowOpacity: 0.2, // For iOS shadow
-    shadowRadius: 1.5, // For iOS shadow
+    shadowOpacity: 0.2,                // For iOS shadow
+    shadowRadius: 1.5,                 // For iOS shadow
   },
   header: {
-    fontSize: 20,
+    fontSize: FontSize(24),            // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: hp(1),             // Responsive margin
+    color:'#373737'
   },
   section: {
-    marginBottom: 20,
+    marginBottom: hp(2.5),             // Responsive margin
   },
   title: {
-    fontSize: 18,
+    fontSize: FontSize(21),            // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: hp(1),               // Responsive margin
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: hp(2),            // Responsive padding
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: FontSize(19),            // Responsive font size
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2),                 // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),          // Responsive padding
+    paddingHorizontal: wp(6),           // Responsive padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),          // Responsive padding
+    paddingHorizontal: wp(6),           // Responsive padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(19),            // Responsive font size
     color: 'black',
   },
   buttonTextAdd: {
-    fontSize: 16,
+    fontSize: FontSize(19),            // Responsive font size
     color: '#fff',
   },
 });

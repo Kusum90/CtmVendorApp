@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductPoliciesScreen = () => {
   const navigation = useNavigation(); // Initialize the navigation hook
@@ -83,67 +84,70 @@ const ProductPoliciesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: wp(4), // Responsive padding
     backgroundColor: '#fff',
   },
   backButton: {
-    fontSize: 16,
+    fontSize: FontSize(23), // Responsive font size
     color: '#333',
-    marginBottom: 16,
+    marginBottom: hp(2), // Responsive margin
+    color:'#373737'
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: hp(2), // Responsive margin
   },
   checkboxLabel: {
-    marginLeft: 8,
-    fontSize: 16,
+    marginLeft: wp(2), // Responsive margin
+    fontSize: FontSize(19), // Responsive font size
     color: '#333',
   },
   input: {
-    height: 40,
+    height: hp(7), // Responsive height
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    marginBottom: hp(2), // Responsive margin
+    paddingHorizontal: wp(2), // Responsive padding
+    fontSize: FontSize(19),
   },
   textarea: {
-    height: 80,
+    height: hp(10), // Responsive height
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    marginBottom: hp(2), // Responsive margin
+    paddingHorizontal: wp(2), // Responsive padding
+    paddingVertical: wp(2), // Responsive padding
     textAlignVertical: 'top', // Ensures text starts at the top in multiline input
+    fontSize: FontSize(19),
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2), // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5), // Responsive padding
+    paddingHorizontal: wp(6), // Responsive padding
   },
   nextButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5), // Responsive padding
+    paddingHorizontal: wp(6), // Responsive padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: '#fff',
   },
   buttonText1: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: '#373737',
   },
 });
