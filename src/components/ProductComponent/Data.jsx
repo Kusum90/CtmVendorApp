@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
 
@@ -130,45 +131,47 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 10,
+    padding: wp(3),                // Responsive padding
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#e0e0e0',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingVertical: hp(1.2),      // Responsive vertical padding
+    paddingHorizontal: wp(2),      // Responsive horizontal padding
   },
   tableHeaderText: {
-    width: 85, // Adjust the width to align columns properly
+    width: wp(22.99),                 // Responsive width to align columns
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: FontSize(16),        // Responsive font size
   },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
+    paddingVertical: hp(1.2),      // Responsive vertical padding
+    borderBottomWidth: wp(0.3),    // Responsive border width
     borderBottomColor: '#e0e0e0',
   },
   actionsContainer: {
-    width: 85,
+    width: wp(26),                 // Responsive width for the actions column
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent:'space-between'
   },
   buttonText: {
     color: '#fff',
+    fontSize: FontSize(15),        // Responsive font size
   },
   productImage: {
-    width: 50,
-    height: 50,
-    marginHorizontal: 10,
+    width: wp(12),                 // Responsive image width
+    height: wp(12),                // Responsive image height
+    marginHorizontal: wp(2.5),     // Responsive horizontal margin
   },
   tableCell: {
-    width: 93, // Adjust the width to match the header
+    width: wp(24),                 // Responsive width to match header
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: FontSize(15),        // Responsive font size
   },
+
 });
 
 export default Data;
