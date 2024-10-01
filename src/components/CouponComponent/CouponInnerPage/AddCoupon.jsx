@@ -12,6 +12,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
 
 const AddCoupon = () => {
+  const [activeTab, setActiveTab] = useState('restriction');
   const [couponCode, setCouponCode] = useState('');
   const [description, setDescription] = useState('');
   const [discountType, setDiscountType] = useState('');
@@ -118,74 +119,8 @@ const AddCoupon = () => {
   
   
   
-  
-
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Create New Coupon</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Coupon Code</Text>
-        <TextInput
-          style={styles.input}
-          value={couponCode}
-          onChangeText={setCouponCode}
-          placeholder="Enter Coupon Code"
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={styles.input}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Description"
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Discount Type</Text>
-        <Picker
-          selectedValue={discountType}
-          onValueChange={(itemValue) => setDiscountType(itemValue)}
-        >
-          <Picker.Item label="Select Discount Type" value="" />
-          <Picker.Item label="Percentage Discount" value="Percentage Discount" />
-          <Picker.Item label="Fixed Product Discount" value="Fixed Product Discount" />
-        </Picker>
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Coupon Amount</Text>
-        <TextInput
-          style={styles.input}
-          value={couponAmount}
-          onChangeText={setCouponAmount}
-          placeholder="Coupon Amount"
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Expiry Date</Text>
-        <TextInput
-          style={styles.input}
-          value={expiryDate}
-          onChangeText={setExpiryDate}
-          placeholder="dd-mm-yy"
-        />
-      </View>
-      <View style={styles.switchContainer}>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Allow Free Shipping</Text>
-          <Switch
-            value={allowFreeShipping}
-            onValueChange={setAllowFreeShipping}
-          />
-        </View>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Show on Store</Text>
-          <Switch
-            value={showOnStore}
-            onValueChange={setShowOnStore}
-          />
-        </View>
-      </View>
+  const renderRestrictionContent = () => (
+    <>
       <Text style={styles.sectionTitle}>Restriction</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Minimum Spend</Text>
@@ -274,6 +209,117 @@ const AddCoupon = () => {
         <Picker.Item label="No restriction" value="" />
         <Picker.Item label="Restrict by Email" value="restrictByEmail" />
       </Picker>
+    </>
+  );
+
+  const renderLimitsContent = () => (
+    <>
+      <Text style={styles.sectionTitle}>Limits</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Usage limit per coupon</Text>
+        <TextInput style={styles.input} placeholder="0" />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Limit usage to X items</Text>
+        <TextInput style={styles.input} placeholder="0" />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Usage limit per user</Text>
+        <TextInput style={styles.input} placeholder="0" />
+      </View>
+    </>
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Create New Coupon</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Coupon Code</Text>
+        <TextInput
+          style={styles.input}
+          value={couponCode}
+          onChangeText={setCouponCode}
+          placeholder="Enter Coupon Code"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Description</Text>
+        <TextInput
+          style={styles.input}
+          value={description}
+          onChangeText={setDescription}
+          placeholder="Description"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Discount Type</Text>
+        <Picker
+          selectedValue={discountType}
+          onValueChange={(itemValue) => setDiscountType(itemValue)}
+        >
+          <Picker.Item label="Select Discount Type" value="" />
+          <Picker.Item label="Percentage Discount" value="Percentage Discount" />
+          <Picker.Item label="Fixed Product Discount" value="Fixed Product Discount" />
+        </Picker>
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Coupon Amount</Text>
+        <TextInput
+          style={styles.input}
+          value={couponAmount}
+          onChangeText={setCouponAmount}
+          placeholder="Coupon Amount"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Expiry Date</Text>
+        <TextInput
+          style={styles.input}
+          value={expiryDate}
+          onChangeText={setExpiryDate}
+          placeholder="dd-mm-yy"
+        />
+      </View>
+      <View style={styles.switchContainer}>
+        <View style={styles.switchItem}>
+          <Text style={styles.label}>Allow Free Shipping</Text>
+          <Switch
+            value={allowFreeShipping}
+            onValueChange={setAllowFreeShipping}
+          />
+        </View>
+        <View style={styles.switchItem}>
+          <Text style={styles.label}>Show on Store</Text>
+          <Switch
+            value={showOnStore}
+            onValueChange={setShowOnStore}
+          />
+        </View>
+      </View>
+      <View style={{ padding: 20 }}>
+      {/* Tab Navigation */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'restriction' && styles.activeTab]}
+          onPress={() => setActiveTab('restriction')}
+        >
+          <Text style={styles.tabText}>Restriction</Text>
+          {activeTab === 'restriction' && <View style={styles.underline} />}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'limits' && styles.activeTab]}
+          onPress={() => setActiveTab('limits')}
+        >
+          <Text style={styles.tabText}>Limits</Text>
+          {activeTab === 'limits' && <View style={styles.underline} />}
+        </TouchableOpacity>
+      </View>
+
+      {/* Render Content based on Active Tab */}
+      {activeTab === 'restriction' && renderRestrictionContent()}
+      {activeTab === 'limits' && renderLimitsContent()}
+    </View>
       <TouchableOpacity style={styles.saveButton} onPress={handleSaveCoupon}>
         <Text style={styles.saveButtonText}>Add Coupon</Text>
       </TouchableOpacity>
@@ -293,13 +339,48 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color:'#373737'
   },
+  picker: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  tabButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+  },
+  activeTab: {
+    fontWeight: 'bold',
+  },
+  tabText: {
+    fontSize: 18,
+    color: '#373737',
+  },
+  underline: {
+    height: 3,
+    backgroundColor: 'green',
+    width: '100%',
+    marginTop: 5,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#373737',
+  },
   inputContainer: {
     marginBottom: 15,
   },
   label: {
     fontSize: 16,
     marginBottom: 5,
-    color:'#373737'
+    color: '#373737',
   },
   input: {
     borderWidth: 1,
@@ -315,18 +396,6 @@ const styles = StyleSheet.create({
   switchItem: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 15,
   },
   saveButton: {
     backgroundColor: 'green',
