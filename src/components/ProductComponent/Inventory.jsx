@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -8,28 +9,35 @@ import Upload from '../../assets/svg/Productsvg/Upload';
 import Download from '../../assets/svg/Productsvg/Download';
 
 const Inventory = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      {/* Inventory Title */}
-      <Text style={styles.title}>Inventory</Text>
+      {/* Title and Buttons in the Same Row */}
+      <View style={styles.headerContainer}>
+        {/* Inventory Title */}
+        <Text style={styles.title}>Inventory</Text>
 
-      {/* Buttons on the right */}
-      <View style={styles.buttonsContainer}>
-        {/* Green Button */}
-        <TouchableOpacity style={[styles.iconButton, styles.greenButton]} onPress={()=>navigation.navigate('ProductDetails')}>
-        <Plus width={50} height={50} />  
-        </TouchableOpacity>
+        {/* Buttons on the right */}
+        <View style={styles.buttonsContainer}>
+          {/* Green Button */}
+          <TouchableOpacity
+            style={[styles.iconButton, styles.greenButton]}
+            onPress={() => navigation.navigate('ProductDetails')}
+          >
+            <Plus width={50} height={50} />
+          </TouchableOpacity>
 
-        {/* Orange Button */}
-        <TouchableOpacity style={[styles.iconButton, styles.orangeButton]}>
-        <Upload width={50} height={50} /> 
-        </TouchableOpacity>
+          {/* Orange Button */}
+          <TouchableOpacity style={[styles.iconButton, styles.orangeButton]}>
+            <Upload width={50} height={50} />
+          </TouchableOpacity>
 
-        {/* Blue Button */}
-        <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
-        <Download width={50} height={50} /> 
-        </TouchableOpacity>
+          {/* Blue Button */}
+          <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
+            <Download width={50} height={50} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Filter and Search Section */}
@@ -58,31 +66,31 @@ const Inventory = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderBottomWidth: 1,
+    padding: wp(4),
+    borderBottomWidth: wp(0.3),
     borderBottomColor: '#ddd',
   },
+  headerContainer: {
+    flexDirection: 'row', // Align title and buttons in the same row
+    justifyContent: 'space-between', // Spread title and buttons across the row
+    alignItems: 'center', // Align items vertically in the center
+    marginBottom: hp(1),
+  },
   title: {
-    fontSize: 18,
+    fontSize: FontSize(25),
     fontWeight: 'bold',
-    marginBottom: 3,
+    color: '#373737',
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 15,
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: wp(10),
+    height: wp(10),
+    borderRadius: wp(2),
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  iconText: {
-    fontSize: 18,
-    color: '#fff',
+    marginHorizontal: wp(1.5),
   },
   filterContainer: {
     flexDirection: 'row',
@@ -90,23 +98,22 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    padding: 10,
-    marginHorizontal: 5,
+    borderRadius: wp(2),
+    padding: wp(2.5),
+    marginHorizontal: wp(1.5),
   },
   filterText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: FontSize(14),
   },
   searchInput: {
     flex: 1,
     backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginLeft: 10,
-    fontSize: 14,
+    borderRadius: wp(2),
+    paddingHorizontal: wp(2.5),
+    marginLeft: wp(2.5),
+    fontSize: FontSize(14),
   },
 });
 
 export default Inventory;
-

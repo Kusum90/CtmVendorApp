@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet, ScrollView, Switch, Image } from 'react-native';
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 import { Picker } from '@react-native-picker/picker';
 
 const ProductDetails = ({ navigation }) => {
@@ -149,25 +150,25 @@ const ProductDetails = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: wp(5),                    // Responsive padding
     backgroundColor: '#fff',
   },
   backButton: {
-    marginBottom: 20,
+    marginBottom: hp(2.5),            // Responsive margin
   },
   backText: {
-    fontSize: 18,
+    fontSize: FontSize(18),            // Responsive font size
     color: '#000',
-    fontWeight:'400'
+    fontWeight: '400',
   },
   imageContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: hp(2.5),            // Responsive margin
   },
   imageBox: {
-    width: 80,
-    height: 80,
+    width: wp(20),                     // Responsive width
+    height: wp(20),                    // Responsive height
     borderWidth: 1,
     borderColor: '#ddd',
     justifyContent: 'center',
@@ -178,57 +179,57 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   addText: {
-    fontSize: 24,
+    fontSize: FontSize(24),            // Responsive font size
     color: '#000',
   },
   label: {
-    fontSize: 16,
-    marginBottom: 8,
-   
+    fontSize: FontSize(16),            // Responsive font size
+    marginBottom: hp(1),               // Responsive margin
   },
   label1: {
-    fontSize: 18,
-    marginBottom: 8,
-    color:'#373737'
+    fontSize: FontSize(18),            // Responsive font size
+    marginBottom: hp(1),               // Responsive margin
+    color: '#373737',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 10,
-    marginBottom: 15,
+    padding: wp(2.5),                  // Responsive padding
+    marginBottom: hp(1.5),              // Responsive margin
     borderRadius: 8,
   },
   textArea: {
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 10,
-    marginBottom: 15,
+    padding: wp(2.5),                  // Responsive padding
+    marginBottom: hp(1.5),              // Responsive margin
     borderRadius: 8,
-    height: 100,
+    height: hp(12),                     // Responsive height
   },
   picker: {
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: 15,
+    marginBottom: hp(1.5),              // Responsive margin
   },
   toggleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: hp(2.5),            // Responsive margin
   },
   nextButton: {
     backgroundColor: 'green',
-    paddingVertical: 15,
+    paddingVertical: hp(2),            // Responsive padding
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    marginLeft:255
+    marginLeft: wp(60),                // Responsive margin left
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: FontSize(16),            // Responsive font size
   },
 });
+
 
 export default ProductDetails;

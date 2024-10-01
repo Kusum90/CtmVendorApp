@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductSustanibilityScreen = () => {
   const [focusKeyword, setFocusKeyword] = useState('');
@@ -60,74 +61,82 @@ const ProductSustanibilityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: wp(3), // Responsive padding
   },
   headerCard: {
     backgroundColor: '#f8f9fa',
-    padding: 20,
+    padding: wp(5), // Responsive padding
     borderRadius: 10,
-    marginBottom: 20,
-    elevation: 2, // Add shadow for Android
-    shadowColor: '#000', // iOS shadow
+    marginBottom: hp(3), // Responsive margin
+    elevation: 2, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   headerText: {
-    fontSize: 18,
+    fontSize: FontSize(22), // Responsive font size
     fontWeight: 'bold',
     color: '#373737',
   },
   contentCard: {
     backgroundColor: '#ffffff',
-    padding: 20,
+    padding: wp(5), // Responsive padding
     borderRadius: 10,
-    elevation: 2, // Add shadow for Android
-    shadowColor: '#000', // iOS shadow
+    elevation: 2, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: hp(3), // Responsive margin
   },
   label: {
-    marginBottom: 5,
+    marginBottom: hp(1), // Responsive margin
     color: '#373737',
+    fontSize: FontSize(19),
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
+    padding: wp(3), // Responsive padding
     borderRadius: 5,
     textAlignVertical: 'top', // Allow multiline text to start from top
+    fontSize: FontSize(19), // Responsive font size
+    color: '#373737',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: hp(2), // Responsive margin
   },
   buttonOutline: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#28a745',
-    padding: 10,
+    padding: wp(3), // Responsive padding
     borderRadius: 5,
-    marginRight: 10,
+    marginRight: wp(2), // Responsive margin
   },
   buttonFilled: {
     flex: 1,
     backgroundColor: '#28a745',
-    padding: 10,
+    padding: wp(3), // Responsive padding
     borderRadius: 5,
+    fontSize: FontSize(19),
   },
   buttonText: {
     color: 'black',
     textAlign: 'center',
+    fontSize: FontSize(19), // Responsive font size
   },
   buttonText1: {
     color: 'white',
     textAlign: 'center',
+    fontSize: FontSize(19), // Responsive font size
   },
 });
+
 
 export default ProductSustanibilityScreen;

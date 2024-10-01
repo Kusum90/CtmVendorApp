@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const LocationScreen = ({ navigation }) => {  // Inject navigation prop
   const [address1, setAddress1] = useState('');
@@ -19,7 +20,7 @@ const LocationScreen = ({ navigation }) => {  // Inject navigation prop
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
         <Text style={styles.heading}>Store Address</Text>
@@ -78,7 +79,7 @@ const LocationScreen = ({ navigation }) => {  // Inject navigation prop
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

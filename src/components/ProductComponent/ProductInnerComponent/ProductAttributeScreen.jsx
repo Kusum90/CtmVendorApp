@@ -9,6 +9,7 @@ import {
   Button,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const AttributeDropdown = ({ label, options }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -136,89 +137,80 @@ const ProductAttributeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff', // Light background for contrast
+    padding: wp(4),                    // Responsive padding
+    backgroundColor: '#fff',           // Light background for contrast
   },
   headerCard: {
-    backgroundColor: '#f0f0f0', // Light gray background for header
+    backgroundColor: '#f0f0f0',        // Light gray background for header
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
+    padding: wp(4),                    // Responsive padding
+    marginBottom: hp(2.5),             // Responsive margin
   },
   headerText: {
-    fontSize: 20,
+    fontSize: FontSize(23),             // Responsive font size
     fontWeight: 'bold',
     color: 'black',
     textAlign: 'left',
   },
-  contentCard: {
-    borderRadius: 8,
-    backgroundColor: 'white', // White background for content
-    elevation: 3, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 1 }, // For iOS shadow
-    shadowOpacity: 0.2, // For iOS shadow
-    shadowRadius: 1.5, // For iOS shadow
-    paddingBottom: 16,
-  },
   dropdownContainer: {
-    marginBottom: 16,
+    marginBottom: hp(2),                // Responsive margin
   },
   dropdownHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
+    padding: wp(3),                     // Responsive padding
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    backgroundColor: '#f9f9f9', // Light gray for dropdown
+    backgroundColor: '#f9f9f9',         // Light gray for dropdown
   },
   dropdownLabel: {
-    fontSize: 16,
+    fontSize: FontSize(19),             // Responsive font size
   },
   dropdownIcon: {
-    fontSize: 16,
+    fontSize: FontSize(16),             // Responsive font size
   },
   dropdownOptions: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    marginTop: -1, // Adjust for overlapping border
-    backgroundColor: 'white', // White background for options
+    marginTop: -1,                      // Adjust for overlapping border
+    backgroundColor: 'white',           // White background for options
   },
   dropdownOption: {
-    padding: 12,
-    fontSize: 16,
+    padding: wp(3),                     // Responsive padding
+    fontSize: FontSize(19),             // Responsive font size
   },
   selectedOption: {
-    backgroundColor: '#d1e7dd', // Highlight color for selected option
+    backgroundColor: '#d1e7dd',         // Highlight color for selected option
   },
   buttonContainer: {
-    paddingVertical: 16,
-    alignItems: 'flex-end', // Align the button to the right
+    paddingVertical: hp(4),             // Responsive vertical padding
+    alignItems: 'flex-end',             // Align the button to the right
   },
   button: {
-    backgroundColor: '#4CAF50', // Green for the button
-    padding: 12,
+    backgroundColor: '#4CAF50',         // Green for the button
+    padding: hp(2),                     // Responsive padding
     borderRadius: 4,
-    width: '40%', // Adjust button width
+    width: '40%',                       // Adjust button width
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: FontSize(19),             // Responsive font size
   },
   navigation: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 16,
+    paddingVertical: hp(4),             // Responsive vertical padding
   },
   navButton: {
     flex: 1,
-    padding: 12,
+    padding: hp(2),                     // Responsive padding
     borderRadius: 4,
-    marginHorizontal: 8,
+    marginHorizontal: wp(2),            // Responsive horizontal margin
   },
   previousButton: {
     backgroundColor: '#4CAF50',
@@ -236,14 +228,13 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: 'white',
     borderRadius: 8,
-    padding: 20,
+    padding: wp(5),                     // Responsive padding
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: FontSize(18),             // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: hp(2.5),              // Responsive margin
   },
 });
-
 export default ProductAttributeScreen;

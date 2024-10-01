@@ -312,7 +312,14 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('LedgerBook', 'LedgerBookScreen')}
+            onPress={() =>
+              handleSubItemPress('LedgerBook', 'Stack', {
+                screen: 'LedgerBookScreenNav',
+                params: {
+                  screen: 'LedgerBookScreen',
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'LedgerBook' ? styles.activeMenuItem : null,

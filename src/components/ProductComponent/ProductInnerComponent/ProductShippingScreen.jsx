@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductShippingScreen = () => {
   const navigation = useNavigation(); // Initialize navigation
@@ -174,44 +175,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 10,
+    padding: wp(5),                   // Responsive padding
   },
   card: {
     borderRadius: 10,
     backgroundColor: '#f9f9f9',
-    padding: 15,
-    marginBottom: 20,
-    elevation: 3, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
+    padding: wp(4),                   // Responsive padding
+    marginBottom: hp(2.5),           // Responsive margin
+    elevation: 3,                     // For Android shadow
+    shadowColor: '#000',              // For iOS shadow
     shadowOffset: { width: 0, height: 1 }, // For iOS shadow
-    shadowOpacity: 0.2, // For iOS shadow
-    shadowRadius: 1.5, // For iOS shadow
+    shadowOpacity: 0.2,               // For iOS shadow
+    shadowRadius: 1.5,                // For iOS shadow
   },
   headerText: {
-    fontSize: 24,
+    fontSize: FontSize(24),           // Responsive font size
     fontWeight: 'bold',
+    color:'#373737'
   },
   section: {
-    marginBottom: 20,
+    marginBottom: hp(2.5),           // Responsive margin
   },
   label: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: FontSize(18),           // Responsive font size
+    marginBottom: hp(1),              // Responsive margin
   },
   input: {
-    height: 40,
+    height: hp(5),                    // Responsive height
     borderColor: '#ccc',
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: wp(2.5),       // Responsive padding
+    paddingVertical: hp(1),            // Responsive padding
   },
   dimensionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   dimensionButton: {
-    width: 80,
-    height: 30,
+    width: wp(20),                    // Responsive width
+    height: hp(4),                    // Responsive height
     borderRadius: 5,
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
@@ -221,7 +223,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   dimensionButtonText: {
-    fontSize: 14,
+    fontSize: FontSize(16),           // Responsive font size
   },
   dimensionButtonTextActive: {
     color: '#fff',
@@ -229,47 +231,47 @@ const styles = StyleSheet.create({
   radioButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: hp(1),              // Responsive margin
   },
   radioButtonIcon: {
-    width: 20,
-    height: 20,
+    width: wp(5),                     // Responsive width
+    height: wp(5),                    // Responsive height
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ccc',
-    marginRight: 10,
+    marginRight: wp(2),               // Responsive margin
   },
   radioButtonIconChecked: {
     backgroundColor: 'green',
   },
   radioButtonText: {
-    fontSize: 16,
+    fontSize: FontSize(18),           // Responsive font size
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2),                // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),         // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5),         // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(18),           // Responsive font size
     color: 'black',
   },
   buttonTextAdd: {
-    fontSize: 16,
+    fontSize: FontSize(18),           // Responsive font size
     color: '#fff',
   },
 });

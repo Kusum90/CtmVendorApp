@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
 
 const ProductMOQScreen = () => {
   const [moq, setMoq] = useState('');
@@ -49,62 +50,63 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    padding: 20,
+    padding: wp(5), // Responsive padding
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerText: {
-    fontSize: 18,
+    fontSize: FontSize(24), // Responsive font size
     fontWeight: 'bold',
-    color:'#373737'
+    color: '#373737',
   },
   content: {
-    paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingHorizontal: wp(5), // Responsive padding
+    paddingTop: hp(5), // Responsive padding
   },
   label: {
-    fontSize: 16,
-    marginBottom: 10,
-    color:'#373737'
+    fontSize: FontSize(19), // Responsive font size
+    marginBottom: hp(2), // Responsive margin
+    color: '#373737',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
+    padding: wp(3), // Responsive padding
+    fontSize: FontSize(16), // Responsive font size
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 20,
+    padding: wp(5), // Responsive padding
   },
   buttonOutline: {
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#2ecc71',
     borderRadius: 5,
-    padding: 10,
+    padding: wp(3), // Responsive padding
     flex: 1,
-    marginRight: 10, 
+    marginRight: wp(2), // Responsive margin
   },
   buttonFilled: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#28a745',
     borderRadius: 5,
-    padding: 10,
+    padding: wp(3), // Responsive padding
     flex: 1,
-    marginLeft: 10, 
+    marginLeft: wp(2), // Responsive margin
   },
   buttonText: {
     color: 'black',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
   },
   buttonText1: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
   },
 });
+
 
 export default ProductMOQScreen;

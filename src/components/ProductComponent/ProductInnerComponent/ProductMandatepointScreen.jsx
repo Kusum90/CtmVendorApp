@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import the hook
+import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const ProductMandatepointScreen = () => {
   const [assemblyRequired, setAssemblyRequired] = useState(false);
@@ -22,7 +24,7 @@ const ProductMandatepointScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Title Card */}
       <View style={styles.titleCard}>
         <Text style={styles.title}>Mandate Point</Text>
@@ -103,112 +105,113 @@ const ProductMandatepointScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: wp(3), // Responsive padding
     backgroundColor: '#f2f2f2',
   },
   titleCard: {
     backgroundColor: '#ffffff',
-    padding: 10,
+    padding: wp(3), // Responsive padding
     borderRadius: 10,
-    marginBottom: 20,
-    elevation: 2, // Add shadow for Android
-    shadowColor: '#000', // iOS shadow
+    marginBottom: hp(3), // Responsive margin
+    elevation: 2, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   title: {
-    fontSize: 24,
+    fontSize: FontSize(25), // Responsive font size
     fontWeight: 'bold',
     textAlign: 'left',
     color: '#373737',
   },
   contentCard: {
     backgroundColor: '#ffffff',
-    padding: 20,
+    padding: wp(5), // Responsive padding
     borderRadius: 10,
-    elevation: 2, // Add shadow for Android
-    shadowColor: '#000', // iOS shadow
+    elevation: 2, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: hp(3), // Responsive margin
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: FontSize(21), // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: hp(2), // Responsive margin
     color: '#373737',
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: hp(1), // Responsive margin
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: wp(5), // Responsive width
+    height: wp(5), // Responsive height
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    marginRight: 10,
+    marginRight: wp(2), // Responsive margin
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkedIcon: {
-    width: 12,
-    height: 12,
+    width: wp(3), // Responsive width
+    height: wp(3), // Responsive height
     backgroundColor: '#28a745',
     borderRadius: 4,
   },
   checkboxLabel: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: '#373737',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    padding: 10,
-    fontSize: 16,
+    padding: wp(3), // Responsive padding
+    fontSize: FontSize(19), // Responsive font size
     color: '#373737',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: hp(2), // Responsive margin
   },
   previousButton: {
     backgroundColor: '#fff',
     borderColor: '#28a745',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5), // Responsive padding
+    paddingHorizontal: wp(6), // Responsive padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: hp(1.5), // Responsive padding
+    paddingHorizontal: wp(6), // Responsive padding
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: 'black',
   },
   buttonTextAdd: {
-    fontSize: 16,
+    fontSize: FontSize(19), // Responsive font size
     color: '#fff',
   },
 });
+
 
 export default ProductMandatepointScreen;
