@@ -156,7 +156,7 @@ const AddCoupon = () => {
           />
         </View>
       </View>
-      <Text style={styles.sectionTitle}>Products</Text>
+      <Text style={styles.sectionTitle}>Filter by Products</Text>
       <Picker
         selectedValue={selectedProducts}
         onValueChange={(itemValue) => setSelectedProducts(itemValue)}
@@ -178,7 +178,7 @@ const AddCoupon = () => {
           <Picker.Item key={product.value} label={product.label} value={product.value} />
         ))}
       </Picker>
-      <Text style={styles.sectionTitle}>Product Categories</Text>
+      {/* <Text style={styles.sectionTitle}>Product Categories</Text>
       <Picker
         selectedValue={selectedCategories}
         onValueChange={(itemValue) => setSelectedCategories(itemValue)}
@@ -199,7 +199,7 @@ const AddCoupon = () => {
         {categories.map((category) => (
           <Picker.Item key={category.value} label={category.label} value={category.value} />
         ))}
-      </Picker>
+      </Picker> */}
       <Text style={styles.sectionTitle}>Email Restriction</Text>
       <Picker
         selectedValue={emailRestriction}
