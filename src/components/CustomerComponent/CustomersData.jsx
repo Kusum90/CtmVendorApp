@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'rea
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
 import Seen from '../../assets/svg/Productsvg/Seen';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 // Main Screen Component
 const CustomersData = () => {
@@ -115,29 +116,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 10,
+    padding: wp(2.5), // Responsive padding
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#e0e0e0',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingVertical: hp(1.2), // Responsive vertical padding
+    paddingHorizontal: wp(1.25), // Responsive horizontal padding
   },
   tableHeaderText: {
-    width: 85, // Adjust the width to align columns properly
+    width: wp(22), // Responsive width to align columns
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: FontSize(14), // Responsive font size
   },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: hp(1.2), // Responsive vertical padding
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   actionsContainer: {
-    width: 85,
+    width: wp(22), // Responsive width for action buttons
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
@@ -145,14 +146,14 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   productImage: {
-    width: 50,
-    height: 50,
-    marginHorizontal: 10,
+    width: wp(12), // Responsive image width
+    height: hp(6), // Responsive image height
+    marginHorizontal: wp(2.5), // Responsive margin
   },
   tableCell: {
-    width: 93, // Adjust the width to match the header
+    width: wp(23), // Responsive width to match header
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: FontSize(12), // Responsive font size
   },
 });
 

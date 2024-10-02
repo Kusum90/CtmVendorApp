@@ -11,6 +11,7 @@ import AddToMyStoreScreenNav from './AllScreen/AddToMyStoreScreenNav';
 
 import PaymentsScreenNav from './AllScreen/PaymentsScreenNav';
 import LedgerBookScreenNav from './AllScreen/LedgerBookScreenNav';
+import FollowersScreenNav from './AllScreen/FollowersScreenNav';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +27,7 @@ const StackNavigation = () => {
         <Stack.Screen name="AddToStoreNav" component={AddToMyStoreScreenNav} />
         <Stack.Screen name="PaymentsScreenNav" component={PaymentsScreenNav} />
         <Stack.Screen name="LedgerBookScreenNav" component={LedgerBookScreenNav} />
+        <Stack.Screen name="FollowersScreenNav" component={FollowersScreenNav} />
       </Stack.Navigator>
 
   );

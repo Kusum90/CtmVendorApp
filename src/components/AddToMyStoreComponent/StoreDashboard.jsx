@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
 import Category from '../../assets/svg/Productsvg/Category';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const DashboardCard = ({ item }) => {
   return (
@@ -45,57 +46,52 @@ const StoreDashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 5,
+    padding: wp(2), // Responsive padding
     backgroundColor: '#F5F5F5',
   },
   card: {
-    // flex: 1,
     backgroundColor: '#fff',
-    borderRadius: 12,
-    // padding: 3,
-    margin: 8,
+    borderRadius: wp(3), // Responsive borderRadius
+    margin: wp(2), // Responsive margin
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: hp(0.5) }, // Responsive shadowOffset
     shadowOpacity: 0.2,
-    shadowRadius: 5,
+    shadowRadius: wp(2), // Responsive shadowRadius
   },
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignItems: 'center',
-    marginTop: 10,
-    marginLeft:2
+    marginTop: hp(1.5), // Responsive marginTop
+    marginLeft: wp(0.5), // Responsive marginLeft
   },
   label: {
-    fontSize: 16,
+    fontSize: FontSize(16), // Responsive font size
     color: '#666',
     fontWeight: '500',
-    marginLeft:2
+    marginLeft: wp(0.5), // Responsive marginLeft
   },
   mainValue: {
-    fontSize: 20,
+    fontSize: FontSize(20), // Responsive font size
     fontWeight: 'bold',
     color: '#333',
-    marginLeft:2
+    marginLeft: wp(0.5), // Responsive marginLeft
   },
   iconContainer: {
-    borderRadius: 50,
-    marginBottom:8,
-    // padding: 10,
+    borderRadius: wp(12.5), // Responsive borderRadius (50 as a percentage of the width for a circular shape)
+    marginBottom: hp(1), // Responsive marginBottom
   },
   icon: {
-    fontSize: 15,
-    marginRight:10,
-    marginLeft:20,
-    marginBottom:5,
-    
+    fontSize: FontSize(15), // Responsive font size
+    marginRight: wp(2.5), // Responsive marginRight
+    marginLeft: wp(5), // Responsive marginLeft
+    marginBottom: hp(0.5), // Responsive marginBottom
   },
   additionalInfo: {
-    fontSize: 12,
+    fontSize: FontSize(12), // Responsive font size
     color: '#373737',
-    marginTop: 1,
-    marginLeft:7
+    marginTop: hp(0.1), // Responsive marginTop
+    marginLeft: wp(1.5), // Responsive marginLeft
   },
 });
 
