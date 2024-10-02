@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const StoreInvoiceScreen = ({ navigation }) => {
   const [invoiceNoPrefix, setInvoiceNoPrefix] = useState('');
@@ -86,55 +87,55 @@ const StoreInvoiceScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: wp(5), // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(4), // Responsive padding
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: hp(0.125) }, // Responsive shadowOffset
     shadowOpacity: 0.1,
-    shadowRadius: 1,
-    marginBottom: 20,
+    shadowRadius: wp(1), // Responsive shadowRadius
+    marginBottom: hp(2.5), // Responsive marginBottom
   },
   heading: {
-    fontSize: 24,
+    fontSize: FontSize(24), // Responsive font size
     fontWeight: 'bold',
     color: '#373737',
     textAlign: 'left',
   },
   label: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: FontSize(14), // Responsive font size
+    marginBottom: hp(1), // Responsive marginBottom
     color: '#373737',
   },
   input: {
-    borderWidth: 1,
+    borderWidth: wp(0.25), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(2.5), // Responsive padding
+    marginBottom: hp(2), // Responsive marginBottom
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: hp(2.5), // Responsive marginTop
   },
   navButton: {
     backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
+    padding: hp(1.5), // Responsive padding
+    borderRadius: wp(2), // Responsive borderRadius
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: wp(1), // Responsive marginHorizontal
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: FontSize(16), // Responsive font size
   },
 });
-
 export default StoreInvoiceScreen;

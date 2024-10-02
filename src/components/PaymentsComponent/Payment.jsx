@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 
 const Payment = () => {
@@ -34,31 +35,31 @@ const Payment = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderBottomWidth: 1,
+    padding: wp(4), // Responsive padding
+    borderBottomWidth: wp(0.3), // Responsive border width
     borderBottomColor: '#ddd',
   },
   title: {
-    fontSize: 18,
+    fontSize: FontSize(18), // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 3,
-    color:'#373737'
+    marginBottom: hp(0.5), // Responsive margin bottom
+    color: '#373737',
   },
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: 15,
+    marginBottom: hp(2), // Responsive margin bottom
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: wp(10), // Responsive width
+    height: wp(10), // Responsive height
+    borderRadius: wp(2), // Responsive border radius
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 5,
+    marginHorizontal: wp(1.5), // Responsive horizontal margin
   },
   iconText: {
-    fontSize: 18,
+    fontSize: FontSize(18), // Responsive font size
     color: '#fff',
   },
   filterContainer: {
@@ -67,21 +68,21 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    padding: 10,
-    marginHorizontal: 5,
+    borderRadius: wp(2), // Responsive border radius
+    padding: wp(2.5), // Responsive padding
+    marginHorizontal: wp(1.5), // Responsive horizontal margin
   },
   filterText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: FontSize(14), // Responsive font size
   },
   searchInput: {
     flex: 1,
     backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginLeft: 10,
-    fontSize: 14,
+    borderRadius: wp(2), // Responsive border radius
+    paddingHorizontal: wp(3), // Responsive horizontal padding
+    marginLeft: wp(2.5), // Responsive margin left
+    fontSize: FontSize(14), // Responsive font size
   },
 });
 

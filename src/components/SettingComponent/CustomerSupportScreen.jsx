@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const CustomerSupportScreen = ({ navigation }) => {
   const [address1, setAddress1] = useState('');
@@ -101,55 +102,56 @@ const CustomerSupportScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: wp(3), // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 9,
-    marginBottom: 15,
-    elevation: 2, // for Android shadow effect
-    shadowColor: '#000', // for iOS shadow effect
-    shadowOffset: { width: 0, height: 1 },
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(2.5), // Responsive padding
+    marginBottom: hp(2), // Responsive marginBottom
+    elevation: 2, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: hp(0.2) }, // Responsive shadowOffset
     shadowOpacity: 0.1,
-    shadowRadius: 1,
+    shadowRadius: wp(0.5), // Responsive shadowRadius
   },
   heading: {
-    fontSize: 23,
+    fontSize: FontSize(23), // Responsive fontSize
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: hp(2), // Responsive marginBottom
     color: '#373737',
     textAlign: 'left',
   },
   label: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: FontSize(14), // Responsive fontSize
+    marginBottom: hp(1.5), // Responsive marginBottom
     color: '#373737',
   },
   input: {
-    borderWidth: 1,
+    borderWidth: hp(0.1), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(2.5), // Responsive padding
+    marginBottom: hp(2), // Responsive marginBottom
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: hp(2.5), // Responsive marginTop
   },
   button: {
     backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
+    padding: hp(1.5), // Responsive padding
+    borderRadius: wp(2), // Responsive borderRadius
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: wp(1), // Responsive marginHorizontal
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: FontSize(16), // Responsive fontSize for button text
   },
 });
 
