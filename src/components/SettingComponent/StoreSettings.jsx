@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker'; // For dropdown
 import { ScrollView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const StoreSettings = () => {
 const navigation = useNavigation();
@@ -173,54 +174,54 @@ const navigation = useNavigation();
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: wp(2.5), // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#fff',
-    padding: 16,
-    marginBottom: 16,
+    padding: wp(4), // Responsive padding
+    marginBottom: hp(2), // Responsive marginBottom
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: hp(0.25) }, // Responsive shadowOffset
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: wp(2), // Responsive shadowRadius
     elevation: 5,
   },
   heading: {
-    fontSize: 20,
+    fontSize: FontSize(20), // Responsive font size
     fontWeight: 'bold',
     textAlign: 'left',
     color: '#373737',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: hp(3), // Responsive marginBottom
   },
   subHeading: {
-    fontSize: 16,
+    fontSize: FontSize(16), // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: hp(1), // Responsive marginBottom
     color: '#373737',
   },
   label: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: FontSize(14), // Responsive font size
+    marginBottom: hp(0.5), // Responsive marginBottom
     color: '#373737',
   },
   input: {
-    borderWidth: 1,
+    borderWidth: wp(0.25), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 8,
-    marginBottom: 8,
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(2), // Responsive padding
+    marginBottom: hp(1), // Responsive marginBottom
   },
   pickerContainer: {
-    borderWidth: 1,
+    borderWidth: wp(0.25), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: wp(2), // Responsive borderRadius
+    marginBottom: hp(2), // Responsive marginBottom
   },
   picker: {
-    height: 50,
+    height: hp(6), // Responsive height
     width: '100%',
   },
   row: {
@@ -232,39 +233,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagePicker: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    borderWidth: 1,
+    width: wp(25), // Responsive width
+    height: wp(25), // Responsive height
+    borderRadius: wp(2), // Responsive borderRadius
+    borderWidth: wp(0.25), // Responsive borderWidth
     borderColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: hp(2), // Responsive marginBottom
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
+    width: wp(25), // Responsive width
+    height: wp(25), // Responsive height
+    borderRadius: wp(2), // Responsive borderRadius
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'flex-end',
-    height: 50,
-    width: 100,
-    marginLeft: 240,
+    padding: hp(1.5), // Responsive padding
+    borderRadius: wp(2), // Responsive borderRadius
+    height: hp(6.5), // Responsive height
+    width: wp(25), // Responsive width
+    marginLeft: wp(60), // Responsive marginLeft
     justifyContent: 'center',
     alignItems: 'center',
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: FontSize(16), // Responsive font size
     fontWeight: 'bold',
   },
   error: {
     color: 'red',
-    marginBottom: 8,
+    marginBottom: hp(1), // Responsive marginBottom
   },
 });
 

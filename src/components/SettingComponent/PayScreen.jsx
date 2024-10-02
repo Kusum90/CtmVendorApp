@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const PayScreen = () => {
   const [selectedMethod, setSelectedMethod] = useState('');
@@ -59,57 +60,57 @@ const PayScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: wp(5), // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(4), // Responsive padding
+    elevation: 2, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: hp(0.2) }, // Responsive shadow offset
     shadowOpacity: 0.1,
-    shadowRadius: 1,
-    marginBottom: 20,
+    shadowRadius: wp(0.5), // Responsive shadowRadius
+    marginBottom: hp(2.5), // Responsive marginBottom
   },
   heading: {
-    fontSize: 24,
+    fontSize: FontSize(24), // Responsive font size
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: hp(2.5), // Responsive marginBottom
     color: '#373737',
     textAlign: 'center',
   },
   label: {
-    fontSize: 17,
-    marginBottom: 8,
+    fontSize: FontSize(17), // Responsive font size
+    marginBottom: hp(1), // Responsive marginBottom
     color: '#373737',
     fontWeight: 'bold',
   },
   picker: {
-    height: 50,
-    marginBottom: 16,
-    borderWidth: 1,
+    height: hp(6), // Responsive height for picker
+    marginBottom: hp(2), // Responsive marginBottom
+    borderWidth: wp(0.3), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: wp(2), // Responsive borderRadius
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: hp(2.5), // Responsive marginTop
   },
   navButton: {
     backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
+    padding: hp(1.5), // Responsive padding
+    borderRadius: wp(2), // Responsive borderRadius
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: wp(1.5), // Responsive marginHorizontal
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: FontSize(16), // Responsive font size
   },
 });
-
 export default PayScreen;

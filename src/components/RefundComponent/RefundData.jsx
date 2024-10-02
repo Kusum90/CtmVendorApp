@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'rea
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
 import Seen from '../../assets/svg/Productsvg/Seen';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 // Main Screen Component
 const RefundData = () => {
@@ -124,45 +125,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 10,
+    padding: wp(2.5), // Responsive padding
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#e0e0e0',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingVertical: hp(1.25), // Responsive padding vertical
+    paddingHorizontal: wp(1.25), // Responsive padding horizontal
   },
   tableHeaderText: {
-    width: 85, // Adjust the width to align columns properly
+    width: wp(22), // Responsive width to align columns properly
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: FontSize(14), // Responsive font size
   },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: hp(1.25), // Responsive padding vertical
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   actionsContainer: {
-    width: 85,
+    width: wp(22), // Responsive width
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
   buttonText: {
     color: '#fff',
+    fontSize: FontSize(14), // Responsive font size
   },
   productImage: {
-    width: 50,
-    height: 50,
-    marginHorizontal: 10,
+    width: wp(12.5), // Responsive width for image
+    height: wp(12.5), // Responsive height (same as width for square)
+    marginHorizontal: wp(2.5), // Responsive margin horizontal
   },
   tableCell: {
-    width: 93, // Adjust the width to match the header
+    width: wp(23), // Responsive width to match the header
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: FontSize(12), // Responsive font size
   },
 });
-
 export default RefundData;

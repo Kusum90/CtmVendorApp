@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 const SocialScreen = () => {
   const [twitter, setTwitter] = useState('');
@@ -111,53 +112,52 @@ const SocialScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 15,
+    padding: wp(4), // Responsive padding
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
+    padding: wp(4), // Responsive padding
+    borderRadius: wp(2.5), // Responsive borderRadius
     elevation: 4, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: hp(0.25) }, // Responsive shadowOffset
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    marginBottom: 20,
+    shadowRadius: wp(1), // Responsive shadowRadius
+    marginBottom: hp(2.5), // Responsive marginBottom
   },
   heading: {
-    fontSize: 18,
+    fontSize: FontSize(18), // Responsive font size
     fontWeight: 'bold',
     color: '#000',
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: hp(2.5), // Responsive marginBottom
   },
   label: {
-    fontSize: 14,
+    fontSize: FontSize(14), // Responsive font size
     color: '#000',
-    marginBottom: 5,
+    marginBottom: hp(0.6), // Responsive marginBottom
   },
   input: {
-    borderWidth: 1,
+    borderWidth: wp(0.3), // Responsive borderWidth
     borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
+    borderRadius: wp(2), // Responsive borderRadius
+    padding: wp(2.5), // Responsive padding
+    marginBottom: hp(2), // Responsive marginBottom
     backgroundColor: '#f9f9f9',
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 8,
+    padding: hp(1.5), // Responsive padding
+    borderRadius: wp(2), // Responsive borderRadius
     alignItems: 'center',
-    marginLeft:265,
+    marginLeft: wp(65), // Responsive marginLeft
   },
   saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
-    
+    fontSize: FontSize(16), // Responsive font size
   },
 });
 

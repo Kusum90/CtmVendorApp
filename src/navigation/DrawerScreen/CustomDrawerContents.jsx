@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {DrawerContentScrollView} from '@react-navigation/drawer';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 // Use RefundIcon for all icons (you can replace it with your actual SVG file)
 import ShopIcon from '../../assets/svg/DrawerSVG/ShopIcon';
@@ -390,7 +391,14 @@ const CustomDrawerContent = props => {
       {isSocialOpen && (
         <View style={styles.subMenu}>
           <TouchableOpacity
-            onPress={() => handleSubItemPress('Followers', 'FollowersScreen')}
+             onPress={() =>
+              handleSubItemPress('Followers', 'Stack', {
+                screen: 'FollowersScreenNav',
+                params: {
+                  screen: 'FollowersScreen',
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'Followers' ? styles.activeMenuItem : null,
@@ -513,51 +521,51 @@ const CustomDrawerContent = props => {
 
 const styles = StyleSheet.create({
   drawerHeader: {
-    padding: 15,
+    padding: wp(4), // Responsive padding
     backgroundColor: '#f5f5f5',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
   drawerTitle: {
-    fontSize: 12,
+    fontSize: FontSize(12), // Responsive font size
     fontWeight: 'bold',
     color: '#999',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: hp(2), // Responsive vertical padding
+    paddingHorizontal: wp(5), // Responsive horizontal padding
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   menuLabel: {
-    marginLeft: 10,
-    fontSize: 16,
+    marginLeft: wp(2), // Responsive margin
+    fontSize: FontSize(16), // Responsive font size
     fontWeight: '500',
     color: '#333',
   },
   arrowOpen: {
-    transform: [{rotate: '180deg'}],
+    transform: [{ rotate: '180deg' }],
     marginLeft: 'auto',
   },
   arrowClosed: {
     marginLeft: 'auto',
   },
   subMenu: {
-    paddingLeft: 40,
+    paddingLeft: wp(10), // Responsive left padding
     backgroundColor: '#f9f9f9',
   },
   subMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: hp(1.5), // Responsive vertical padding
+    paddingHorizontal: wp(5), // Responsive horizontal padding
   },
   subMenuLabel: {
-    marginLeft: 10,
-    fontSize: 14,
+    marginLeft: wp(2), // Responsive margin
+    fontSize: FontSize(14), // Responsive font size
     fontWeight: '400',
     color: '#666',
   },
@@ -568,5 +576,4 @@ const styles = StyleSheet.create({
     color: 'green',
   },
 });
-
 export default CustomDrawerContent;

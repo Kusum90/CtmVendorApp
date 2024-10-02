@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'rea
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
 import Seen from '../../assets/svg/Productsvg/Seen';
+import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 
 // Main Screen Component
 const StoreData = () => {
@@ -110,31 +111,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal:10,
-    paddingVertical:10,
-    marginRight:1
+    paddingHorizontal: wp(2.5), // Responsive horizontal padding
+    paddingVertical: hp(2), // Responsive vertical padding
+    marginRight: wp(0.5), // Responsive marginRight
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#e0e0e0',
-    paddingVertical: 10,
-    // paddingHorizontal: 2,
+    paddingVertical: hp(1), // Responsive vertical padding
   },
   tableHeaderText: {
-    width: 80, // Adjust the width to align columns properly
+    width: wp(20), // Responsive width for alignment
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: FontSize(14), // Responsive font size
   },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: hp(1), // Responsive vertical padding
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   actionsContainer: {
-    width: 85,
+    width: wp(21.25), // Responsive width
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
@@ -142,14 +142,14 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   productImage: {
-    width: 50,
-    height: 50,
-    marginHorizontal: 10,
+    width: wp(12.5), // Responsive width
+    height: wp(12.5), // Responsive height (keeping aspect ratio)
+    marginHorizontal: wp(2.5), // Responsive horizontal margin
   },
   tableCell: {
-    width: 93, // Adjust the width to match the header
+    width: wp(23.125), // Responsive width to match header
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: FontSize(12), // Responsive font size
   },
 });
 
