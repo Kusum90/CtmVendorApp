@@ -470,10 +470,14 @@ const CustomDrawerContent = props => {
 
       {/* Support Section */}
       <TouchableOpacity
-        onPress={() => {
-          props.navigation.navigate('Support');
-          setActiveItem('Support');
-        }}
+        onPress={() =>
+          handleSubItemPress('Support', 'Stack', {
+            screen: 'SupportScreenNav',
+            params: {
+              screen: 'SupportScreen',
+            },
+          })
+        }
         style={[
           styles.menuItem,
           activeItem === 'Support' ? styles.activeMenuItem : null,
