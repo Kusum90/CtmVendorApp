@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,119 +6,189 @@ import {
   StyleSheet,
   TouchableOpacity,
   Switch,
+  ScrollView,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { createCoupon, fetchProducts } from '../../../redux/Coupon/Coupon'; // Adjust this path to where your slice is located
 import { Picker } from '@react-native-picker/picker';
-import { ScrollView } from 'react-native-gesture-handler';
-import axios from 'axios';
 
 const AddCoupon = () => {
-  const [couponCode, setCouponCode] = useState('');
-  const [description, setDescription] = useState('');
-  const [discountType, setDiscountType] = useState('');
-  const [couponAmount, setCouponAmount] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [allowFreeShipping, setAllowFreeShipping] = useState(false);
-  const [showOnStore, setShowOnStore] = useState(false);
-  const [minimumSpend, setMinimumSpend] = useState('');
-  const [maximumSpend, setMaximumSpend] = useState('');
-  const [individualUseOnly, setIndividualUseOnly] = useState(false);
-  const [excludeSaleItem, setExcludeSaleItem] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState('');
-  const [excludedProducts, setExcludedProducts] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState('');
-  const [excludedCategories, setExcludedCategories] = useState('');
-  const [emailRestriction, setEmailRestriction] = useState('');
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.coupons.loading);
+  const products = useSelector((state) => state.coupons.products);
 
-  const products = [
-    { label: 'Product 1', value: 'product1' },
-    { label: 'Product 2', value: 'product2' },
-    { label: 'Product 3', value: 'product3' },
-  ];
+  const [activeTab, setActiveTab] = useState('restriction');
+  const [formData, setFormData] = useState({
+    couponCode: '',
+    description: '',
+    discountType: 'Percentage Discount',
+    couponAmount: '',
+    expiry: '',
+    allowFreeShipping: false,
+    showOnStore: false,
+    minimumSpend: 0,
+    maximumSpend: 0,
+    individualUseOnly: false,
+    excludeSaleItems: false,
+    products: [],
+    excludedProducts: [],
+    emailRestrictions: '',
+    usageLimitPerCoupon: 0,
+    limitUsageToXItems: 0,
+    usageLimitPerUser: 0,
+  });
 
-  const categories = [
-    { label: 'Category 1', value: 'category1' },
-    { label: 'Category 2', value: 'category2' },
-    { label: 'Category 3', value: 'category3' },
-  ];
+  const [productSearch, setProductSearch] = useState('');
 
-  const handleSaveCoupon = async () => {
-    try {
-      // Log the input expiry date
-      console.log('Expiry Date:', expiryDate);
-  
-      // Assuming the user inputs the expiry date in the format 'YYYY-MM-DD', we can directly use it.
-      const parsedExpiryDate = new Date(expiryDate).toISOString(); // Convert to ISO string
-  
-      // Log the parsed date
-      console.log('Parsed Expiry Date:', parsedExpiryDate);
-  
-      // Ensure all number inputs are valid numbers
-      const couponAmountNum = parseFloat(couponAmount);
-      const minimumSpendNum = parseFloat(minimumSpend);
-      const maximumSpendNum = parseFloat(maximumSpend);
-  
-      // Validate the numerical values
-      if (isNaN(couponAmountNum) || isNaN(minimumSpendNum) || isNaN(maximumSpendNum)) {
-        console.error('Invalid numbers for coupon amount, minimum spend, or maximum spend.');
-        return;
-      }
-  
-      // Log validation of number inputs
-      console.log('Coupon Amount:', couponAmountNum);
-      console.log('Minimum Spend:', minimumSpendNum);
-      console.log('Maximum Spend:', maximumSpendNum);
-  
-      // Ensure fields that need arrays are passed as arrays
-      const couponData = {
-        couponCode,
-        description,
-        discountType,
-        couponAmount: couponAmount.toString(), // Convert to string
-        expiry: parsedExpiryDate, // Use the manually parsed ISO date
-        allowFreeShipping,
-        showOnStore,
-        minimumSpend: minimumSpendNum,
-        maximumSpend: maximumSpendNum,
-        individualUseOnly,
-        excludeSaleItems: excludeSaleItem,
-        products: selectedProducts ? [selectedProducts] : [], // Ensure it's an array
-        excludedProducts: excludedProducts ? [excludedProducts] : [], // Ensure it's an array
-        productCategories: selectedCategories ? [selectedCategories] : [], // Ensure it's an array
-        excludedProductCategories: excludedCategories ? [excludedCategories] : [], // Ensure it's an array
-        emailRestrictions: emailRestriction ? [emailRestriction] : [],
-        usageLimitPerCoupon: 100, // Example value, adjust as necessary
-        limitUsageToXItems: 10, // Example value, adjust as necessary
-        usageLimitPerUser: 5, // Example value, adjust as necessary
-        action: 'Active', // Default action, can be adjusted
-        usageCount: 0, // Default usage count
-      };
-  
-      // Log the data to be sent
-      console.log('Coupon Data:', couponData);
-  
-      const response = await axios.post(
-        'https://cm-backend-yk2y.onrender.com/user/coupon',
-        couponData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-  
-      // Log the success response
-      console.log('Coupon saved successfully:', response.data);
-      // Handle success (e.g., show success message or redirect)
-    } catch (error) {
-      // Log error details
-      console.error('Error saving coupon:', error.response ? error.response.data : error.message);
+  // Fetch products based on search
+  useEffect(() => {
+    if (productSearch) {
+      dispatch(fetchProducts(productSearch));
     }
+  }, [productSearch, dispatch]);
+
+  const handleChange = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveCoupon = () => {
+    const parsedExpiryDate = new Date(formData.expiry).toISOString(); // Convert to ISO string
+  
+    // Ensure the correct data types are used
+    const couponData = {
+      ...formData,
+      expiry: parsedExpiryDate, // Set expiry as ISO string
+      couponAmount: formData.couponAmount.toString(), // Ensure couponAmount is a string
+      minimumSpend: parseFloat(formData.minimumSpend), // Ensure minimumSpend is a number
+      maximumSpend: parseFloat(formData.maximumSpend), // Ensure maximumSpend is a number
+      usageLimitPerCoupon: parseInt(formData.usageLimitPerCoupon), // Ensure usageLimitPerCoupon is a number
+      limitUsageToXItems: parseInt(formData.limitUsageToXItems), // Ensure limitUsageToXItems is a number
+      usageLimitPerUser: parseInt(formData.usageLimitPerUser), // Ensure usageLimitPerUser is a number
+      products: formData.products || [], // Ensure products is an array
+      excludedProducts: formData.excludedProducts || [], // Ensure excludedProducts is an array
+      emailRestrictions: formData.emailRestrictions ? [formData.emailRestrictions] : [], // Ensure emailRestrictions is an array
+    };
+  
+    console.log("Coupon Data:", couponData); // Log the data before sending it
+  
+    // Dispatch createCoupon action
+    dispatch(createCoupon(couponData));
   };
   
   
   
-  
-  
+
+  const renderRestrictionContent = () => (
+    <>
+      <Text style={styles.sectionTitle}>Restriction</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Minimum Spend</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.minimumSpend.toString()}
+          onChangeText={(value) => handleChange('minimumSpend', value)}
+          placeholder="Minimum Spend"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Maximum Spend</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.maximumSpend.toString()}
+          onChangeText={(value) => handleChange('maximumSpend', value)}
+          placeholder="Maximum Spend"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.switchContainer}>
+        <View style={styles.switchItem}>
+          <Text style={styles.label}>Individual use only</Text>
+          <Switch
+            value={formData.individualUseOnly}
+            onValueChange={(value) => handleChange('individualUseOnly', value)}
+          />
+        </View>
+        <View style={styles.switchItem}>
+          <Text style={styles.label}>Exclude sale items</Text>
+          <Switch
+            value={formData.excludeSaleItems}
+            onValueChange={(value) => handleChange('excludeSaleItems', value)}
+          />
+        </View>
+      </View>
+      <Text style={styles.sectionTitle}>Filter by Products</Text>
+      <Picker
+        selectedValue={formData.products}
+        onValueChange={(itemValue) => handleChange('products', itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Select product" value="" />
+        {products.map((product) => (
+          <Picker.Item key={product._id} label={product.title} value={product.title} />
+        ))}
+      </Picker>
+
+      <Text style={styles.sectionTitle}>Exclude Products</Text>
+      <Picker
+        selectedValue={formData.excludedProducts}
+        onValueChange={(itemValue) => handleChange('excludedProducts', itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Select product" value="" />
+        {products.map((product) => (
+          <Picker.Item key={product._id} label={product.title} value={product.title} />
+        ))}
+      </Picker>
+
+      <Text style={styles.sectionTitle}>Email Restriction</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.emailRestrictions}
+        onChangeText={(value) => handleChange('emailRestrictions', value)}
+        placeholder="Enter email restrictions"
+      />
+    </>
+  );
+
+  const renderLimitsContent = () => (
+    <>
+      <Text style={styles.sectionTitle}>Limits</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Usage limit per coupon</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.usageLimitPerCoupon?.toString()}
+          onChangeText={(value) => handleChange('usageLimitPerCoupon', value)}
+          placeholder="Usage limit per coupon"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Limit usage to X items</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.limitUsageToXItems?.toString()}
+          onChangeText={(value) => handleChange('limitUsageToXItems', value)}
+          placeholder="Limit usage to X items"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Usage limit per user</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.usageLimitPerUser?.toString()}
+          onChangeText={(value) => handleChange('usageLimitPerUser', value)}
+          placeholder="Usage limit per user"
+          keyboardType="numeric"
+        />
+      </View>
+    </>
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -127,8 +197,8 @@ const AddCoupon = () => {
         <Text style={styles.label}>Coupon Code</Text>
         <TextInput
           style={styles.input}
-          value={couponCode}
-          onChangeText={setCouponCode}
+          value={formData.couponCode}
+          onChangeText={(value) => handleChange('couponCode', value)}
           placeholder="Enter Coupon Code"
         />
       </View>
@@ -136,18 +206,18 @@ const AddCoupon = () => {
         <Text style={styles.label}>Description</Text>
         <TextInput
           style={styles.input}
-          value={description}
-          onChangeText={setDescription}
+          value={formData.description}
+          onChangeText={(value) => handleChange('description', value)}
           placeholder="Description"
         />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Discount Type</Text>
         <Picker
-          selectedValue={discountType}
-          onValueChange={(itemValue) => setDiscountType(itemValue)}
+          selectedValue={formData.discountType}
+          onValueChange={(itemValue) => handleChange('discountType', itemValue)}
+          style={styles.picker}
         >
-          <Picker.Item label="Select Discount Type" value="" />
           <Picker.Item label="Percentage Discount" value="Percentage Discount" />
           <Picker.Item label="Fixed Product Discount" value="Fixed Product Discount" />
         </Picker>
@@ -156,126 +226,63 @@ const AddCoupon = () => {
         <Text style={styles.label}>Coupon Amount</Text>
         <TextInput
           style={styles.input}
-          value={couponAmount}
-          onChangeText={setCouponAmount}
+          value={formData.couponAmount.toString()}
+          onChangeText={(value) => handleChange('couponAmount', value)}
           placeholder="Coupon Amount"
+          keyboardType="numeric"
         />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Expiry Date</Text>
         <TextInput
           style={styles.input}
-          value={expiryDate}
-          onChangeText={setExpiryDate}
-          placeholder="dd-mm-yy"
+          value={formData.expiry}
+          onChangeText={(value) => handleChange('expiry', value)}
+          placeholder="yyyy-mm-dd"
         />
       </View>
       <View style={styles.switchContainer}>
         <View style={styles.switchItem}>
           <Text style={styles.label}>Allow Free Shipping</Text>
           <Switch
-            value={allowFreeShipping}
-            onValueChange={setAllowFreeShipping}
+            value={formData.allowFreeShipping}
+            onValueChange={(value) => handleChange('allowFreeShipping', value)}
           />
         </View>
         <View style={styles.switchItem}>
           <Text style={styles.label}>Show on Store</Text>
           <Switch
-            value={showOnStore}
-            onValueChange={setShowOnStore}
+            value={formData.showOnStore}
+            onValueChange={(value) => handleChange('showOnStore', value)}
           />
         </View>
       </View>
-      <Text style={styles.sectionTitle}>Restriction</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Minimum Spend</Text>
-        <TextInput
-          style={styles.input}
-          value={minimumSpend}
-          onChangeText={setMinimumSpend}
-          placeholder="Minimum Spend"
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Maximum Spend</Text>
-        <TextInput
-          style={styles.input}
-          value={maximumSpend}
-          onChangeText={setMaximumSpend}
-          placeholder="Maximum Spend"
-        />
-      </View>
-      <View style={styles.switchContainer}>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Individual use only</Text>
-          <Switch
-            value={individualUseOnly}
-            onValueChange={setIndividualUseOnly}
-          />
+      <View style={{ padding: 20 }}>
+        {/* Tab Navigation */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'restriction' && styles.activeTab]}
+            onPress={() => setActiveTab('restriction')}
+          >
+            <Text style={styles.tabText}>Restriction</Text>
+            {activeTab === 'restriction' && <View style={styles.underline} />}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'limits' && styles.activeTab]}
+            onPress={() => setActiveTab('limits')}
+          >
+            <Text style={styles.tabText}>Limits</Text>
+            {activeTab === 'limits' && <View style={styles.underline} />}
+          </TouchableOpacity>
         </View>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Exclude sale item</Text>
-          <Switch
-            value={excludeSaleItem}
-            onValueChange={setExcludeSaleItem}
-          />
-        </View>
+
+        {/* Render Content based on Active Tab */}
+        {activeTab === 'restriction' && renderRestrictionContent()}
+        {activeTab === 'limits' && renderLimitsContent()}
       </View>
-      <Text style={styles.sectionTitle}>Products</Text>
-      <Picker
-        selectedValue={selectedProducts}
-        onValueChange={(itemValue) => setSelectedProducts(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Filter by product" value="" />
-        {products.map((product) => (
-          <Picker.Item key={product.value} label={product.label} value={product.value} />
-        ))}
-      </Picker>
-      <Text style={styles.sectionTitle}>Exclude Products</Text>
-      <Picker
-        selectedValue={excludedProducts}
-        onValueChange={(itemValue) => setExcludedProducts(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Filter by product" value="" />
-        {products.map((product) => (
-          <Picker.Item key={product.value} label={product.label} value={product.value} />
-        ))}
-      </Picker>
-      <Text style={styles.sectionTitle}>Product Categories</Text>
-      <Picker
-        selectedValue={selectedCategories}
-        onValueChange={(itemValue) => setSelectedCategories(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Choose categories" value="" />
-        {categories.map((category) => (
-          <Picker.Item key={category.value} label={category.label} value={category.value} style={styles.categories}/>
-        ))}
-      </Picker>
-      <Text style={styles.sectionTitle}>Exclude Categories</Text>
-      <Picker
-        selectedValue={excludedCategories}
-        onValueChange={(itemValue) => setExcludedCategories(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="No categories" value="" />
-        {categories.map((category) => (
-          <Picker.Item key={category.value} label={category.label} value={category.value} />
-        ))}
-      </Picker>
-      <Text style={styles.sectionTitle}>Email Restriction</Text>
-      <Picker
-        selectedValue={emailRestriction}
-        onValueChange={(itemValue) => setEmailRestriction(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="No restriction" value="" />
-        <Picker.Item label="Restrict by Email" value="restrictByEmail" />
-      </Picker>
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveCoupon}>
-        <Text style={styles.saveButtonText}>Add Coupon</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveCoupon} disabled={loading}>
+        <Text style={styles.saveButtonText}>{loading ? 'Saving...' : 'Add Coupon'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -285,13 +292,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor:'#fff'
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color:'#373737'
+    color: '#373737',
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  tabButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+  },
+  activeTab: {
+    fontWeight: 'bold',
+  },
+  tabText: {
+    fontSize: 18,
+    color: '#373737',
+  },
+  underline: {
+    height: 3,
+    backgroundColor: 'green',
+    width: '100%',
+    marginTop: 5,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#373737',
   },
   inputContainer: {
     marginBottom: 15,
@@ -299,7 +341,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
-    color:'#373737'
+    color: '#373737',
   },
   input: {
     borderWidth: 1,
@@ -315,18 +357,6 @@ const styles = StyleSheet.create({
   switchItem: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 15,
   },
   saveButton: {
     backgroundColor: 'green',
