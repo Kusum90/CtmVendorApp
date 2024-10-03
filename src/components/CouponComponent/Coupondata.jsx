@@ -81,7 +81,27 @@ const Coupondata = () => {
 
   // Handle save after editing
   const handleSaveEdit = () => {
-    axios.put(`https://cm-backend-yk2y.onrender.com/user/coupon/${selectedCoupon}`, editData)
+    // Log each field's value and type before sending the request
+    console.log("couponCode:", editData.couponCode, "Type:", typeof editData.couponCode);
+    console.log("discountType:", editData.discountType, "Type:", typeof editData.discountType);
+    console.log("couponAmount:", editData.couponAmount, "Type:", typeof editData.couponAmount);
+    console.log("usageLimitPerCoupon:", editData.usageLimitPerCoupon, "Type:", typeof editData.usageLimitPerCoupon);
+    console.log("expiry:", editData.expiry, "Type:", typeof editData.expiry);
+  
+    // Prepare the data to match backend expectations
+    const updatedData = {
+      couponCode: editData.couponCode.trim(), // Expecting string
+      discountType: editData.discountType.trim(), // Expecting string
+      couponAmount: editData.couponAmount.toString(), // Convert to string
+      usageLimitPerCoupon: editData.usageLimitPerCoupon.toString(), // Convert to string
+      expiry: editData.expiry.trim(), // Ensure it's a valid string in 'YYYY-MM-DD'
+    };
+  
+    // Log the final data before sending it to the backend
+    console.log("Final Updated Data being sent to backend:", updatedData);
+  
+    // Send the PUT request
+    axios.put(`http://192.168.1.32:4001/user/coupon/${selectedCoupon}`, updatedData)
       .then((response) => {
         console.log(response.data.message); // Log success message
         fetchCoupons(); // Refresh the coupon list after editing
@@ -90,9 +110,17 @@ const Coupondata = () => {
       })
       .catch((error) => {
         console.error("Error updating coupon:", error);
+        if (error.response) {
+          console.log("Axios error details:", error.response.data); // Log backend error response
+        }
         Alert.alert("Error", "Failed to update the coupon.");
       });
   };
+  
+  
+  
+  
+  
 
   // Helper function to format the expiry date
   const formatDate = (dateString) => {
@@ -146,20 +174,26 @@ const Coupondata = () => {
 
         {/* Edit Modal */}
         <Modal visible={editModalVisible} animationType="slide">
-          <View style={styles.modalContainer}>
+          <ScrollView style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Edit Coupon</Text>
+
+            <Text style={styles.label}>Coupon Code</Text>
             <TextInput
               style={styles.input}
               placeholder="Coupon Code"
               value={editData.couponCode}
               onChangeText={(text) => setEditData({ ...editData, couponCode: text })}
             />
+
+            <Text style={styles.label}>Discount Type</Text>
             <TextInput
               style={styles.input}
               placeholder="Discount Type"
               value={editData.discountType}
               onChangeText={(text) => setEditData({ ...editData, discountType: text })}
             />
+
+            <Text style={styles.label}>Coupon Amount</Text>
             <TextInput
               style={styles.input}
               placeholder="Coupon Amount"
@@ -167,6 +201,8 @@ const Coupondata = () => {
               value={editData.couponAmount}
               onChangeText={(text) => setEditData({ ...editData, couponAmount: text })}
             />
+
+            <Text style={styles.label}>Usage Limit</Text>
             <TextInput
               style={styles.input}
               placeholder="Usage Limit"
@@ -174,15 +210,19 @@ const Coupondata = () => {
               value={editData.usageLimitPerCoupon}
               onChangeText={(text) => setEditData({ ...editData, usageLimitPerCoupon: text })}
             />
+
+            <Text style={styles.label}>Expiry Date (YYYY-MM-DD)</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Expiry Date (YYYY-MM-DD)"
-              value={editData.expiry}
-              onChangeText={(text) => setEditData({ ...editData, expiry: text })}
-            />
+  style={styles.input}
+  placeholder="Expiry Date (YYYY-MM-DD)"
+  value={editData.expiry}
+  onChangeText={(text) => setEditData({ ...editData, expiry: text })}
+/>
+
+
             <Button title="Save" onPress={handleSaveEdit} />
             <Button title="Cancel" color="red" onPress={() => setEditModalVisible(false)} />
-          </View>
+          </ScrollView>
         </Modal>
       </View>
     </ScrollView>
@@ -242,8 +282,6 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
   },
@@ -259,6 +297,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+  label: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 5,
   },
 });
 
