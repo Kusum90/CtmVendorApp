@@ -1,15 +1,22 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
-
 import { useNavigation } from '@react-navigation/native';
 
 import Plus from '../../assets/svg/Productsvg/Plus';
 import Upload from '../../assets/svg/Productsvg/Upload';
 import Download from '../../assets/svg/Productsvg/Download';
+import CommonCalendar from '../../utils/datepicker';
 
 const Inventory = () => {
   const navigation = useNavigation();
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false); // Calendar modal visibility
+  const [selectedDate, setSelectedDate] = useState(null); // State for selected date
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date); // Set the selected date in yyyy-mm-dd format
+    setIsCalendarVisible(false); // Hide calendar after selecting date
+  };
 
   return (
     <View style={styles.container}>
@@ -43,8 +50,8 @@ const Inventory = () => {
       {/* Filter and Search Section */}
       <View style={styles.filterContainer}>
         {/* Date Filter */}
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Last 30 days</Text>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setIsCalendarVisible(true)}>
+          <Text style={styles.filterText}>{selectedDate || 'yyyy-mm-dd'}</Text>
         </TouchableOpacity>
 
         {/* General Filter */}
@@ -59,6 +66,18 @@ const Inventory = () => {
           placeholderTextColor="#999"
         />
       </View>
+
+      {/* Calendar Modal */}
+      <Modal visible={isCalendarVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.calendarWrapper}>
+            <CommonCalendar onDateChange={handleDateChange} />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setIsCalendarVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -113,6 +132,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(2.5),
     marginLeft: wp(2.5),
     fontSize: FontSize(14),
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Transparent background for modal
+  },
+  calendarWrapper: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    width: '90%',
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

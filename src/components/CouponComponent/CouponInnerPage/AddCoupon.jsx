@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   Switch,
   ScrollView,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { createCoupon, fetchProducts } from '../../../redux/Coupon/Coupon'; // Adjust this path to where your slice is located
+import { createCoupon, fetchProducts } from '../../../redux/Coupon/Coupon';
 import { Picker } from '@react-native-picker/picker';
 
 const AddCoupon = () => {
@@ -30,126 +32,273 @@ const AddCoupon = () => {
     maximumSpend: 0,
     individualUseOnly: false,
     excludeSaleItems: false,
-    products: [],
-    excludedProducts: [],
-    emailRestrictions: '',
+    products: [], // Selected products
+    excludedProducts: [], // Excluded products
+    emailRestrictions: '', // Email restriction input
     usageLimitPerCoupon: 0,
     limitUsageToXItems: 0,
     usageLimitPerUser: 0,
   });
 
-  const [productSearch, setProductSearch] = useState('');
+  const [productSearch, setProductSearch] = useState(''); // Search for products
+  const [filteredProducts, setFilteredProducts] = useState([]); // Filtered products based on search
+  const [selectedProducts, setSelectedProducts] = useState([]); // Selected products for the coupon
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [selectAll, setSelectAll] = useState(false); // State for "Select All" switch
 
-  // Fetch products based on search
+  const [isExcludeModalVisible, setIsExcludeModalVisible] = useState(false);
+  const [excludedProducts, setExcludedProducts] = useState([]); // Selected products to exclude
+
+  // Fetch products only when the user types something in the search box
   useEffect(() => {
-    if (productSearch) {
-      dispatch(fetchProducts(productSearch));
+    if (productSearch.length > 0) {
+      dispatch(fetchProducts(productSearch)); // Fetch products based on search term
+    } else {
+      setFilteredProducts([]); // Clear filtered products if search is empty
     }
   }, [productSearch, dispatch]);
 
-  const handleChange = (name, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  // Update filtered products when products list is updated
+  useEffect(() => {
+    setFilteredProducts(products);
+    if (selectAll && products.length > 0) {
+      setSelectedProducts(products.map((product) => product.title)); // Select all products if "Select All" is enabled
+    }
+  }, [products, selectAll]);
+
+  const handleProductSelect = (product) => {
+    if (selectedProducts.includes(product)) {
+      setSelectedProducts(selectedProducts.filter((p) => p !== product));
+    } else {
+      setSelectedProducts([...selectedProducts, product]);
+    }
+  };
+
+  const handleExcludeProductSelect = (product) => {
+    if (excludedProducts.includes(product)) {
+      setExcludedProducts(excludedProducts.filter((p) => p !== product));
+    } else {
+      setExcludedProducts([...excludedProducts, product]);
+
+      // If a product is excluded, remove it from the selected products list
+      if (selectedProducts.includes(product)) {
+        setSelectedProducts(selectedProducts.filter((p) => p !== product));
+      }
+    }
   };
 
   const handleSaveCoupon = () => {
     const parsedExpiryDate = new Date(formData.expiry).toISOString(); // Convert to ISO string
-  
-    // Ensure the correct data types are used
+
     const couponData = {
       ...formData,
-      expiry: parsedExpiryDate, // Set expiry as ISO string
-      couponAmount: formData.couponAmount.toString(), // Ensure couponAmount is a string
-      minimumSpend: parseFloat(formData.minimumSpend), // Ensure minimumSpend is a number
-      maximumSpend: parseFloat(formData.maximumSpend), // Ensure maximumSpend is a number
-      usageLimitPerCoupon: parseInt(formData.usageLimitPerCoupon), // Ensure usageLimitPerCoupon is a number
-      limitUsageToXItems: parseInt(formData.limitUsageToXItems), // Ensure limitUsageToXItems is a number
-      usageLimitPerUser: parseInt(formData.usageLimitPerUser), // Ensure usageLimitPerUser is a number
-      products: formData.products || [], // Ensure products is an array
-      excludedProducts: formData.excludedProducts || [], // Ensure excludedProducts is an array
-      emailRestrictions: formData.emailRestrictions ? [formData.emailRestrictions] : [], // Ensure emailRestrictions is an array
+      expiry: parsedExpiryDate,
+      couponAmount: formData.couponAmount.toString(),
+      minimumSpend: parseFloat(formData.minimumSpend),
+      maximumSpend: parseFloat(formData.maximumSpend),
+      usageLimitPerCoupon: parseInt(formData.usageLimitPerCoupon),
+      limitUsageToXItems: parseInt(formData.limitUsageToXItems),
+      usageLimitPerUser: parseInt(formData.usageLimitPerUser),
+      products: selectedProducts,
+      excludedProducts: excludedProducts || [],
+      emailRestrictions: formData.emailRestrictions ? [formData.emailRestrictions] : [],
     };
-  
-    console.log("Coupon Data:", couponData); // Log the data before sending it
-  
-    // Dispatch createCoupon action
+
+    console.log('Coupon Data:', couponData);
     dispatch(createCoupon(couponData));
   };
+
+  const renderProductModal = () => (
+    <Modal
+      visible={isModalVisible}
+      animationType="slide"
+      onRequestClose={() => setIsModalVisible(false)}
+      transparent={true}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Search and Select Products</Text>
   
+          {/* Select All Products Switch */}
+          <View style={styles.switchContainer}>
+            <Text>Select All Products</Text>
+            <Switch
+              value={selectAll}
+              onValueChange={(value) => {
+                setSelectAll(value);
+                if (value) {
+                  setSelectedProducts(products.map((product) => product.title)); // Select all products
+                  setFilteredProducts(products); // Show all products below when select all is enabled
+                } else {
+                  setSelectedProducts([]); // Clear selected products
+                  setFilteredProducts([]); // Clear filtered products when deselecting all
+                }
+              }}
+            />
+          </View>
   
+          {/* Disable search box if Select All is enabled */}
+          <TextInput
+            style={[styles.searchInput, { backgroundColor: selectAll ? '#ddd' : '#fff' }]} // Grey out if disabled
+            placeholder="Search product..."
+            value={productSearch}
+            onChangeText={(text) => setProductSearch(text)}
+            editable={!selectAll} // Disable when select all is active
+          />
   
+          {/* Display the filtered products or all products */}
+          {filteredProducts.length > 0 ? (
+            <FlatList
+              data={filteredProducts}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.productItem}
+                  onPress={() => handleProductSelect(item.title)}
+                >
+                  <Text
+                    style={{
+                      color: selectedProducts.includes(item.title) ? 'green' : 'black',
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <Text>No products found</Text>
+          )}
+  
+          <View style={styles.modalActions}>
+            <TouchableOpacity
+              style={styles.doneButton}
+              onPress={() => setIsModalVisible(false)}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+  
+
+  const renderExcludeProductModal = () => (
+    <Modal
+      visible={isExcludeModalVisible}
+      animationType="slide"
+      onRequestClose={() => setIsExcludeModalVisible(false)}
+      transparent={true}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Exclude Products</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search product to exclude..."
+            value={productSearch}
+            onChangeText={(text) => setProductSearch(text)}
+          />
+
+          {filteredProducts.length > 0 ? (
+            <FlatList
+              data={filteredProducts}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.productItem}
+                  onPress={() => handleExcludeProductSelect(item.title)}
+                >
+                  <Text
+                    style={{
+                      color: excludedProducts.includes(item.title) ? 'red' : 'black',
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <Text>No products found</Text>
+          )}
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity
+              style={styles.doneButton}
+              onPress={() => setIsExcludeModalVisible(false)}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   const renderRestrictionContent = () => (
     <>
-      <Text style={styles.sectionTitle}>Restriction</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Minimum Spend</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.minimumSpend.toString()}
-          onChangeText={(value) => handleChange('minimumSpend', value)}
-          placeholder="Minimum Spend"
-          keyboardType="numeric"
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Maximum Spend</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.maximumSpend.toString()}
-          onChangeText={(value) => handleChange('maximumSpend', value)}
-          placeholder="Maximum Spend"
-          keyboardType="numeric"
-        />
-      </View>
-      <View style={styles.switchContainer}>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Individual use only</Text>
-          <Switch
-            value={formData.individualUseOnly}
-            onValueChange={(value) => handleChange('individualUseOnly', value)}
-          />
-        </View>
-        <View style={styles.switchItem}>
-          <Text style={styles.label}>Exclude sale items</Text>
-          <Switch
-            value={formData.excludeSaleItems}
-            onValueChange={(value) => handleChange('excludeSaleItems', value)}
-          />
-        </View>
-      </View>
-      <Text style={styles.sectionTitle}>Filter by Products</Text>
-      <Picker
-        selectedValue={formData.products}
-        onValueChange={(itemValue) => handleChange('products', itemValue)}
-        style={styles.picker}
+      <Text style={styles.sectionTitle}>Include Products</Text>
+      <TouchableOpacity
+        style={styles.selectProductButton}
+        onPress={() => setIsModalVisible(true)}
       >
-        <Picker.Item label="Select product" value="" />
-        {products.map((product) => (
-          <Picker.Item key={product._id} label={product.title} value={product.title} />
-        ))}
-      </Picker>
+        <Text style={styles.selectProductText}>Select Products</Text>
+      </TouchableOpacity>
+      {selectedProducts.length > 0 && (
+        <View style={styles.selectedProductsContainer}>
+          {selectedProducts.map((product, index) => (
+            <Text key={index} style={styles.selectedProduct}>
+              {product}
+            </Text>
+          ))}
+        </View>
+      )}
 
+      {/* Exclude Products */}
       <Text style={styles.sectionTitle}>Exclude Products</Text>
-      <Picker
-        selectedValue={formData.excludedProducts}
-        onValueChange={(itemValue) => handleChange('excludedProducts', itemValue)}
-        style={styles.picker}
+      <TouchableOpacity
+        style={styles.selectProductButton}
+        onPress={() => setIsExcludeModalVisible(true)}
       >
-        <Picker.Item label="Select product" value="" />
-        {products.map((product) => (
-          <Picker.Item key={product._id} label={product.title} value={product.title} />
-        ))}
-      </Picker>
+        <Text style={styles.selectProductText}>Exclude Products</Text>
+      </TouchableOpacity>
+      {excludedProducts.length > 0 && (
+        <View style={styles.selectedProductsContainer}>
+          {excludedProducts.map((product, index) => (
+            <Text key={index} style={styles.selectedProduct}>
+              {product}
+            </Text>
+          ))}
+        </View>
+      )}
 
-      <Text style={styles.sectionTitle}>Email Restriction</Text>
+      {/* Email Restrictions */}
+      {/* <Text style={styles.sectionTitle}>Email Restriction</Text>
       <TextInput
         style={styles.input}
         value={formData.emailRestrictions}
-        onChangeText={(value) => handleChange('emailRestrictions', value)}
+        onChangeText={(value) => setFormData({ ...formData, emailRestrictions: value })}
         placeholder="Enter email restrictions"
+      /> */}
+
+      <Text style={styles.sectionTitle}>Minimum Spend</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.minimumSpend.toString()}
+        onChangeText={(value) => setFormData({ ...formData, minimumSpend: value })}
+        placeholder="Minimum Spend"
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.sectionTitle}>Maximum Spend</Text>
+      <TextInput
+        style={styles.input}
+        value={formData.maximumSpend.toString()}
+        onChangeText={(value) => setFormData({ ...formData, maximumSpend: value })}
+        placeholder="Maximum Spend"
+        keyboardType="numeric"
       />
     </>
   );
@@ -162,7 +311,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.usageLimitPerCoupon?.toString()}
-          onChangeText={(value) => handleChange('usageLimitPerCoupon', value)}
+          onChangeText={(value) => setFormData({ ...formData, usageLimitPerCoupon: value })}
           placeholder="Usage limit per coupon"
           keyboardType="numeric"
         />
@@ -172,7 +321,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.limitUsageToXItems?.toString()}
-          onChangeText={(value) => handleChange('limitUsageToXItems', value)}
+          onChangeText={(value) => setFormData({ ...formData, limitUsageToXItems: value })}
           placeholder="Limit usage to X items"
           keyboardType="numeric"
         />
@@ -182,7 +331,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.usageLimitPerUser?.toString()}
-          onChangeText={(value) => handleChange('usageLimitPerUser', value)}
+          onChangeText={(value) => setFormData({ ...formData, usageLimitPerUser: value })}
           placeholder="Usage limit per user"
           keyboardType="numeric"
         />
@@ -192,13 +341,15 @@ const AddCoupon = () => {
 
   return (
     <ScrollView style={styles.container}>
+      {renderProductModal()}
+      {renderExcludeProductModal()}
       <Text style={styles.title}>Create New Coupon</Text>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Coupon Code</Text>
         <TextInput
           style={styles.input}
           value={formData.couponCode}
-          onChangeText={(value) => handleChange('couponCode', value)}
+          onChangeText={(value) => setFormData({ ...formData, couponCode: value })}
           placeholder="Enter Coupon Code"
         />
       </View>
@@ -207,7 +358,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.description}
-          onChangeText={(value) => handleChange('description', value)}
+          onChangeText={(value) => setFormData({ ...formData, description: value })}
           placeholder="Description"
         />
       </View>
@@ -215,7 +366,7 @@ const AddCoupon = () => {
         <Text style={styles.label}>Discount Type</Text>
         <Picker
           selectedValue={formData.discountType}
-          onValueChange={(itemValue) => handleChange('discountType', itemValue)}
+          onValueChange={(itemValue) => setFormData({ ...formData, discountType: itemValue })}
           style={styles.picker}
         >
           <Picker.Item label="Percentage Discount" value="Percentage Discount" />
@@ -227,7 +378,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.couponAmount.toString()}
-          onChangeText={(value) => handleChange('couponAmount', value)}
+          onChangeText={(value) => setFormData({ ...formData, couponAmount: value })}
           placeholder="Coupon Amount"
           keyboardType="numeric"
         />
@@ -237,7 +388,7 @@ const AddCoupon = () => {
         <TextInput
           style={styles.input}
           value={formData.expiry}
-          onChangeText={(value) => handleChange('expiry', value)}
+          onChangeText={(value) => setFormData({ ...formData, expiry: value })}
           placeholder="yyyy-mm-dd"
         />
       </View>
@@ -246,14 +397,14 @@ const AddCoupon = () => {
           <Text style={styles.label}>Allow Free Shipping</Text>
           <Switch
             value={formData.allowFreeShipping}
-            onValueChange={(value) => handleChange('allowFreeShipping', value)}
+            onValueChange={(value) => setFormData({ ...formData, allowFreeShipping: value })}
           />
         </View>
         <View style={styles.switchItem}>
           <Text style={styles.label}>Show on Store</Text>
           <Switch
             value={formData.showOnStore}
-            onValueChange={(value) => handleChange('showOnStore', value)}
+            onValueChange={(value) => setFormData({ ...formData, showOnStore: value })}
           />
         </View>
       </View>
@@ -306,6 +457,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
   },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
   tabsContainer: {
     flexDirection: 'row',
     marginBottom: 10,
@@ -349,6 +507,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+  productItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -367,6 +530,55 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    margin: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalActions: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  doneButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+  },
+  doneButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  selectedProductsContainer: {
+    marginTop: 10,
+  },
+  selectedProduct: {
+    color: 'green',
+    fontSize: 16,
+    marginRight: 10,
+  },
+  selectProductButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  selectProductText: {
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 

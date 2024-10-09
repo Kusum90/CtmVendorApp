@@ -1,6 +1,6 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { View, StyleSheet,Text } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProductScreen from '../../../screens/ProductScreen/ProductScreen';
 import ProductDetails from '../../../components/ProductComponent/ProductInnerComponent/ProductDetails';
 import ProductInventoryScreen from '../../../components/ProductComponent/ProductInnerComponent/ProductInventoryScreen';
@@ -16,85 +16,81 @@ import ProductUnitsScreen from '../../../components/ProductComponent/ProductInne
 import ProductPoliciesScreen from '../../../components/ProductComponent/ProductInnerComponent/ProductPoliciesScreen';
 import ProductAdvanceScreen from '../../../components/ProductComponent/ProductInnerComponent/ProductAdvanceScreen';
 
+// Import responsive utilities
+import { FontSize } from '../../../utils/responsiveUtils'; // Adjust the import path accordingly
+
 const Stack = createNativeStackNavigator();
+
+// Define your screens in the order of appearance, excluding the initial ProductScreen
+const screens = [
+  { name: 'ProductDetails', component: ProductDetails, title: 'Product Details' },
+  { name: 'ProductInventoryScreen', component: ProductInventoryScreen, title: 'Product Inventory' },
+  { name: 'ProductShippingScreen', component: ProductShippingScreen, title: 'Product Shipping' },
+  { name: 'ProductTaxScreen', component: ProductTaxScreen, title: 'Product Tax' },
+  { name: 'ProductAttributeScreen', component: ProductAttributeScreen, title: 'Product Attribute' },
+  { name: 'ProductLinkedScreen', component: ProductLinkedScreen, title: 'Product Linked' },
+  { name: 'ProductSeoScreen', component: ProductSeoScreen, title: 'Product SEO' },
+  { name: 'ProductMandatePointScreen', component: ProductMandatepointScreen, title: 'Product Mandate Point' },
+  { name: 'ProductSustanibilityScreen', component: ProductSustanibilityScreen, title: 'Product Sustainability' },
+  { name: 'ProductMOQScreen', component: ProductMOQScreen, title: 'Product MOQ' },
+  { name: 'ProductUnitsScreen', component: ProductUnitsScreen, title: 'Product Units' },
+  { name: 'ProductPoliciesScreen', component: ProductPoliciesScreen, title: 'Product Policies' },
+  { name: 'ProductAdvanceScreen', component: ProductAdvanceScreen, title: 'Product Advance' },
+];
 
 function ProductScreenNav() {
   return (
-    <Stack.Navigator initialRouteName="ProductScreen">
-      {/* Define all your screens here */}
+    <Stack.Navigator
+      initialRouteName="ProductScreen"
+      screenOptions={({ route }) => {
+        const currentIndex = screens.findIndex(screen => screen.name === route.name) + 1;
+        const totalScreens = screens.length;
+
+        return {
+          headerTitleAlign: 'center', // Default centering for the title
+          headerStyle: { backgroundColor: '#f5f5f5' }, // Optional: Background color for header
+          headerRight: () => (
+            currentIndex > 0 && ( // Only show pagination if not on the ProductScreen
+              <View style={styles.paginationContainer}>
+                <Text style={styles.paginationText}>
+                  {currentIndex}/{totalScreens}
+                </Text>
+              </View>
+            )
+          ),
+        };
+      }}>
+
+      {/* Initial screen not to be counted */}
       <Stack.Screen
         name="ProductScreen"
         component={ProductScreen}
-        options={{title: 'Home'}}
+        options={{ title: 'Product' }}
       />
-      <Stack.Screen
-        name="ProductDetails"
-        component={ProductDetails}
-        options={{title: 'Product Details'}}
-      />
-      <Stack.Screen
-        name="ProductInventoryScreen" // Fixing the screen name here
-        component={ProductInventoryScreen}
-        options={{title: 'Product Inventory'}}
-      />
-       <Stack.Screen
-        name="ProductShippingScreen" // Fixing the screen name here
-        component={ProductShippingScreen}
-        options={{title: 'Product Shipping'}}
-      />
-      <Stack.Screen
-        name="ProductTaxScreen" // Fixing the screen name here
-        component={ProductTaxScreen}
-        options={{title: 'Product Tax'}}
-      />
-      <Stack.Screen
-        name="ProductAttributeScreen" // Fixing the screen name here
-        component={ProductAttributeScreen}
-        options={{title: 'Product Attribute'}}
-      />
-       <Stack.Screen
-        name="ProductLinkedScreen" // Fixing the screen name here
-        component={ProductLinkedScreen}
-        options={{title: 'Product Linked'}}
-      />
-       <Stack.Screen
-        name="ProductSeoScreen" // Fixing the screen name here
-        component={ProductSeoScreen}
-        options={{title: 'Product SEO'}}
-      />
-      <Stack.Screen
-        name="ProductMandatePointScreen" // Fixing the screen name here
-        component={ProductMandatepointScreen}
-        options={{title: 'Product Mandate Point'}}
-      />
-      <Stack.Screen
-        name="ProductSustanibilityScreen" // Fixing the screen name here
-        component={ProductSustanibilityScreen}
-        options={{title: ' Product Sustanability '}}
-      />
-      <Stack.Screen
-        name="ProductMOQScreen" // Fixing the screen name here
-        component={ProductMOQScreen}
-        options={{title: ' Product MOQ '}}
-      />
-      <Stack.Screen
-        name="ProductUnitsScreen" // Fixing the screen name here
-        component={ProductUnitsScreen}
-        options={{title: ' Product Units '}}
-      />
-      <Stack.Screen
-        name="ProductPoliciesScreen" // Fixing the screen name here
-        component={ProductPoliciesScreen}
-        options={{title: ' Product Policies '}}
-      />
-      <Stack.Screen
-        name="ProductAdvanceScreen" // Fixing the screen name here
-        component={ProductAdvanceScreen}
-        options={{title: ' Product Advance '}}
-      />
-    
+
+      {/* Map through the remaining screens and define each screen */}
+      {screens.map(screen => (
+        <Stack.Screen
+          key={screen.name}
+          name={screen.name}
+          component={screen.component}
+          options={{ title: screen.title }} // This title will be used as the header title
+        />
+      ))}
     </Stack.Navigator>
   );
 }
+
+// Custom styles for the pagination header
+const styles = StyleSheet.create({
+  paginationContainer: {
+    // marginRight: 15, 
+  },
+  paginationText: {
+    fontSize: FontSize(16), // Use responsive font size
+    color: '#007BFF', // Blue color for pagination
+    fontWeight: 'bold',
+  },
+});
 
 export default ProductScreenNav;
