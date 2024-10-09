@@ -1,56 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
-import {wp,hp,FontSize} from '../../utils/responsiveUtils'
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboardData } from '../../redux/Product/ProductSlice';
+import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 import Category from '../../assets/svg/Productsvg/Category';
-import Products from '../../assets/svg/Productsvg/Products'
+import Products from '../../assets/svg/Productsvg/Products';
 import Sales from '../../assets/svg/Productsvg/Sales';
-import TopSelling from '../../assets/svg/Productsvg/TopSelling';
 import LowStocks from '../../assets/svg/Productsvg/LowStocks';
 import NotInStock from '../../assets/svg/Productsvg/NotInStock';
+import TopSelling from '../../assets/svg/Productsvg/TopSelling';
 
 const DashboardCard = ({ item }) => {
   return (
     <View style={styles.card}>
-      {/* Display label at the top */}
       <Text style={styles.label}>{item.label}</Text>
-
-      {/* Display the main value and additional info */}
       <View style={styles.cardContent}>
         <Text style={styles.mainValue}>{item.value}</Text>
-
-        {/* Display icon using emoji */}
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>{item.icon}</Text>
+          {item.icon}
         </View>
       </View>
-
-      {/* Additional Info below */}
       <Text style={styles.additionalInfo}>{item.additionalInfo}</Text>
     </View>
   );
 };
 
 const Product = () => {
-  const dashboardData = [
-    { id: '1', label: 'Category', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
-    { id: '2', label: 'Products', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
-    // { id: '3', label: 'Sales', value: '134.5k', additionalInfo: '+28%', icon: <Sales/> },  // Emoji for graph
-    // { id: '4', label: 'Top Selling', value: '5', additionalInfo: '+13%', icon: <TopSelling/> },  // Emoji for trophy
-    { id: '5', label: 'Low Stocks', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
-    { id: '6', label: 'Not In Stock', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
+  const dispatch = useDispatch();
+  const { products: dashboardData, loading, error } = useSelector((state) => state.products);
+
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
+
+  // Check for loading or error state
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  const formattedData = [
+    { id: '1', label: 'Category', value: dashboardData.totalCategories || 0, additionalInfo: 'Draft (3)', icon: <Category /> },
+    { id: '2', label: 'Products', value: dashboardData.totalProducts || 0, additionalInfo: 'Archived (3)', icon: <Products /> },
+    { id: '3', label: 'Sales', value: dashboardData.totalSales?.totalOrders || 0, additionalInfo: '+28%', icon: <Sales /> },
+    { id: '4', label: 'Top Selling', value: dashboardData.totalSales?.totalRevenue || 0, additionalInfo: '+13%', icon: <TopSelling /> },
+    { id: '5', label: 'Low Stocks', value: dashboardData.lowStockProducts?.length || 0, additionalInfo: 'Ordered', icon: <LowStocks /> },
+    { id: '6', label: 'Not In Stock', value: dashboardData.outOfStockProducts?.length || 0, additionalInfo: 'Archived (3)', icon: <NotInStock /> },
   ];
 
   return (
     <ScrollView style={styles.container}>
-
-    
       <FlatList
-        data={dashboardData}
+        data={formattedData}
         numColumns={2}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DashboardCard item={item} />}
       />
-    
     </ScrollView>
   );
 };
@@ -58,53 +70,57 @@ const Product = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp(3),            // Responsive padding
+    padding: wp(3),
     backgroundColor: '#F5F5F5',
   },
   card: {
     flex: 1,
     backgroundColor: '#fff',
-    borderRadius: wp(3),        // Responsive border radius
-    margin: wp(2),              // Responsive margin
+    borderRadius: wp(3),
+    margin: wp(2),
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: hp(1) }, // Responsive shadow offset
+    shadowOffset: { width: 0, height: hp(1) },
     shadowOpacity: 0.2,
-    shadowRadius: wp(3),        // Responsive shadow radius
+    shadowRadius: wp(3),
   },
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: hp(1.2),         // Responsive margin top
-    marginLeft: wp(1),          // Responsive margin left
+    marginTop: hp(1.2),
+    marginLeft: wp(1),
   },
   label: {
-    fontSize: FontSize(16),     // Responsive font size
+    fontSize: FontSize(16),
     color: '#666',
     fontWeight: '500',
-    marginLeft: wp(1),          // Responsive margin left
+    marginLeft: wp(1),
   },
   mainValue: {
-    fontSize: FontSize(26),     // Responsive font size
+    fontSize: FontSize(26),
     fontWeight: 'bold',
     color: '#333',
-    marginLeft: wp(1),          // Responsive margin left
+    marginLeft: wp(1),
   },
   iconContainer: {
-    borderRadius: wp(10),       // Responsive border radius
-    // padding: wp(2),          // Uncomment if padding is needed
-  },
-  icon: {
-    fontSize: FontSize(24),     // Responsive font size
-    marginRight: wp(1),         // Responsive margin right
+    borderRadius: wp(10),
   },
   additionalInfo: {
-    fontSize: FontSize(12),     // Responsive font size
+    fontSize: FontSize(12),
     color: '#373737',
-    marginTop: hp(0.3),         // Responsive margin top
-    marginLeft: wp(2),          // Responsive margin left
-  }
+    marginTop: hp(0.3),
+    marginLeft: wp(2),
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: FontSize(16),
+    color: 'red',
+  },
 });
 
 export default Product;
