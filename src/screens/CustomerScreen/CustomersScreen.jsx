@@ -8,8 +8,8 @@ import CustomersData from '../../components/CustomerComponent/CustomersData'
 const CustomersScreen = () => {
   return (
     <ScrollView>
-      <CustomersDashboard/>
-      <Customer/>
+      {/* <CustomersDashboard/> */}
+      {/* <Customer/> */}
       <CustomersData/>
     </ScrollView>
   )

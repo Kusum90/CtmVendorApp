@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput, Button } from 'react-native';
 import axios from 'axios'; // Import Axios
@@ -55,6 +56,9 @@ const Coupondata = () => {
                 // Remove the deleted coupon from the state
                 setInventoryData(inventoryData.filter(coupon => coupon._id !== couponId));
                 Alert.alert("Success", "Coupon deleted successfully.");
+                
+                // Refresh the page by fetching the coupons again
+                fetchCoupons(); // Re-fetch the coupons to reflect the updated data
               })
               .catch((error) => {
                 console.error("Error deleting coupon:", error);
@@ -65,6 +69,7 @@ const Coupondata = () => {
       ]
     );
   };
+  
 
   // Handle edit coupon (Open modal)
   const handleEditCoupon = (coupon) => {
@@ -72,9 +77,9 @@ const Coupondata = () => {
     setEditData({
       couponCode: coupon.couponCode,
       discountType: coupon.discountType,
-      couponAmount: coupon.couponAmount.toString(),
-      usageLimitPerCoupon: coupon.usageLimitPerCoupon.toString(),
-      expiry: formatDate(coupon.expiry)
+      couponAmount: coupon.couponAmount.toString(), // Convert to string
+      usageLimitPerCoupon: coupon.usageLimitPerCoupon.toString(), // Convert to string
+      expiry: formatDate(coupon.expiry) // Format date to string 'YYYY-MM-DD'
     });
     setEditModalVisible(true); // Open modal for editing
   };
@@ -87,21 +92,21 @@ const Coupondata = () => {
     console.log("couponAmount:", editData.couponAmount, "Type:", typeof editData.couponAmount);
     console.log("usageLimitPerCoupon:", editData.usageLimitPerCoupon, "Type:", typeof editData.usageLimitPerCoupon);
     console.log("expiry:", editData.expiry, "Type:", typeof editData.expiry);
-  
+
     // Prepare the data to match backend expectations
     const updatedData = {
-      couponCode: editData.couponCode.trim(), // Expecting string
-      discountType: editData.discountType.trim(), // Expecting string
-      couponAmount: editData.couponAmount.toString(), // Convert to string
-      usageLimitPerCoupon: editData.usageLimitPerCoupon.toString(), // Convert to string
-      expiry: editData.expiry.trim(), // Ensure it's a valid string in 'YYYY-MM-DD'
+      couponCode: editData.couponCode.trim(), // String
+      discountType: editData.discountType.trim(), // String
+      couponAmount: editData.couponAmount.toString(), // Ensure couponAmount is a string
+      usageLimitPerCoupon: Number(editData.usageLimitPerCoupon), // Convert to number
+      expiry: editData.expiry.trim(), // String in 'YYYY-MM-DD' format
     };
-  
+
     // Log the final data before sending it to the backend
     console.log("Final Updated Data being sent to backend:", updatedData);
-  
+
     // Send the PUT request
-    axios.put(`http://192.168.1.32:4001/user/coupon/${selectedCoupon}`, updatedData)
+    axios.put(`https://cm-backend-yk2y.onrender.com/user/coupon/${selectedCoupon}`, updatedData)
       .then((response) => {
         console.log(response.data.message); // Log success message
         fetchCoupons(); // Refresh the coupon list after editing
@@ -116,11 +121,6 @@ const Coupondata = () => {
         Alert.alert("Error", "Failed to update the coupon.");
       });
   };
-  
-  
-  
-  
-  
 
   // Helper function to format the expiry date
   const formatDate = (dateString) => {
@@ -213,12 +213,11 @@ const Coupondata = () => {
 
             <Text style={styles.label}>Expiry Date (YYYY-MM-DD)</Text>
             <TextInput
-  style={styles.input}
-  placeholder="Expiry Date (YYYY-MM-DD)"
-  value={editData.expiry}
-  onChangeText={(text) => setEditData({ ...editData, expiry: text })}
-/>
-
+              style={styles.input}
+              placeholder="Expiry Date (YYYY-MM-DD)"
+              value={editData.expiry}
+              onChangeText={(text) => setEditData({ ...editData, expiry: text })}
+            />
 
             <Button title="Save" onPress={handleSaveEdit} />
             <Button title="Cancel" color="red" onPress={() => setEditModalVisible(false)} />
