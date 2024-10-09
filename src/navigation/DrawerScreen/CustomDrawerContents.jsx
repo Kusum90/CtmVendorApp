@@ -418,7 +418,14 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => handleSubItemPress('ChatBox', 'ChatBoxScreen')}
+            onPress={() =>
+              handleSubItemPress('ChatBox', 'Stack', {
+                screen: 'ChatBoxScreenNav',
+                params: {
+                  screen: 'ChatBoxScreen',
+                },
+              })
+            }
             style={[
               styles.subMenuItem,
               activeItem === 'ChatBox' ? styles.activeMenuItem : null,
