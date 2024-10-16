@@ -11,7 +11,7 @@ import {
   FlatList,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { createCoupon, fetchProducts } from '../../../redux/Coupon/Coupon';
+import { createCoupon, fetchProducts } from '../../../redux/Coupon/CouponSlice';
 import { Picker } from '@react-native-picker/picker';
 
 const AddCoupon = () => {
