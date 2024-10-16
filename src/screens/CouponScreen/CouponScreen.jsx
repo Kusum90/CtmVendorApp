@@ -11,7 +11,7 @@ const CouponScreen = () => {
   return (
     <ScrollView>
         <CouponDashboard/>
-        <Coupon/>
+       
         <Coupondata/>
     </ScrollView>
   )

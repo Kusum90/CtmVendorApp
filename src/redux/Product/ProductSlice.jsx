@@ -113,16 +113,17 @@ export const createProduct = createAsyncThunk(
   }
 );
 
-// Thunk to fetch all products
+
 export const getAllProduct = createAsyncThunk(
-  "getAll/Product",
+  'products/getAllProduct',
+
   async (
     { page, limit, searchTerm, selectedDate, stockFilter, category },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.get(
-        `http://localhost:4001/user/getallproduct`,
+        `https://cm-backend-yk2y.onrender.com/user/getallproduct`,
         {
           params: {
             page,
@@ -137,6 +138,41 @@ export const getAllProduct = createAsyncThunk(
       return response.data;
     } catch (error) {
       showToast(error?.response?.data?.error || "Failed to fetch products");
+      return rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
+// Thunk to delete a product
+export const deleteProduct = createAsyncThunk(
+  "product/delete",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`https://cm-backend-yk2y.onrender.com/user/delete-product/${productId}`);
+      showToast("Product deleted successfully!");
+      return productId; // Return the deleted product ID
+    } catch (error) {
+      // Log error to debug
+      console.error("Delete product error:", error);
+      showToast(error?.response?.data?.error || "Failed to delete product");
+      return rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
+// Thunk to update a product
+export const updateProduct = createAsyncThunk(
+  "product/update",
+  async (productData, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `https://cm-backend-yk2y.onrender.com/user/update-product/${productData._id}`,
+        productData
+      );
+      showToast("Product updated successfully!");
+      return response.data.data; // Adjust according to your API response structure
+    } catch (error) {
+      showToast(error?.response?.data?.error || "Failed to update product");
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -188,16 +224,39 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.error || action.error.message;
       })
-      .addCase(getAllProduct.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(getAllProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload.data;
-        state.totalProducts = action.payload.totalProducts;
-        state.totalPages = action.payload.totalPages;
+        state.data = action.payload.data; // Ensure action.payload.data is correct
+        state.totalProducts = action.payload.totalProducts; // Ensure this matches your response structure
+        state.totalPages = action.payload.totalPages; // Ensure this matches your response structure
       })
-      .addCase(getAllProduct.rejected, (state, action) => {
+       // Delete product cases
+       .addCase(deleteProduct.fulfilled, (state, action) => {
+        // Filter products array to remove the deleted product
+        state.products = state.products.filter((product) => product._id !== action.payload);
+        // Additionally, filter the data array if needed
+        state.data = state.data.filter((product) => product._id !== action.payload);
+        state.loading = false; // Set loading to false when deletion is successful
+    })
+
+      // Update product cases
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        // Find the index of the updated product and replace it in the state
+        const index = state.products.findIndex(product => product._id === action.payload._id);
+        if (index !== -1) {
+          state.products[index] = action.payload; // Update the product details
+        }
+        // Optionally, update the data array as well
+        const dataIndex = state.data.findIndex(product => product._id === action.payload._id);
+        if (dataIndex !== -1) {
+          state.data[dataIndex] = action.payload; // Update the product details in data array
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error || action.error.message;
       });

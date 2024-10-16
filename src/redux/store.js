@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import couponReducer from '../redux/Coupon/Coupon';
+import couponReducer from './Coupon/CouponSlice';
 import customerReducer from '../redux/Customer/CustomerSlice';
 import productReducer from '../redux/Product/ProductSlice';
 import categoryReducer from '../redux/Product/ProductAttribute/ProductAttribute';
