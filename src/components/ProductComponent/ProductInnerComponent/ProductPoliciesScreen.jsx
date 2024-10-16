@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import { useDispatch } from 'react-redux'; // Import useDispatch from Redux
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
 
 const ProductPoliciesScreen = () => {
   const navigation = useNavigation(); // Initialize the navigation hook
+  const dispatch = useDispatch(); // Initialize dispatch function
+
   const [overrideFields, setOverrideFields] = useState(false);
   const [policyLabel, setPolicyLabel] = useState('');
   const [shippingPolicy, setShippingPolicy] = useState('');
@@ -12,7 +16,18 @@ const ProductPoliciesScreen = () => {
   const [exchangePolicy, setExchangePolicy] = useState('');
 
   const handleNext = () => {
-    // Navigate to the ProductAdvanceScreen
+    // Dispatch the policy details to Redux
+    dispatch(
+      setProductDetails({
+        overridePolicyFields: overrideFields,
+        policyTabLabel: policyLabel,
+        shippingPolicy: shippingPolicy,
+        refundPolicy: refundPolicy,
+        cancelReturnExchangePolicy: exchangePolicy,
+      })
+    );
+
+    // Navigate to the next screen (ProductAdvanceScreen)
     navigation.navigate('ProductAdvanceScreen');
   };
 
@@ -24,7 +39,7 @@ const ProductPoliciesScreen = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handlePrevious}>
-        <Text style={styles.backButton}> Product Policies</Text>
+        <Text style={styles.backButton}>Product Policies</Text>
       </TouchableOpacity>
       
       <View style={styles.checkboxContainer}>
@@ -91,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize(23), // Responsive font size
     color: '#333',
     marginBottom: hp(2), // Responsive margin
-    color:'#373737'
+    color: '#373737'
   },
   checkboxContainer: {
     flexDirection: 'row',

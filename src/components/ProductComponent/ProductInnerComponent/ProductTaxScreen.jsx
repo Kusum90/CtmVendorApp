@@ -1,62 +1,70 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import action
+import { Picker } from '@react-native-picker/picker'; // Import Picker for dropdown
 
 const ProductTaxScreen = () => {
   const navigation = useNavigation(); // Get the navigation prop
+  const dispatch = useDispatch(); // Initialize dispatch
 
-  // Using arrays to hold the selected options
-  const [taxStatus, setTaxStatus] = useState([]);
-  const [taxClass, setTaxClass] = useState([]);
+  const [taxStatus, setTaxStatus] = useState('taxable'); // Default value for taxStatus
+  const [taxClass, setTaxClass] = useState('standard');  // Default value for taxClass
 
-  // Function to toggle tax status options
-  const handleTaxStatusChange = (option) => {
-    setTaxStatus((prev) => 
-      prev.includes(option) ? prev.filter(item => item !== option) : [...prev, option]
-    );
-  };
-
-  // Function to toggle tax class options
-  const handleTaxClassChange = (option) => {
-    setTaxClass((prev) => 
-      prev.includes(option) ? prev.filter(item => item !== option) : [...prev, option]
-    );
+  // Function to handle next button click
+  const handleNext = () => {
+    // Dispatch taxStatus and taxClass to Redux store
+    dispatch(setProductDetails({
+      taxStatus, // Valid value directly from the state
+      taxClass,  // Valid value directly from the state
+    }));
+    
+    // Navigate to the next screen
+    navigation.navigate('ProductAttributeScreen');
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.header}>Tax</Text>
+        <Text style={styles.header}>Tax Details</Text>
       </View>
 
+      {/* Tax Status Picker */}
       <View style={styles.card}>
         <View style={styles.section}>
           <Text style={styles.title}>Tax Status</Text>
-          {['Taxable', 'Shipping Only', 'None'].map(option => (
-            <TouchableOpacity key={option} style={styles.option} onPress={() => handleTaxStatusChange(option)}>
-              <Text style={styles.optionText}>{option}</Text>
-              <Switch 
-                value={taxStatus.includes(option)} 
-                onValueChange={() => handleTaxStatusChange(option)} 
-              />
-            </TouchableOpacity>
-          ))}
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={taxStatus}
+              onValueChange={(itemValue) => setTaxStatus(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Taxable" value="taxable" />
+              <Picker.Item label="Shipping Only" value="shipping only" />
+              <Picker.Item label="None" value="none" />
+            </Picker>
+          </View>
         </View>
 
+        {/* Tax Class Picker */}
         <View style={styles.section}>
           <Text style={styles.title}>Tax Class</Text>
-          {['Standard', 'Reduced Rate', 'Zero rate'].map(option => (
-            <TouchableOpacity key={option} style={styles.option} onPress={() => handleTaxClassChange(option)}>
-              <Text style={styles.optionText}>{option}</Text>
-              <Switch 
-                value={taxClass.includes(option)} 
-                onValueChange={() => handleTaxClassChange(option)} 
-              />
-            </TouchableOpacity>
-          ))}
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={taxClass}
+              onValueChange={(itemValue) => setTaxClass(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Standard" value="standard" />
+              <Picker.Item label="Reduced Rate" value="reduced rate" />
+              <Picker.Item label="Zero Rate" value="zero rate" />
+            </Picker>
+          </View>
         </View>
 
+        {/* Button Container */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.previousButton}
@@ -66,7 +74,7 @@ const ProductTaxScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate('ProductAttributeScreen')} // Navigate to next screen
+            onPress={handleNext} // Dispatch Redux action and navigate
           >
             <Text style={styles.buttonTextAdd}>Next</Text>
           </TouchableOpacity>
@@ -96,7 +104,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: FontSize(24),            // Responsive font size
     fontWeight: 'bold',
-    marginBottom: hp(1),             // Responsive margin
+    marginBottom: hp(1),               // Responsive margin
     color:'#373737'
   },
   section: {
@@ -107,16 +115,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: hp(1),               // Responsive margin
   },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: hp(2),            // Responsive padding
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
-  optionText: {
-    fontSize: FontSize(19),            // Responsive font size
+  picker: {
+    height: hp(5),                     // Responsive height
+    width: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -129,13 +136,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     paddingVertical: hp(1.5),          // Responsive padding
-    paddingHorizontal: wp(6),           // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   addButton: {
     backgroundColor: '#28a745',
     borderRadius: 4,
     paddingVertical: hp(1.5),          // Responsive padding
-    paddingHorizontal: wp(6),           // Responsive padding
+    paddingHorizontal: wp(6),          // Responsive padding
   },
   buttonText: {
     fontSize: FontSize(19),            // Responsive font size
