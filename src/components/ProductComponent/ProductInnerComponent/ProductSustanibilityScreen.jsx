@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import { useDispatch } from 'react-redux'; // Import Redux hook
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
 
 const ProductSustanibilityScreen = () => {
-  const [focusKeyword, setFocusKeyword] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
+  const [sustainabilityRemark, setSustainabilityRemark] = useState('');
+  const [carbonFootprint, setCarbonFootprint] = useState('');
 
+  const dispatch = useDispatch(); // Initialize dispatch
   const navigation = useNavigation(); // Hook to handle navigation
+
+  // Handle the next button click to dispatch data to Redux and navigate to the next screen
+  const handleNext = () => {
+    // Dispatch the values to Redux store
+    dispatch(setProductDetails({
+      sustainabilityRemark,
+      carbonFootprint,
+    }));
+
+    // Navigate to the next screen
+    navigation.navigate('ProductMOQScreen');
+  };
 
   return (
     <View style={styles.container}>
@@ -22,33 +37,33 @@ const ProductSustanibilityScreen = () => {
           <Text style={styles.label}>Sustainability Remark</Text>
           <TextInput
             style={styles.input}
-            value={focusKeyword}
-            onChangeText={setFocusKeyword}
+            value={sustainabilityRemark}
+            onChangeText={setSustainabilityRemark}
             multiline
           />
 
-          <Text style={styles.label}>CarbonFootprint</Text>
+          <Text style={styles.label}>Carbon Footprint</Text>
           <TextInput
             style={styles.input}
-            value={metaDescription}
-            onChangeText={setMetaDescription}
+            value={carbonFootprint}
+            onChangeText={setCarbonFootprint}
             multiline
           />
         </View>
 
         <View style={styles.buttonContainer}>
           {/* Previous Button */}
-          <TouchableOpacity 
-            style={styles.buttonOutline} 
+          <TouchableOpacity
+            style={styles.buttonOutline}
             onPress={() => navigation.goBack()} // Go back to the previous screen
           >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
           {/* Next Button */}
-          <TouchableOpacity 
-            style={styles.buttonFilled} 
-            onPress={() => navigation.navigate('ProductMOQScreen')} // Navigate to ProductMOQ screen
+          <TouchableOpacity
+            style={styles.buttonFilled}
+            onPress={handleNext} // Handle dispatch and navigate to next screen
           >
             <Text style={styles.buttonText1}>Next</Text>
           </TouchableOpacity>
@@ -137,6 +152,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize(19), // Responsive font size
   },
 });
-
 
 export default ProductSustanibilityScreen;

@@ -42,13 +42,16 @@ export const fetchProducts = createAsyncThunk(
         `https://cm-backend-yk2y.onrender.com/user/search-products`,
         { params: { title: searchTerm } }
       );
+
+      console.log('Fetched Products:', response.data.data); // Log the API response for debugging
       return response.data.data;
     } catch (error) {
-      console.log(error?.response?.data?.error || "Failed to fetch Products");
+      console.log('Error fetching products:', error?.response?.data?.error || 'Failed to fetch Products');
       return rejectWithValue(error?.response?.data);
     }
   }
 );
+
 
 // Coupon slice to manage the state of coupons and products
 const couponSlice = createSlice({

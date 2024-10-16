@@ -1,216 +1,268 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  Modal,
-  Button,
+  ActivityIndicator,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
-
-const AttributeDropdown = ({ label, options }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const selectOption = (option) => {
-    setSelectedOption(option);
-    setIsOpen(false); // Close dropdown after selection
-  };
-
-  return (
-    <View style={styles.dropdownContainer}>
-      <TouchableOpacity onPress={toggleDropdown} style={styles.dropdownHeader}>
-        <Text style={styles.dropdownLabel}>
-          {selectedOption ? selectedOption : label}
-        </Text>
-        <Text style={styles.dropdownIcon}>{isOpen ? '▲' : '▼'}</Text>
-      </TouchableOpacity>
-      {isOpen && (
-        <View style={styles.dropdownOptions}>
-          {options.map((option) => (
-            <TouchableOpacity key={option} onPress={() => selectOption(option)}>
-              <Text
-                style={[
-                  styles.dropdownOption,
-                  selectedOption === option && styles.selectedOption,
-                ]}
-              >
-                {option}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAttributes } from '../../../redux/Product/ProductAttribute/CreateAttribute';
+import AddAttribute from '../ProductInnerComponent/ProductAttributes/AddAttribute'; // Import the AddAttribute component
 
 const ProductAttributeScreen = () => {
-  const attributeOptions = [
-    ['Brand', ['Nike', 'Adidas', 'Puma']],
-    ['Color', ['Red', 'Blue', 'Green']],
-    ['Shape', ['Circle', 'Square', 'Triangle']],
-    ['Size', ['Small', 'Medium', 'Large']],
-    ['Watts', ['10W', '20W', '30W']],
-    ['Weight', ['1kg', '2kg', '3kg']],
-    ['Power', ['Low', 'Medium', 'High']],
-    ['Material', ['Plastic', 'Metal', 'Wood']],
-  ];
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  const [modalVisible, setModalVisible] = useState(false);
+  // Fetch attributes from redux store
+  const { attributes, loading, error } = useSelector((state) => state.attributes);
 
-  const navigation = useNavigation(); // Initialize navigation hook
+  const [searchTerms, setSearchTerms] = useState({});
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+  const [formData, setFormData] = useState({});
 
-  const openModal = () => {
-    setModalVisible(true);
+  useEffect(() => {
+    // Dispatch the action to fetch attributes when the component mounts
+    dispatch(fetchAttributes());
+  }, [dispatch]);
+
+  const handleAttributeCheckboxChange = (attributeName) => {
+    setSelectedAttributes((prevState) => ({
+      ...prevState,
+      [attributeName]: !prevState[attributeName],
+    }));
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
+  const handleSearchChange = (text, attributeName) => {
+    setSearchTerms((prevState) => ({
+      ...prevState,
+      [attributeName.toLowerCase()]: text,
+    }));
+  };
+
+  const handleValueClick = (value, attributeName) => {
+    const attributeKey = attributeName.toLowerCase();
+
+    if (!formData[attributeKey]?.includes(value)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [attributeKey]: [...(prevData[attributeKey] || []), value],
+      }));
+      setSearchTerms((prevState) => ({
+        ...prevState,
+        [attributeKey]: '',
+      }));
+    }
+  };
+
+  // Handle adding new value
+  const handleAddNewValue = (attributeName) => {
+    const attributeKey = attributeName.toLowerCase();
+    const newValue = searchTerms[attributeKey];
+
+    if (newValue && !formData[attributeKey]?.includes(newValue)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [attributeKey]: [...(prevData[attributeKey] || []), newValue],
+      }));
+      setSearchTerms((prevState) => ({
+        ...prevState,
+        [attributeKey]: '',
+      }));
+    }
+  };
+
+  const CustomCheckBox = ({ isChecked, onPress, label }) => {
+    return (
+      <TouchableOpacity onPress={onPress} style={styles.checkboxContainer}>
+        <View style={styles.checkbox}>
+          {isChecked && <View style={styles.checked} />}
+        </View>
+        <Text style={styles.checkboxLabel}>{label}</Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header Card */}
-      <View style={styles.headerCard}>
+    <View style={{ flex: 1 }}>
+      {/* Scrollable Attribute Section */}
+      <ScrollView style={styles.container}>
         <Text style={styles.headerText}>Attributes</Text>
-      </View>
 
-      {/* Content Card */}
-      <View style={styles.contentCard}>
-        {attributeOptions.map(([label, options]) => (
-          <AttributeDropdown key={label} label={label} options={options} />
-        ))}
+        {/* Show loading spinner while attributes are loading */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#0EAB3D" />
+        ) : error ? (
+          <Text style={styles.errorText}>Failed to load attributes: {error}</Text>
+        ) : (
+          attributes.map((attribute) => (
+            <View key={attribute._id} style={styles.attributeSection}>
+              <View style={styles.checkboxContainer}>
+                <CustomCheckBox
+                  isChecked={selectedAttributes[attribute.attribute_name] || false}
+                  onPress={() => handleAttributeCheckboxChange(attribute.attribute_name)}
+                  label={attribute.attribute_name}
+                />
+              </View>
 
-        {/* Button at the Right Side */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={openModal}>
-            <Text style={styles.buttonText}>Add Attributes</Text>
-          </TouchableOpacity>
-        </View>
+              {selectedAttributes[attribute.attribute_name] && (
+                <View style={styles.attributeDetails}>
+                  <Text style={styles.subHeader}>Search {attribute.attribute_name}</Text>
+                  <TextInput
+                    style={styles.searchInput}
+                    value={searchTerms[attribute.attribute_name.toLowerCase()] || ''}
+                    onChangeText={(text) =>
+                      handleSearchChange(text, attribute.attribute_name)
+                    }
+                    placeholder={`Search for ${attribute.attribute_name}`}
+                  />
 
+                  {/* Display search results */}
+                  {searchTerms[attribute.attribute_name.toLowerCase()] && (
+                    <View style={styles.searchResults}>
+                      {attribute.values
+                        .filter((value) =>
+                          value
+                            .toLowerCase()
+                            .includes(
+                              searchTerms[attribute.attribute_name.toLowerCase()].toLowerCase()
+                            )
+                        )
+                        .map((value) => (
+                          <TouchableOpacity
+                            key={value}
+                            onPress={() => handleValueClick(value, attribute.attribute_name)}
+                            style={styles.resultItem}
+                          >
+                            <Text>{value}</Text>
+                          </TouchableOpacity>
+                        ))}
+                    </View>
+                  )}
+
+                  {/* Add New button */}
+                  <TouchableOpacity
+                    style={styles.addNewButton}
+                    onPress={() => handleAddNewValue(attribute.attribute_name)}
+                  >
+                    <Text style={styles.addNewButtonText}>Add New</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          ))
+        )}
+
+        {/* Navigation buttons */}
         <View style={styles.navigation}>
-          {/* Previous Button */}
           <TouchableOpacity
             style={[styles.navButton, styles.previousButton]}
-            onPress={() => navigation.goBack()} // Go back to the previous screen
+            onPress={() => navigation.goBack()}
           >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
-          {/* Next Button */}
           <TouchableOpacity
             style={[styles.navButton, styles.nextButton]}
-            onPress={() => navigation.navigate('ProductLinkedScreen')} // Navigate to ProductLinkedScreen
+            onPress={() => navigation.navigate('ProductLinkedScreen')}
           >
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
 
-      {/* Modal for Adding Attributes */}
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Attribute</Text>
-            {/* You can add form elements here to add a new attribute */}
-            <Button title="Close" onPress={closeModal} />
-          </View>
-        </View>
-      </Modal>
-    </ScrollView>
+      {/* Import and render AddAttribute */}
+      <AddAttribute />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp(4),                    // Responsive padding
-    backgroundColor: '#fff',           // Light background for contrast
-  },
-  headerCard: {
-    backgroundColor: '#f0f0f0',        // Light gray background for header
-    borderRadius: 8,
-    padding: wp(4),                    // Responsive padding
-    marginBottom: hp(2.5),             // Responsive margin
+    padding: 16,
   },
   headerText: {
-    fontSize: FontSize(23),             // Responsive font size
+    fontSize: 20,
     fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'left',
+    marginBottom: 16,
   },
-  dropdownContainer: {
-    marginBottom: hp(2),                // Responsive margin
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
   },
-  dropdownHeader: {
+  attributeSection: {
+    marginBottom: 24,
+  },
+  checkboxContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: wp(3),                     // Responsive padding
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#0EAB3D',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  checked: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#0EAB3D',
+  },
+  checkboxLabel: {
+    fontSize: 16,
+  },
+  subHeader: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  searchInput: {
     borderWidth: 1,
     borderColor: '#ccc',
+    padding: 8,
     borderRadius: 4,
-    backgroundColor: '#f9f9f9',         // Light gray for dropdown
+    marginBottom: 8,
   },
-  dropdownLabel: {
-    fontSize: FontSize(19),             // Responsive font size
-  },
-  dropdownIcon: {
-    fontSize: FontSize(16),             // Responsive font size
-  },
-  dropdownOptions: {
+  searchResults: {
     borderWidth: 1,
     borderColor: '#ccc',
+    maxHeight: 150,
+    padding: 8,
     borderRadius: 4,
-    marginTop: -1,                      // Adjust for overlapping border
-    backgroundColor: 'white',           // White background for options
   },
-  dropdownOption: {
-    padding: wp(3),                     // Responsive padding
-    fontSize: FontSize(19),             // Responsive font size
+  resultItem: {
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  selectedOption: {
-    backgroundColor: '#d1e7dd',         // Highlight color for selected option
-  },
-  buttonContainer: {
-    paddingVertical: hp(4),             // Responsive vertical padding
-    alignItems: 'flex-end',             // Align the button to the right
-  },
-  button: {
-    backgroundColor: '#4CAF50',         // Green for the button
-    padding: hp(2),                     // Responsive padding
+  addNewButton: {
+    backgroundColor: '#0EAB3D',
+    padding: 10,
     borderRadius: 4,
-    width: '40%',                       // Adjust button width
+    marginTop: 8,
   },
-  buttonText: {
-    color: 'white',
+  addNewButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-    fontSize: FontSize(19),             // Responsive font size
   },
   navigation: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: hp(4),             // Responsive vertical padding
+    paddingVertical: 16,
   },
   navButton: {
     flex: 1,
-    padding: hp(2),                     // Responsive padding
+    padding: 16,
     borderRadius: 4,
-    marginHorizontal: wp(2),            // Responsive horizontal margin
+    marginHorizontal: 8,
   },
   previousButton: {
     backgroundColor: '#4CAF50',
@@ -218,23 +270,12 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: '#4CAF50',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: wp(5),                     // Responsive padding
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: FontSize(18),             // Responsive font size
+  buttonText: {
+    color: 'white',
     fontWeight: 'bold',
-    marginBottom: hp(2.5),              // Responsive margin
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
+
 export default ProductAttributeScreen;
