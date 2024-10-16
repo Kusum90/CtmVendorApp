@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import { useDispatch } from 'react-redux'; // Import useDispatch from Redux
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
 
 const ProductUnitsScreen = () => {
-  const [moq, setMoq] = useState('');
+  const [unitsOfMeasure, setUnitsOfMeasure] = useState(''); // State for units of measure
+  const dispatch = useDispatch(); // Initialize dispatch function
   const navigation = useNavigation(); // Initialize navigation hook
+
+  // Function to handle "Next" button press
+  const handleNext = () => {
+    // Dispatch unitsOfMeasure to Redux
+    dispatch(setProductDetails({ unitOfMeasure: unitsOfMeasure }));
+
+    // Navigate to the next screen
+    navigation.navigate('ProductPoliciesScreen');
+  };
 
   return (
     <View style={styles.container}>
@@ -18,9 +30,8 @@ const ProductUnitsScreen = () => {
         <Text style={styles.label}>Units of Measure</Text>
         <TextInput
           style={styles.input}
-          value={moq}
-          onChangeText={setMoq}
-          keyboardType="numeric" 
+          value={unitsOfMeasure}
+          onChangeText={setUnitsOfMeasure}
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -35,7 +46,7 @@ const ProductUnitsScreen = () => {
         {/* Next Button */}
         <TouchableOpacity 
           style={styles.buttonFilled} 
-          onPress={() => navigation.navigate('ProductPoliciesScreen')} // Navigate to ProductPoliciesScreen
+          onPress={handleNext} // Dispatch Redux and navigate to the next screen
         >
           <Text style={styles.buttonText1}>Next</Text>
         </TouchableOpacity>
@@ -107,6 +118,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize(19), // Responsive font size
   },
 });
-
 
 export default ProductUnitsScreen;
