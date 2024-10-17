@@ -1,27 +1,38 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; // Import useDispatch hook
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import the Redux action
+import { useDispatch } from 'react-redux';
+import { setProductDetails } from '../../../redux/Product/ProductSlice';
 
 const ProductMOQScreen = () => {
   const [moq, setMoq] = useState('');
   const [quantities, setQuantities] = useState([{ minQty: '', maxQty: '', price: '' }]);
   const [savedQuantities, setSavedQuantities] = useState([]);
-  
-  const dispatch = useDispatch(); // Initialize the dispatch function
-  const navigation = useNavigation(); // Initialize navigation hook
+
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const handleNext = () => {
     if (savedQuantities.length === 0) {
       Alert.alert('Validation Error', 'Please add at least one quantity range.');
       return;
     }
+  
+    // Fill the remaining slots in savedQuantities with placeholder values
+    const paddedQuantities = [...savedQuantities];
+    while (paddedQuantities.length < 5) {
+      paddedQuantities.push({ minQty: '', maxQty: '', price: '' });
+    }
+  
     const minimumOrderQuantity = Number(moq);
-    dispatch(setProductDetails({ minimumOrderQuantity, quantities: savedQuantities }));
+    // Dispatch the quantities array as priceRanges to match the backend
+    dispatch(setProductDetails({ minimumOrderQuantity, priceRanges: paddedQuantities }));
+    
     navigation.navigate('ProductUnitsScreen');
   };
+  
+  
 
   const handleAddMore = () => {
     if (quantities.length < 5) {
@@ -30,6 +41,7 @@ const ProductMOQScreen = () => {
       Alert.alert('Limit Reached', 'You can only add up to 5 quantity ranges.');
     }
   };
+  
 
   const handleDone = () => {
     if (quantities.some(q => !q.minQty || !q.maxQty || !q.price)) {
@@ -37,11 +49,11 @@ const ProductMOQScreen = () => {
       return;
     }
     setSavedQuantities([...savedQuantities, ...quantities]);
-    setQuantities([{ minQty: '', maxQty: '', price: '' }]); 
+    setQuantities([{ minQty: '', maxQty: '', price: '' }]);
   };
 
   const handleInputChange = (index, field, value) => {
-    const updatedQuantities = quantities.map((q, i) => 
+    const updatedQuantities = quantities.map((q, i) =>
       i === index ? { ...q, [field]: value } : q
     );
     setQuantities(updatedQuantities);
@@ -61,7 +73,7 @@ const ProductMOQScreen = () => {
           style={styles.input}
           value={moq}
           onChangeText={setMoq}
-          keyboardType="numeric" 
+          keyboardType="numeric"
         />
 
         {/* Product Quantity Section */}
@@ -118,17 +130,17 @@ const ProductMOQScreen = () => {
 
       <View style={styles.navigationButtons}>
         {/* Previous Button */}
-        <TouchableOpacity 
-          style={styles.previousButton} 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          style={styles.previousButton}
+          onPress={() => navigation.goBack()}
         >
           <Text style={styles.buttonText}>Previous</Text>
         </TouchableOpacity>
 
         {/* Next Button */}
-        <TouchableOpacity 
-          style={styles.nextButton} 
-          onPress={handleNext} 
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={handleNext}
         >
           <Text style={styles.buttonTextNext}>Next</Text>
         </TouchableOpacity>
@@ -143,7 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    padding: wp(5), 
+    padding: wp(5),
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },

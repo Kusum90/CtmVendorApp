@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity } from 'react-native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { useDispatch } from 'react-redux';
-import { setInventoryDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails } from '../../../redux/Product/ProductSlice';
 import { Picker } from '@react-native-picker/picker'; // Import Picker
 
 const ProductInventoryScreen = ({ navigation }) => {
@@ -10,50 +10,22 @@ const ProductInventoryScreen = ({ navigation }) => {
 
   const [sku, setSku] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [inStock, setInStock] = useState(false);
-  const [outOfStock, setOutOfStock] = useState(false);
-  const [onBackorder, setOnBackorder] = useState(false);
   const [soldIndividually, setSoldIndividually] = useState(false);
   const [allowBackorders, setAllowBackorders] = useState('no'); // Initialize allowBackorders state
 
-  const handleSkuChange = (text) => {
-    setSku(text);
-  };
-
-  const handleQuantityChange = (text) => {
-    setQuantity(text);
-  };
-
-  const handleInStockChange = () => {
-    setInStock(!inStock);
-    setOutOfStock(false);
-    setOnBackorder(false);
-  };
-
-  const handleOutOfStockChange = () => {
-    setOutOfStock(!outOfStock);
-    setInStock(false);
-    setOnBackorder(false);
-  };
-
-  const handleOnBackorderChange = () => {
-    setOnBackorder(!onBackorder);
-    setInStock(false);
-    setOutOfStock(false);
-  };
-
-  const handleSoldIndividuallyChange = () => {
-    setSoldIndividually(!soldIndividually);
-  };
-
   const handleNext = () => {
-    // Dispatch the inventory details to Redux store
+    if (!sku || !quantity) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Dispatch the inventory details to Redux store dynamically
     dispatch(
-      setInventoryDetails({
-        sku,
-        stockQty: parseInt(quantity, 10),
-        allowBackorders, // Set the allowBackorders value
-        soldIndividually,
+      setProductDetails({
+        sku: sku || '', // Set SKU or empty string
+        stockQty: quantity ? parseInt(quantity, 10) : 0, // Convert quantity to integer, or set default
+        allowBackorders: allowBackorders || 'no', // Default to 'no' if not selected
+        soldIndividually: soldIndividually, // Boolean for soldIndividually
       })
     );
 
@@ -73,7 +45,8 @@ const ProductInventoryScreen = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={sku}
-            onChangeText={handleSkuChange}
+            onChangeText={setSku}
+            placeholder="Enter SKU"
           />
         </View>
 
@@ -82,27 +55,10 @@ const ProductInventoryScreen = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={quantity}
-            onChangeText={handleQuantityChange}
+            onChangeText={setQuantity}
             keyboardType="numeric"
+            placeholder="Enter Quantity"
           />
-        </View>
-
-        <View style={styles.statusContainer}>
-          <Text style={styles.label}>Stock Status</Text>
-          <View style={styles.checkboxRow}>
-            <View style={styles.checkboxItem}>
-              <Switch value={inStock} onValueChange={handleInStockChange} />
-              <Text>In Stock</Text>
-            </View>
-            <View style={styles.checkboxItem}>
-              <Switch value={outOfStock} onValueChange={handleOutOfStockChange} />
-              <Text>Out of Stock</Text>
-            </View>
-          </View>
-          <View style={styles.checkboxItem}>
-            <Switch value={onBackorder} onValueChange={handleOnBackorderChange} />
-            <Text>On Backorder</Text>
-          </View>
         </View>
 
         {/* Allow Backorders Picker */}
@@ -120,8 +76,8 @@ const ProductInventoryScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.checkboxItem}>
-          <Switch value={soldIndividually} onValueChange={handleSoldIndividuallyChange} />
-          <Text>Sold Individually</Text>
+          <Switch value={soldIndividually} onValueChange={setSoldIndividually} />
+          <Text style={styles.label}>Sold Individually</Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -191,18 +147,10 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     marginBottom: hp(1.5),
   },
-  statusContainer: {
-    marginBottom: hp(1.5),
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: hp(1),
-  },
   checkboxItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: wp(5),
+    marginBottom: hp(1.5),
   },
   buttonContainer: {
     flexDirection: 'row',

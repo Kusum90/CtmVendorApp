@@ -5,72 +5,62 @@ import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProductDetails } from '../../../redux/Product/ProductSlice';
-import { MandatePoints } from '../../../redux/Product/ProductAttribute/ProductAttribute'; // Import your action
+import { MandatePoints } from '../../../redux/Product/ProductAttribute/ProductAttribute';
 
 const ProductMandatepointScreen = () => {
   const [assemblyRequired, setAssemblyRequired] = useState(false);
   const [powerSource, setPowerSource] = useState('');
   const [hsnSearchTerm, setHsnSearchTerm] = useState('');
-  const [selectedHsnCode, setSelectedHsnCode] = useState('');
+  const [selectedHsnCodeId, setSelectedHsnCodeId] = useState('');
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  // Fetch HSN codes and error/loading state from Redux
   const { loading, hsnCodes, error } = useSelector((state) => state.categories);
 
-  // Dispatch HSN code search when the search term changes
   useEffect(() => {
     if (hsnSearchTerm) {
       dispatch(MandatePoints(hsnSearchTerm));
     }
   }, [hsnSearchTerm, dispatch]);
 
-  // Handle form submission and navigation to the next screen
   const handleNext = () => {
-    if (!powerSource || !selectedHsnCode) {
+    if (!powerSource || !selectedHsnCodeId) {
       Alert.alert('Validation Error', 'Please select a power source and enter an HSN code.');
       return;
     }
 
-    // Dispatch selected values to Redux
     dispatch(
       setProductDetails({
         isAssemblyRequired: assemblyRequired,
         powerSource,
-        hsnCode: [selectedHsnCode],
+        hsnCode: [selectedHsnCodeId],
       })
     );
 
-    // Navigate to the next screen
     navigation.navigate('ProductSustanibilityScreen');
   };
 
-  // Update the assembly requirement
   const handleAssemblyRequiredChange = (value) => {
     setAssemblyRequired(value);
   };
 
-  // Update the power source
   const handlePowerSourceChange = (value) => {
     setPowerSource(value);
   };
 
-  // Update the HSN code search term
   const handleHsnCodeChange = (value) => {
     setHsnSearchTerm(value);
   };
 
-  // Handle HSN code selection
-  const handleSelectHsnCode = (code) => {
-    setSelectedHsnCode(code);
-    setHsnSearchTerm(''); // Clear the search field after selection
+  const handleSelectHsnCode = (hsnCodeId) => {
+    setSelectedHsnCodeId(hsnCodeId);
+    setHsnSearchTerm('');
   };
 
-  // Handle removing the selected HSN code
   const handleRemoveHsnCode = () => {
-    setSelectedHsnCode('');
-    setHsnSearchTerm(''); // Allow user to search again
+    setSelectedHsnCodeId('');
+    setHsnSearchTerm('');
   };
 
   return (
@@ -135,36 +125,32 @@ const ProductMandatepointScreen = () => {
             placeholder="Search HSN Code..."
             value={hsnSearchTerm}
             onChangeText={handleHsnCodeChange}
-            editable={!selectedHsnCode} // Disable input when HSN code is selected
+            editable={!selectedHsnCodeId}
           />
 
-          {/* Display loading state */}
           {loading && <Text>Loading HSN Codes...</Text>}
 
-          {/* Display list of fetched HSN codes */}
-          {!selectedHsnCode && hsnCodes?.length > 0 && (
+          {!selectedHsnCodeId && hsnCodes?.length > 0 && (
             <FlatList
               data={hsnCodes}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleSelectHsnCode(item.hsnCode)}>
+                <TouchableOpacity onPress={() => handleSelectHsnCode(item._id)}>
                   <Text style={styles.hsnCodeItem}>{item.hsnCode}</Text>
                 </TouchableOpacity>
               )}
             />
           )}
 
-          {/* Show selected HSN code */}
-          {selectedHsnCode && (
+          {selectedHsnCodeId && (
             <View style={styles.selectedHsnCode}>
-              <Text>Selected HSN Code: {selectedHsnCode}</Text>
+              <Text>Selected HSN Code ID: {selectedHsnCodeId}</Text>
               <TouchableOpacity onPress={handleRemoveHsnCode}>
                 <Text style={styles.removeButton}>X</Text>
               </TouchableOpacity>
             </View>
           )}
 
-          {/* Show error message if any */}
           {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
 

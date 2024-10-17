@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { useDispatch } from 'react-redux';
-import { setShippingDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails } from '../../../redux/Product/ProductSlice';
 
 const ProductShippingScreen = () => {
   const navigation = useNavigation(); 
@@ -42,11 +42,11 @@ const ProductShippingScreen = () => {
   const handleNext = () => {
     // Ensure all fields are valid before dispatching to the backend
     dispatch(
-      setShippingDetails({
-        weight: weight ? Number(weight) : null, // Convert weight to number
-        length: dimensions.length ? Number(dimensions.length) : null, 
-        width: dimensions.width ? Number(dimensions.width) : null, 
-        height: dimensions.height ? Number(dimensions.height) : null, 
+      setProductDetails({
+        weight: weight ? parseFloat(weight) : null, // Convert weight to number
+        length: dimensions.length ? parseFloat(dimensions.length) : null, 
+        width: dimensions.width ? parseFloat(dimensions.width) : null, 
+        height: dimensions.height ? parseFloat(dimensions.height) : null, 
         shippingClass: selectedShippingClass, // Valid value from enum
         processingTime: selectedProcessingTime, // Valid value from enum
       })
@@ -71,6 +71,7 @@ const ProductShippingScreen = () => {
             value={weight}
             onChangeText={setWeight}
             keyboardType="numeric"
+            placeholder="Enter product weight"
           />
         </View>
 

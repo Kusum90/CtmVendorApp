@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
-import { wp,hp,FontSize } from '../../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import { useDispatch } from 'react-redux';
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import the action for SEO details
 
 const ProductSeoScreen = () => {
   const [focusKeyword, setFocusKeyword] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const navigation = useNavigation(); // Access the navigation object
+  const dispatch = useDispatch(); // Use dispatch to send data to the Redux store
+
+  const handleNext = () => {
+    const seoDetails = {
+      focusKeyword,
+      metaDescription,
+    };
+
+    // Log the data to verify it's being passed correctly
+    console.log('SEO Details passed:', seoDetails);
+
+    // Dispatch SEO details to Redux store
+    dispatch(setProductDetails(seoDetails));
+
+    // Navigate to the next screen
+    navigation.navigate('ProductMandatePointScreen');
+  };
 
   return (
     <View style={styles.container}>
@@ -38,14 +57,14 @@ const ProductSeoScreen = () => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.buttonOutline}
-            onPress={() => navigation.goBack()} // Navigate to ProductLinked screen
+            onPress={() => navigation.goBack()} // Navigate to the previous screen
           >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.buttonFilled}
-            onPress={() => navigation.navigate('ProductMandatePointScreen')} // Navigate to ProductMandatePoint screen
+            onPress={handleNext} // Handle the next button press
           >
             <Text style={styles.buttonText1}>Next</Text>
           </TouchableOpacity>
@@ -88,7 +107,6 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: hp(3), // Responsive margin
-    
   },
   label: {
     marginBottom: hp(1), // Responsive margin

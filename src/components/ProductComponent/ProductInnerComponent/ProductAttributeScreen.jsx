@@ -11,7 +11,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAttributes } from '../../../redux/Product/ProductAttribute/CreateAttribute';
-import AddAttribute from '../ProductInnerComponent/ProductAttributes/AddAttribute'; // Import the AddAttribute component
+import AddAttribute from '../ProductInnerComponent/ProductAttributes/AddAttribute';
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import action for setting product details
 
 const ProductAttributeScreen = () => {
   const navigation = useNavigation();
@@ -73,6 +74,22 @@ const ProductAttributeScreen = () => {
         [attributeKey]: '',
       }));
     }
+  };
+
+  const handleNext = () => {
+    // Format the attributes into an array of objects
+    const formattedAttributes = Object.keys(formData).map((attributeName) => ({
+      name: attributeName,
+      values: formData[attributeName],
+    }));
+
+    // Dispatch selected attributes and values to the Redux store
+    dispatch(setProductDetails({
+      attributes: formattedAttributes, // Send attributes as an array
+    }));
+
+    // Navigate to the next screen
+    navigation.navigate('ProductLinkedScreen');
   };
 
   const CustomCheckBox = ({ isChecked, onPress, label }) => {
@@ -167,7 +184,7 @@ const ProductAttributeScreen = () => {
 
           <TouchableOpacity
             style={[styles.navButton, styles.nextButton]}
-            onPress={() => navigation.navigate('ProductLinkedScreen')}
+            onPress={handleNext}
           >
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
