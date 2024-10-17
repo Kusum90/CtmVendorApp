@@ -1,14 +1,30 @@
-import { StyleSheet, Text, View, Dimensions, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { LineChart } from 'react-native-chart-kit';
+import {StyleSheet, Text, View, Dimensions, Alert} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {LineChart} from 'react-native-chart-kit';
+import Header from '../../utils/header';
+import {wp, hp, FontSize} from '../../utils/responsiveUtils'; // Import your responsive utilities
 
 const SalesReport = () => {
-  const screenWidth = Dimensions.get("window").width;
+  const screenWidth = Dimensions.get('window').width;
   const [selectedData, setSelectedData] = useState(null);
-  const [dataPoints, setDataPoints] = useState([250, 300, 280, 320, 400, 450, 600, 500, 550, 800, 1000]);
+  const [dataPoints, setDataPoints] = useState([
+    250, 300, 280, 320, 400, 450, 600, 500, 550, 800, 1000,
+  ]);
 
   const data = {
-    labels: ["Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    labels: [
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+    ],
     datasets: [
       {
         data: dataPoints, // Dynamic data for Forecast
@@ -21,65 +37,70 @@ const SalesReport = () => {
         strokeWidth: 2, // optional
       },
     ],
-    legend: ["Demand", "Forecast"],
+    legend: ['Demand', 'Forecast'],
   };
 
   const chartConfig = {
-    backgroundGradientFrom: "#fff",
-    backgroundGradientTo: "#fff",
+    backgroundGradientFrom: '#fff',
+    backgroundGradientTo: '#fff',
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     strokeWidth: 2, // optional, default 3
     propsForDots: {
-      r: "6",
-      strokeWidth: "2",
-      stroke: "#ffa726",
+      r: '6',
+      strokeWidth: '2',
+      stroke: '#ffa726',
     },
   };
 
-  const handleDataPointClick = (data) => {
-    const { value, dataset, index } = data;
+  const handleDataPointClick = data => {
+    const {value, dataset, index} = data;
     setSelectedData({
       label: data.label,
       value,
       datasetIndex: dataset,
     });
-    Alert.alert(`Clicked on ${data.label}`, `Value: ${value}`, [{ text: 'OK' }]);
+    Alert.alert(`Clicked on ${data.label}`, `Value: ${value}`, [{text: 'OK'}]);
   };
 
   // Simulate live updates
   useEffect(() => {
     const interval = setInterval(() => {
       // Simulate live updates by changing the data points
-      setDataPoints((prevData) => prevData.map((point) => point + Math.round(Math.random() * 10 - 5)));
+      setDataPoints(prevData =>
+        prevData.map(point => point + Math.round(Math.random() * 10 - 5)),
+      );
     }, 2000); // Update every 2 seconds
 
     return () => clearInterval(interval); // Clean up on component unmount
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        {/* The Chart */}
-        <LineChart
-          data={data}
-          width={screenWidth - 60} // Subtracting extra padding to ensure the chart fits well
-          height={320}
-          chartConfig={chartConfig}
-          bezier
-          style={styles.chart}
-          animated={true}
-          animationDuration={1000}
-          onDataPointClick={handleDataPointClick}
-        />
+    <View>
+      <Header />
+      <View style={styles.container}>
+        <View style={styles.card}>
+          {/* The Chart */}
+          <LineChart
+            data={data}
+            width={screenWidth - wp(10)} // Use wp for responsive width
+            height={hp(40)} // Use hp for responsive height
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+            animated={true}
+            animationDuration={1000}
+            onDataPointClick={handleDataPointClick}
+          />
 
-        {selectedData && (
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
-              Selected: {selectedData.label} - {selectedData.value}
-            </Text>
-          </View>
-        )}
+          {selectedData && (
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>
+                Selected: {selectedData.label} - {selectedData.value}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -90,31 +111,26 @@ export default SalesReport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    backgroundColor: '#f0f0f0',  // Light background behind the card
+    paddingTop: hp(2), // Use hp for responsive padding
+    backgroundColor: '#f0f0f0', // Light background behind the card
   },
   card: {
-    
     borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
-    zIndex: 1,  // Ensure it is layered above other elements
+    padding: wp(5), // Use wp for responsive padding
+    marginHorizontal: wp(5), // Use wp for responsive margin
+    alignItems: 'center',
   },
+
   chart: {
-    marginVertical: 8,
+    marginVertical: hp(2), // Use hp for responsive margin
     borderRadius: 16,
   },
   infoContainer: {
-    paddingTop: 10,
+    paddingTop: hp(1), // Use hp for responsive padding
     alignItems: 'center',
   },
   infoText: {
-    fontSize: 16,
+    fontSize: FontSize(16), // Use FontSize utility for responsive font size
     fontWeight: 'bold',
     color: '#333',
   },

@@ -13,6 +13,8 @@ import PaymentsScreenNav from './AllScreen/PaymentsScreenNav';
 import LedgerBookScreenNav from './AllScreen/LedgerBookScreenNav';
 import FollowersScreenNav from './AllScreen/FollowersScreenNav';
 import SupportScreenNav from './AllScreen/SupportScreenNav';
+import MediaScreenNav from './AllScreen/MediaScreenNav';
+import ChatBoxScreenNav from './AllScreen/ChatBoxScreenNav';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +31,9 @@ const StackNavigation = () => {
         <Stack.Screen name="PaymentsScreenNav" component={PaymentsScreenNav} />
         <Stack.Screen name="LedgerBookScreenNav" component={LedgerBookScreenNav} />
         <Stack.Screen name="FollowersScreenNav" component={FollowersScreenNav} />
+        <Stack.Screen name="ChatBoxScreenNav" component={ChatBoxScreenNav} />
         <Stack.Screen name="SupportScreenNav" component={SupportScreenNav} />
+        <Stack.Screen name="MediaScreenNav" component={MediaScreenNav} />
       </Stack.Navigator>
 
   );

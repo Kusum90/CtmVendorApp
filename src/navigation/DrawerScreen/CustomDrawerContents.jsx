@@ -37,6 +37,7 @@ const CustomDrawerContent = props => {
   const [isContentOpen, setContentOpen] = useState(false);
   const [isFinanceOpen, setFinanceOpen] = useState(false);
   const [isSocialOpen, setSocialOpen] = useState(false);
+ 
 
   const handleSectionPress = (section, isOpenSetter, isOpen) => {
     isOpenSetter(!isOpen);
@@ -255,6 +256,64 @@ const CustomDrawerContent = props => {
           </TouchableOpacity>
         </View>
       )}
+
+
+      {/* Content Section */}
+      <TouchableOpacity
+        onPress={() => handleSectionPress('Content', setContentOpen, isContentOpen)}
+        style={[
+          styles.menuItem,
+          activeItem === 'Content' ? styles.activeMenuItem : null,
+        ]}>
+        <ShopIcon
+          color={activeItem === 'Content' ? 'green' : 'black'}
+          width={20}
+          height={20}
+        />
+        <Text
+          style={[
+            styles.menuLabel,
+            activeItem === 'Content' ? styles.activeMenuLabel : null,
+          ]}>
+          Content
+        </Text>
+        <ArrowIcon
+          style={isContentOpen ? styles.arrowOpen : styles.arrowClosed}
+          width={30}
+          height={30}
+        />
+      </TouchableOpacity>
+      {isContentOpen && (
+        <View style={styles.subMenu}>
+          <TouchableOpacity
+            onPress={() =>
+              handleSubItemPress('Media', 'Stack', {
+                screen: 'MediaScreenNav',
+                params: {
+                  screen: 'MediaSCreen',
+                },
+              })
+            }
+            style={[
+              styles.subMenuItem,
+              activeItem === 'Media' ? styles.activeMenuItem : null,
+            ]}>
+            <PaymentsIcon
+              color={activeItem === 'Media' ? 'green' : 'black'}
+              width={18}
+              height={18}
+            />
+            <Text
+              style={[
+                styles.subMenuLabel,
+                activeItem === 'Media' ? styles.activeMenuLabel : null,
+              ]}>
+              Media
+            </Text>
+          </TouchableOpacity>
+          </View>
+      )}
+
 
       {/* Finance Section */}
       <TouchableOpacity

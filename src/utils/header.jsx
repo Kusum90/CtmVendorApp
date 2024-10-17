@@ -1,22 +1,20 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity,Image } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import MyAccount from '../assets/svg/HeaderSVG/MyAccount';
 import Notification from '../assets/svg/HeaderSVG/Notification';
 import Search from '../assets/svg/HeaderSVG/Search';
 import CleantechMart from '../assets/svg/HeaderSVG/cleantec';
-
+import { wp,hp,FontSize } from './responsiveUtils';
 
 const Header = () => {
   return (
     <View style={styles.container}>
       {/* Cleantechmart Logo */}
-      {/* <CleantechMart width={26} height={26} color='green'/> */}
       <Image
         source={require('../assets/images/ctmSinglelogo.png')} // Path to your image
         style={styles.logo}
         resizeMode="contain" 
       />
-      
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -45,14 +43,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: wp(2), // Use wp for horizontal padding
+    paddingVertical: hp(2), // Use hp for vertical padding
     backgroundColor: '#fff',
     justifyContent: 'space-between',
   },
   logo: {
-    width: 50, // Adjust the width of the logo
-    height: 40,  // Adjust the height of the logo
+    width: wp(15), // Adjust width using wp
+    height: hp(5),  // Adjust height using hp
   },
   searchContainer: {
     flex: 1,
@@ -60,20 +58,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
     borderRadius: 10,
-    paddingHorizontal: 10,
-    marginHorizontal: 10,
-    height: 40,
+    paddingHorizontal: wp(3), // Use wp for horizontal padding
+    marginHorizontal: wp(2), // Use wp for horizontal margin
+    height: hp(5), // Use hp for height
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: wp(2), // Use wp for right margin
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: FontSize(16), // Use FontSize function for dynamic font size
     color: 'black',
   },
   iconButton: {
-    paddingHorizontal: 5,
+    paddingHorizontal: wp(2), // Use wp for horizontal padding
   },
 });
 
