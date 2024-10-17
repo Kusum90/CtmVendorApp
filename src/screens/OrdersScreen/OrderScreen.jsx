@@ -10,7 +10,7 @@ const OrderScreen = () => {
   return (
     <ScrollView>
         <Dashboard/>
-        <Order/>
+        {/* <Order/> */}
         <OrdersData/>
     </ScrollView>
   )
