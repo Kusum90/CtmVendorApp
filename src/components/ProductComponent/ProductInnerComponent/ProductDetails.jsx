@@ -24,23 +24,31 @@ const ProductDetails = ({ navigation }) => {
   const [tags, setTags] = useState('');
 
   const handleNext = () => {
+    if (!selectedCategory || !selectedCategory._id) {
+      alert('Please select a valid category');
+      return;
+    }
+
+    // Send dynamic data to Redux for later submission
     dispatch(
       setProductDetails({
-        productType: selectedProductType,
-        category: selectedCategory ? selectedCategory.id : '',
-        isCatalogue,
+        productType: selectedProductType || 'simple', // Default to 'simple'
+        categories: [selectedCategory._id], // Send category as array with _id
+        catalogVisibility: selectedVisibility || 'shop', // Default to 'shop'
+        images: imageBoxes.filter((img) => img !== null), // Only send non-null images
+        title: title || 'Untitled Product', // Default title if not provided
+        salePrice: salePrice ? parseFloat(salePrice) : 0, // Convert to float
+        price: price ? parseFloat(price) : 0, // Convert to float
+        shortDescription: shortDescription || '', // Default to empty string
+        description: description || '', // Default to empty string
+        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [], // Convert tags to array
         isVirtual,
         isDownloadable,
-        categoryVisibility: selectedVisibility, 
-        images: imageBoxes.filter((img) => img !== null), 
-        title,
-        salePrice: parseFloat(salePrice), 
-        price: parseFloat(price), 
-        shortDescription,
-        description,
-        tags: tags.split(',').map((tag) => tag.trim()), 
+        isCatalogue,
       })
     );
+
+    // Navigate to the next screen (Product Inventory)
     navigation.navigate('ProductInventoryScreen');
   };
 
@@ -60,6 +68,7 @@ const ProductDetails = ({ navigation }) => {
       updatedBoxes[index] = res.uri;
       setImageBoxes(updatedBoxes);
 
+      // Allow adding up to 5 images
       if (imageBoxes.length < 5 && !imageBoxes[index + 1]) {
         setImageBoxes((prev) => [...prev, null]);
       }
@@ -85,6 +94,7 @@ const ProductDetails = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Product Images Section */}
       <View style={styles.section}>
         <Text style={styles.heading}>Product Images</Text>
         <View style={styles.imageContainer}>
@@ -107,6 +117,7 @@ const ProductDetails = ({ navigation }) => {
         </View>
       </View>
 
+      {/* Product Type Section */}
       <View style={styles.section}>
         <Text style={styles.heading}>Product Type</Text>
         <Picker
@@ -120,6 +131,7 @@ const ProductDetails = ({ navigation }) => {
         </Picker>
       </View>
 
+      {/* Product Settings */}
       <View style={styles.section}>
         <Text style={styles.heading}>Product Settings</Text>
         <View style={styles.toggleContainer}>
@@ -132,6 +144,7 @@ const ProductDetails = ({ navigation }) => {
         </View>
       </View>
 
+      {/* Product Information Section */}
       <View style={styles.section}>
         <Text style={styles.heading}>Product Information</Text>
         <TextInput
@@ -170,6 +183,7 @@ const ProductDetails = ({ navigation }) => {
         />
       </View>
 
+      {/* Category Section */}
       <View style={styles.section}>
         <Text style={styles.heading}>Category</Text>
         <CategorySearch
@@ -178,6 +192,7 @@ const ProductDetails = ({ navigation }) => {
         />
       </View>
 
+      {/* Tags Section */}
       <View style={styles.section}>
         <Text style={styles.heading}>Tags</Text>
         <TextInput
@@ -188,7 +203,8 @@ const ProductDetails = ({ navigation }) => {
         />
       </View>
 
-      {/* <View style={styles.section}>
+      {/* Catalog Visibility Section */}
+      <View style={styles.section}>
         <Text style={styles.heading}>Catalog Visibility</Text>
         <Picker
           selectedValue={selectedVisibility}
@@ -199,8 +215,9 @@ const ProductDetails = ({ navigation }) => {
           <Picker.Item label="search" value="search" />
           <Picker.Item label="hidden" value="hidden" />
         </Picker>
-      </View> */}
+      </View>
 
+      {/* Next Button */}
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>

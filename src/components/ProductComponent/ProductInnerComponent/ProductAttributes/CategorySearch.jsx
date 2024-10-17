@@ -19,7 +19,8 @@ const CategorySearch = ({ selectedCategory, setSelectedCategory }) => {
   }, [categorySearchTerm, dispatch]);
 
   const handleCategorySelect = (category) => {
-    setSelectedCategory(category); // Set the selected category
+    console.log('Selected Category:', category); // Log the selected category to ensure it's correct
+    setSelectedCategory(category); // Set the selected category (which contains the _id)
     setCategorySearchTerm(''); // Clear the search term after selection
     setShowDropdown(false); // Hide dropdown after selection
   };
@@ -49,7 +50,7 @@ const CategorySearch = ({ selectedCategory, setSelectedCategory }) => {
       {showDropdown && (
         <FlatList
           data={categories}
-          keyExtractor={(item) => item.id} // Assuming categories have an 'id'
+          keyExtractor={(item) => item._id} // Use '_id' for keyExtractor
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleCategorySelect(item)} style={styles.dropdownItem}>
               <Text style={styles.dropdownText}>{item.name}</Text>

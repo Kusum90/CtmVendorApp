@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; // Import useDispatch
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import action
-import { Picker } from '@react-native-picker/picker'; // Import Picker for dropdown
+import { useDispatch } from 'react-redux'; 
+import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Assuming the action is already defined in the slice
+import { Picker } from '@react-native-picker/picker'; 
 
 const ProductTaxScreen = () => {
-  const navigation = useNavigation(); // Get the navigation prop
-  const dispatch = useDispatch(); // Initialize dispatch
+  const navigation = useNavigation(); 
+  const dispatch = useDispatch(); 
 
   const [taxStatus, setTaxStatus] = useState('taxable'); // Default value for taxStatus
   const [taxClass, setTaxClass] = useState('standard');  // Default value for taxClass
@@ -20,7 +20,9 @@ const ProductTaxScreen = () => {
       taxStatus, // Valid value directly from the state
       taxClass,  // Valid value directly from the state
     }));
-    
+
+    console.log("Tax Details Dispatched:", { taxStatus, taxClass });
+
     // Navigate to the next screen
     navigation.navigate('ProductAttributeScreen');
   };
@@ -55,7 +57,7 @@ const ProductTaxScreen = () => {
             <Picker
               selectedValue={taxClass}
               onValueChange={(itemValue) => setTaxClass(itemValue)}
-              style={styles.picker}
+              style={styles.ppicker}
             >
               <Picker.Item label="Standard" value="standard" />
               <Picker.Item label="Reduced Rate" value="reduced rate" />
