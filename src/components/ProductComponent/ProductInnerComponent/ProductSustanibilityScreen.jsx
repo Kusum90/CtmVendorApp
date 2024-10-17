@@ -2,36 +2,28 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; // Import Redux hook
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
+import { useDispatch } from 'react-redux';
+import { setProductDetails } from '../../../redux/Product/ProductSlice';
 
 const ProductSustanibilityScreen = () => {
   const [sustainabilityRemark, setSustainabilityRemark] = useState('');
   const [carbonFootprint, setCarbonFootprint] = useState('');
 
-  const dispatch = useDispatch(); // Initialize dispatch
-  const navigation = useNavigation(); // Hook to handle navigation
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
 
-  // Handle the next button click to dispatch data to Redux and navigate to the next screen
   const handleNext = () => {
-    // Dispatch the values to Redux store
-    dispatch(setProductDetails({
-      sustainabilityRemark,
-      carbonFootprint,
-    }));
-
-    // Navigate to the next screen
+    dispatch(
+      setProductDetails({
+        sustainabilityRemark,
+        carbonFootprint,
+      })
+    );
     navigation.navigate('ProductMOQScreen');
   };
 
   return (
     <View style={styles.container}>
-      {/* Header Card */}
-      <View style={styles.headerCard}>
-        <Text style={styles.headerText}>Sustainability Fields</Text>
-      </View>
-
-      {/* Main Content Card */}
       <View style={styles.contentCard}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Sustainability Remark</Text>
@@ -52,18 +44,16 @@ const ProductSustanibilityScreen = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          {/* Previous Button */}
           <TouchableOpacity
             style={styles.buttonOutline}
-            onPress={() => navigation.goBack()} // Go back to the previous screen
+            onPress={() => navigation.goBack()}
           >
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
-          {/* Next Button */}
           <TouchableOpacity
             style={styles.buttonFilled}
-            onPress={handleNext} // Handle dispatch and navigate to next screen
+            onPress={handleNext}
           >
             <Text style={styles.buttonText1}>Next</Text>
           </TouchableOpacity>
@@ -76,80 +66,79 @@ const ProductSustanibilityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp(3), // Responsive padding
+    padding: wp(3),
   },
   headerCard: {
     backgroundColor: '#f8f9fa',
-    padding: wp(5), // Responsive padding
+    padding: wp(5),
     borderRadius: 10,
-    marginBottom: hp(3), // Responsive margin
-    elevation: 2, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    marginBottom: hp(3),
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   headerText: {
-    fontSize: FontSize(22), // Responsive font size
+    fontSize: FontSize(22),
     fontWeight: 'bold',
     color: '#373737',
   },
   contentCard: {
     backgroundColor: '#ffffff',
-    padding: wp(5), // Responsive padding
+    padding: wp(5),
     borderRadius: 10,
-    elevation: 2, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   inputContainer: {
-    marginBottom: hp(3), // Responsive margin
+    marginBottom: hp(3),
   },
   label: {
-    marginBottom: hp(1), // Responsive margin
+    marginBottom: hp(1),
     color: '#373737',
     fontSize: FontSize(19),
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: wp(3), // Responsive padding
+    padding: wp(3),
     borderRadius: 5,
-    textAlignVertical: 'top', // Allow multiline text to start from top
-    fontSize: FontSize(19), // Responsive font size
+    textAlignVertical: 'top',
+    fontSize: FontSize(19),
     color: '#373737',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: hp(2), // Responsive margin
+    marginTop: hp(2),
   },
   buttonOutline: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#28a745',
-    padding: wp(3), // Responsive padding
+    padding: wp(3),
     borderRadius: 5,
-    marginRight: wp(2), // Responsive margin
+    marginRight: wp(2),
   },
   buttonFilled: {
     flex: 1,
     backgroundColor: '#28a745',
-    padding: wp(3), // Responsive padding
+    padding: wp(3),
     borderRadius: 5,
-    fontSize: FontSize(19),
   },
   buttonText: {
     color: 'black',
     textAlign: 'center',
-    fontSize: FontSize(19), // Responsive font size
+    fontSize: FontSize(19),
   },
   buttonText1: {
     color: 'white',
     textAlign: 'center',
-    fontSize: FontSize(19), // Responsive font size
+    fontSize: FontSize(19),
   },
 });
 

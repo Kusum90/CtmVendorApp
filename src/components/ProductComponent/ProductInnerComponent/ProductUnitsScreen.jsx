@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; // Import useDispatch from Redux
+import { useDispatch } from 'react-redux';
 import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
 
 const ProductUnitsScreen = () => {
@@ -12,6 +12,11 @@ const ProductUnitsScreen = () => {
 
   // Function to handle "Next" button press
   const handleNext = () => {
+    if (!unitsOfMeasure) {
+      alert('Please enter the unit of measure');
+      return;
+    }
+
     // Dispatch unitsOfMeasure to Redux
     dispatch(setProductDetails({ unitOfMeasure: unitsOfMeasure }));
 
@@ -32,6 +37,7 @@ const ProductUnitsScreen = () => {
           style={styles.input}
           value={unitsOfMeasure}
           onChangeText={setUnitsOfMeasure}
+          placeholder="e.g., kg, liter, piece"
         />
       </View>
       <View style={styles.buttonContainer}>

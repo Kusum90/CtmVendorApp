@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Switch } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; // Import useDispatch from Redux
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import Redux action
+import { useDispatch } from 'react-redux';
+import { setProductDetails } from '../../../redux/Product/ProductSlice';
 
 const ProductPoliciesScreen = () => {
-  const navigation = useNavigation(); // Initialize the navigation hook
-  const dispatch = useDispatch(); // Initialize dispatch function
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [overrideFields, setOverrideFields] = useState(false);
   const [policyLabel, setPolicyLabel] = useState('');
@@ -16,7 +16,7 @@ const ProductPoliciesScreen = () => {
   const [exchangePolicy, setExchangePolicy] = useState('');
 
   const handleNext = () => {
-    // Dispatch the policy details to Redux
+    // Dispatching all policy details to Redux
     dispatch(
       setProductDetails({
         overridePolicyFields: overrideFields,
@@ -27,12 +27,11 @@ const ProductPoliciesScreen = () => {
       })
     );
 
-    // Navigate to the next screen (ProductAdvanceScreen)
+    // Navigate to the next screen
     navigation.navigate('ProductAdvanceScreen');
   };
 
   const handlePrevious = () => {
-    // Navigate to the previous screen
     navigation.goBack();
   };
 
