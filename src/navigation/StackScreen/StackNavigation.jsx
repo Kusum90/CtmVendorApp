@@ -15,6 +15,7 @@ import FollowersScreenNav from './AllScreen/FollowersScreenNav';
 import SupportScreenNav from './AllScreen/SupportScreenNav';
 import MediaScreenNav from './AllScreen/MediaScreenNav';
 import ChatBoxScreenNav from './AllScreen/ChatBoxScreenNav';
+import HomeScreenNav from './AllScreen/HomeScreenNav';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,8 @@ const StackNavigation = () => {
         <Stack.Screen name="ChatBoxScreenNav" component={ChatBoxScreenNav} />
         <Stack.Screen name="SupportScreenNav" component={SupportScreenNav} />
         <Stack.Screen name="MediaScreenNav" component={MediaScreenNav} />
+        <Stack.Screen name="HomeScreenNav" component={HomeScreenNav} />
+        
       </Stack.Navigator>
 
   );
