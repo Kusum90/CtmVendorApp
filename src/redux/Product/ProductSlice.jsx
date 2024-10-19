@@ -47,7 +47,7 @@ export const createProduct = createAsyncThunk(
     try {
       console.log("Creating product with data:", productData);
       const response = await axios.post(
-        "http://192.168.1.8:4001/user/create-product",
+        "http://cm-backend-yk2y.onrender.com/user/create-product",
         productData
       );
 
