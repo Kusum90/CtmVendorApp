@@ -20,6 +20,7 @@ import OrderScreenNav from '../StackScreen/AllScreen/OrderScreenNav';
 import StoreSettings from '../../components/SettingComponent/StoreSettings';
 import SettingScreen from '../../screens/SettingScreen/SettingScreen';
 import SettingScreenNav from '../StackScreen/AllScreen/SettingScreenNav';
+import HomeScreenNav from '../StackScreen/AllScreen/HomeScreenNav';
 
 // Create bottom tab navigator
 const Tab = createBottomTabNavigator();
@@ -75,7 +76,7 @@ const TabNavigation = ({ navigation }) => {
       />
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeScreenNav}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ focused }) => (

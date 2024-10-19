@@ -76,8 +76,6 @@ const SalesReport = () => {
   }, []);
 
   return (
-    <View>
-      <Header />
       <View style={styles.container}>
         <View style={styles.card}>
           {/* The Chart */}
@@ -102,7 +100,6 @@ const SalesReport = () => {
           )}
         </View>
       </View>
-    </View>
   );
 };
 
