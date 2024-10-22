@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator,TouchableOpacity } from 'react-native';
 import axios from 'axios'; // Import Axios
+import { useNavigation } from '@react-navigation/native';
 import Active from '../../assets/svg/Couponsvg/Active';
 import Paused from '../../assets/svg/Couponsvg/Paushed';
 import Expire from '../../assets/svg/Couponsvg/Expire';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
 
 const DashboardCard = ({ item }) => {
   const isExpired = item.label === 'Expired'; // Check if it's the "Expired" card
@@ -32,6 +34,7 @@ const DashboardCard = ({ item }) => {
 const CouponDashboard = () => {
   const [dashboardData, setDashboardData] = useState([]); // State to store dashboard data
   const [loading, setLoading] = useState(true); // State to manage loading spinner
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Fetch coupon counts from API when component mounts
@@ -59,14 +62,24 @@ const CouponDashboard = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <FlatList
-        data={dashboardData}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DashboardCard item={item} />}
-      />
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Coupon</Text>
+      </View>
+
+      <ScrollView style={styles.container}>
+        <FlatList
+          data={dashboardData}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <DashboardCard item={item} />}
+        />
+      </ScrollView>
+    </View>
   );
 };
 
@@ -123,6 +136,23 @@ const styles = StyleSheet.create({
     color: '#373737',
     marginTop: 1,
     marginLeft: 7,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
+    color:'#373737'
   },
 });
 

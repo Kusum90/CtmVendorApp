@@ -393,6 +393,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom:hp(1)
   },
   filterButton: {
     backgroundColor: '#f1f1f1',

@@ -14,7 +14,7 @@ function PaymentsScreenNav() {
         <Stack.Screen 
           name="PaymentScreen" 
           component={PaymentScreen} 
-          options={{ title: 'Payments' }} 
+          options={{ title: 'Payments' ,headerShown:false}} 
         />
         
       </Stack.Navigator>

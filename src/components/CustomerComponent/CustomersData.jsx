@@ -4,6 +4,8 @@ import Seen from '../../assets/svg/Productsvg/Seen';
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCustomer, setCurrentPage } from '../../redux/Customer/CustomerSlice';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+import { useNavigation } from '@react-navigation/native';
 
 // Helper function to format the date
 const formatDate = (dateString) => {
@@ -13,6 +15,7 @@ const formatDate = (dateString) => {
 
 const CustomersData = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   
   // Get data from the Redux store
   const { loading, customers, error, currentPage, totalPages } = useSelector((state) => state.customers);
@@ -57,7 +60,17 @@ const CustomersData = () => {
   };
 
   return (
+<View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Customer</Text>
+      </View>
+
     <View style={styles.container}>
+      
       {/* Search Input */}
       <View style={styles.searchContainer}>
         <TextInput
@@ -152,6 +165,7 @@ const CustomersData = () => {
           </View>
         </View>
       </Modal>
+      </View>
     </View>
   );
 };
@@ -262,6 +276,23 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 80,
+    color:'#373737',
   },
 });
 

@@ -16,13 +16,9 @@ import {
 } from 'react-native';
 import { deleteProduct, getAllProduct,updateProduct } from '../../redux/Product/ProductSlice';
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
-import Edit from '../../assets/svg/Productsvg/Edit';
-import Delete from '../../assets/svg/Productsvg/Delete';
 import { useNavigation } from '@react-navigation/native';
 import CommonCalendar from '../../utils/datepicker';
 import Plus from '../../assets/svg/Productsvg/Plus';
-import Upload from '../../assets/svg/Productsvg/Upload';
-import Download from '../../assets/svg/Productsvg/Download';
 import Seen from '../../assets/svg/Productsvg/Seen';
 import Category from '../../assets/svg/Productsvg/Category';
 
@@ -116,16 +112,6 @@ const StoreData = () => {
     setSearchTerm(text);
   };
 
-
-  const dashboardData = [
-    {
-      id: '1',
-      label: 'Total  Product',
-      value:'47',
-      icon: <Category />,
-    },
-  ];
-
   const handleSeenIconClick = (item) => {
     setSelectedProduct(item);
     setIsModalVisible(true);
@@ -164,13 +150,6 @@ const StoreData = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={dashboardData}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DashboardCard item={item} />}
-        style={styles.dashboardList}
-      />
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Add to my store</Text>
         <View style={styles.buttonsContainer}>

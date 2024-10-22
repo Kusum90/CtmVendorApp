@@ -19,6 +19,7 @@ import { getAllProduct } from '../../redux/Product/ProductSlice';
 import Seen from '../../assets/svg/Productsvg/Seen';
 import Delete from '../../assets/svg/Productsvg/Delete';
 import Category from '../../assets/svg/Productsvg/Category';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
 
 // Function to calculate the image size (mock value for demonstration)
 const calculateImageSize = (imageUrl) => {
@@ -101,6 +102,14 @@ const Media = () => {
   };
 
   return (
+    <View style={{ flex: 1 }}>
+    {/* Header with back arrow and title */}
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <BackArrow name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>Media</Text>
+    </View>
     <View style={styles.container}>
       <FlatList
         data={dashboardData}
@@ -199,7 +208,9 @@ const Media = () => {
           </View>
         </ScrollView>
       )}
+      </View>
     </View>
+  
   );
 };
 
@@ -207,7 +218,7 @@ const Media = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffff',
     padding: wp(4),
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
@@ -383,6 +394,23 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 100,
+    color:'#373737',
   },
 });
 

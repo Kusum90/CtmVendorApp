@@ -12,7 +12,7 @@ function ChatBoxScreenNav() {
       <Stack.Screen 
         name="ChatBoxScreen" 
         component={ChatBoxScreen} 
-        options={{ title: 'Chat Box' }} 
+        options={{ title: 'Chat Box' ,headerShown:false}} 
       />
     </Stack.Navigator>
   );

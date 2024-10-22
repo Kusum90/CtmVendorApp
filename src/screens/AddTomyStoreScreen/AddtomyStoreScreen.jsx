@@ -7,7 +7,7 @@ import StoreData from '../../components/AddToMyStoreComponent/StoreData'
 const AddtomyStoreScreen = () => {
   return (
     <ScrollView>
-      {/* <StoreDashboard/> */}
+      <StoreDashboard/>
     
       <StoreData/>
     </ScrollView>

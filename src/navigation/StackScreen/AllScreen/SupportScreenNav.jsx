@@ -13,7 +13,7 @@ function SupportScreenNav() {
       <Stack.Screen 
         name="SupportScreen" 
         component={SupportScreen} 
-        options={{ title: 'Support Screen' }} 
+        options={{ title: 'Support Screen' ,headerShown:false}} 
       />
     </Stack.Navigator>
   );

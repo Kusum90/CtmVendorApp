@@ -19,7 +19,7 @@ function SettingScreenNav() {
         <Stack.Screen 
           name="StoreSettings" 
           component={StoreSettings} 
-          options={{ title: 'StoreSettings' }} 
+          options={{ title: 'StoreSettings',headerShown:false }} 
         />
         <Stack.Screen 
           name="LocationScreen" 

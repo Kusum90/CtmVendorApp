@@ -34,6 +34,7 @@ const CustomersDashboard = () => {
   ];
 
   return (
+    
     <ScrollView style={styles.container}>
 
     

@@ -11,7 +11,7 @@ function RefundsScreenNav() {
       <Stack.Screen 
         name="RefundScreen" 
         component={RefundScreen} 
-        options={{ title: 'Refunds' }} 
+        options={{ title: 'Refunds',headerShown:false }} 
       />
     </Stack.Navigator>
   );
