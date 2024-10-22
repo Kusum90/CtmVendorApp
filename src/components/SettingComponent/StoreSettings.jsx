@@ -5,6 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
 
 const StoreSettings = () => {
 const navigation = useNavigation();
@@ -42,6 +43,14 @@ const navigation = useNavigation();
   };
 
   return (
+    <View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Store Settings</Text>
+      </View>
     <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
@@ -168,6 +177,7 @@ const navigation = useNavigation();
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </View>
   );
 };
 
@@ -265,6 +275,23 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: hp(1), // Responsive marginBottom
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 80,
+    color:'#373737',
   },
 });
 

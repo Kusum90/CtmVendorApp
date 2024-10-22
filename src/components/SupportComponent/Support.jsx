@@ -3,10 +3,22 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import Download from '../../assets/svg/Productsvg/Download';
 import Plus from '../../assets/svg/Productsvg/Plus';
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+import { useNavigation } from '@react-navigation/native';
 
 const Support = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
+      <View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Support Screen</Text>
+      </View>
+      </View>
       {/* Inventory Title */}
       <Text style={styles.title}>Support</Text>
 
@@ -37,7 +49,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ddd',
       },
       title: {
-        fontSize: FontSize(18), // Responsive font size
+        fontSize: FontSize(25), // Responsive font size
         fontWeight: 'bold',
         marginBottom: hp(1), // Responsive margin
         color: '#373737',
@@ -80,6 +92,23 @@ const styles = StyleSheet.create({
         paddingHorizontal: wp(3), // Responsive horizontal padding
         marginLeft: wp(2), // Responsive margin
         fontSize: FontSize(14), // Responsive font size
+      },
+      header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        backgroundColor: '#fff',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+      },
+      headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginLeft: 80,
+        color:'#373737',
       },
     });
 export default Support;

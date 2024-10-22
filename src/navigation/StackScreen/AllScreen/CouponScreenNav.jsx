@@ -14,7 +14,10 @@ function CouponScreenNav() {
         <Stack.Screen 
           name="CouponScreen" 
           component={CouponScreen} 
-          options={{ title: 'Coupon' }} 
+          options={{ 
+            title: 'Coupon', 
+            headerShown: false,  // Show the header with the default back button
+          }} 
         />
         <Stack.Screen 
           name="AddCoupon" 

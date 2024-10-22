@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList,ScrollView ,TouchableOpacity} from 'react-native';
 import Active from '../../assets/svg/Couponsvg/Active';
 import Paushed from '../../assets/svg/Couponsvg/Paushed'
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+import { useNavigation } from '@react-navigation/native';
 
 const DashboardCard = ({ item }) => {
   return (
@@ -27,6 +29,7 @@ const DashboardCard = ({ item }) => {
 };
 
 const RefundDashboard = () => {
+  const navigation = useNavigation();
   const dashboardData = [
     { id: '1', label: 'Total Refund Item', value: '250', icon: <Active/> },  // Emoji for box
     { id: '2', label: 'Total Refunds Amount', value: '34.4k', icon: <Paushed/> },  // Emoji for store
@@ -34,15 +37,24 @@ const RefundDashboard = () => {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      <FlatList
-        data={dashboardData}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DashboardCard item={item} />}
-      />
-    
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Refund</Text>
+      </View>
+
+      <ScrollView style={styles.container}>
+        <FlatList
+          data={dashboardData}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <DashboardCard item={item} />}
+        />
+      </ScrollView>
+    </View>
   );
 };
 
@@ -95,6 +107,23 @@ const styles = StyleSheet.create({
     color: '#373737',
     // marginTop: hp(0.25), // Optional: Responsive margin top
     marginLeft: wp(1.75), // Responsive margin left
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 80,
+    color:'#373737',
   },
 });
 

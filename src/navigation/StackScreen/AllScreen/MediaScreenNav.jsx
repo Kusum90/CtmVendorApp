@@ -13,7 +13,7 @@ function MediaScreenNav() {
       <Stack.Screen 
         name="MediaScreen" 
         component={MediaScreen} 
-        options={{ title: 'MediaScreen' }} 
+        options={{ title: 'MediaScreen' ,headerShown:false}} 
       />
     </Stack.Navigator>
   );

@@ -2,10 +2,22 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Download from '../../assets/svg/Productsvg/Download';
 import Plus from '../../assets/svg/Productsvg/Plus';
+import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+import { useNavigation } from '@react-navigation/native';
 
 const ChatHistory = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
+      <View style={{ flex: 1 }}>
+      {/* Header with back arrow and title */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackArrow name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Chat Box</Text>
+      </View>
+      </View>
       {/* Inventory Title */}
       <Text style={styles.title}>Chat History</Text>
 
@@ -79,6 +91,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginLeft: 10,
     fontSize: 14,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 80,
+    color:'#373737',
   },
 });
 

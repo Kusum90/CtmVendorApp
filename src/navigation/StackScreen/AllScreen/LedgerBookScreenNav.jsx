@@ -15,7 +15,7 @@ function LedgerBookScreenNav() {
         <Stack.Screen 
           name="LedgerBookScreen" 
           component={LedgerBookScreen} 
-          options={{ title: 'Payments' }} 
+          options={{ title: 'Payments',headerShown:false }} 
         />
         
       </Stack.Navigator>

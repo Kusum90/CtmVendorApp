@@ -11,7 +11,7 @@ function CustomerScreenNav() {
       <Stack.Screen 
         name="CustomersScreen" 
         component={CustomersScreen} 
-        options={{ title: 'Customers' }} 
+        options={{ title: 'Customers' ,headerShown: false, }} 
       />
     </Stack.Navigator>
   );

@@ -16,7 +16,7 @@ function FollowersScreenNav() {
         <Stack.Screen 
           name="FollowersScreen" 
           component={FollowersScreen} 
-          options={{ title: 'Followers' }} 
+          options={{ title: 'Followers',headerShown:false }} 
         />
         
       </Stack.Navigator>

@@ -1,54 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList,ScrollView } from 'react-native';
+import React,{useEffect} from 'react';
+import { View, Text, StyleSheet, FlatList,ScrollView,ActivityIndicator } from 'react-native';
 import Category from '../../assets/svg/Productsvg/Category';
 import Products from '../../assets/svg/Productsvg/Products';
 import LowStocks from '../../assets/svg/Productsvg/LowStocks';
 import NotInStock from '../../assets/svg/Productsvg/NotInStock';
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchOrders, fetchDashboardData, selectOrders, selectDashboard, selectLoading, selectError } from '../../redux/Order/OrderSlice'
 
 const DashboardCard = ({ item }) => {
   return (
     <View style={styles.card}>
-      {/* Display label at the top */}
-      <Text style={styles.label}>{item.label}</Text>
-
-      {/* Display the main value and additional info */}
-      <View style={styles.cardContent}>
+    <Text style={styles.label}>{item.label}</Text>
+    <View style={styles.cardContent}>
         <Text style={styles.mainValue}>{item.value}</Text>
-
-        {/* Display icon using emoji */}
-        <View style={styles.iconContainer}>
-          <Text style={styles.icon}>{item.icon}</Text>
-        </View>
-      </View>
-
-      {/* Additional Info below */}
-      <Text style={styles.additionalInfo}>{item.additionalInfo}</Text>
+        <View style={styles.iconContainer}>{item.icon}</View>
     </View>
-  );
+    <Text style={styles.additionalInfo}>{item.additionalInfo}</Text>
+</View>
+);
 };
 
+
 const Dashboard = () => {
+  const dispatch = useDispatch();
+  const orders = useSelector(selectOrders);
+  const dashboard = useSelector(selectDashboard);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
+
+  useEffect(() => {
+      dispatch(fetchOrders());
+      dispatch(fetchDashboardData());
+  }, [dispatch]);
+
   const dashboardData = [
-    { id: '1', label: 'Completed', value: '47', additionalInfo: 'Draft (3)', icon: <Category /> },  // Emoji for box
-    { id: '2', label: 'Processing', value: '352', additionalInfo: 'Archived (3)', icon: <Products/> },  // Emoji for store
-    { id: '5', label: 'Refunded', value: '47', additionalInfo: 'Ordered', icon: <LowStocks/> },  // Emoji for warning
-    { id: '6', label: 'Cancelled', value: '352', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
+    { id: '1', label: 'Completed', value: dashboard.grossSales, additionalInfo: 'Total Sales', icon: <Category /> },  // Emoji for box
+    { id: '2', label: 'Processing', value: dashboard.itemsSold, additionalInfo: 'Total Items', icon: <Products/> },  // Emoji for store
+    { id: '5', label: 'Refunded', value: dashboard.ordersReceived, additionalInfo: 'Total Orders', icon: <LowStocks/> },  // Emoji for warning
+    { id: '6', label: 'Cancelled', value: '0', additionalInfo: 'Archived (3)', icon: <NotInStock/> },  // Emoji for blocked
   ];
 
-  return (
-    <ScrollView style={styles.container}>
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
 
-    
-      <FlatList
-        data={dashboardData}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <DashboardCard item={item} />}
-      />
-    
-    </ScrollView>
-  );
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+    return (
+        <ScrollView style={styles.container}>
+            <FlatList
+                data={dashboardData}
+                numColumns={2}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <DashboardCard item={item} />}
+            />
+            {/* Render orders or additional components as needed */}
+        </ScrollView>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -156,6 +170,15 @@ const styles = StyleSheet.create({
     color: '#373737',
     marginTop: hp(0.5), // Responsive margin top
     marginLeft: wp(2), // Responsive margin left
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: FontSize(16),
+    color: 'red',
   },
 });
 export default Dashboard;
