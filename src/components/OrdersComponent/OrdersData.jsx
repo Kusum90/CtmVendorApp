@@ -36,6 +36,8 @@ const OrdersData = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('All'); 
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -65,9 +67,14 @@ const OrdersData = () => {
           new Date(selectedDate).toLocaleDateString()
       );
     }
+
+    if (selectedFilter && selectedFilter !== 'All') {
+      filtered = filtered.filter(order => order.paymentMethod === selectedFilter);
+    }
   
+
     setFilteredProducts(filtered);
-  }, [orders, searchTerm, selectedDate]);
+  }, [orders, searchTerm, selectedDate,selectedFilter]);
   
   const handleSearchChange = (text) => {
     setSearchTerm(text);
@@ -121,6 +128,11 @@ const OrdersData = () => {
     dispatch(fetchOrders()).then(() => setIsRefreshing(false));
   };
 
+  const handleFilterSelect = (filter) => {
+    setSelectedFilter(filter);
+    setIsFilterModalVisible(false); // Close the modal after selection
+  };
+
   return (
     <View style={styles.container}>
       {/* Title, Filter, and Search */}
@@ -139,8 +151,10 @@ const OrdersData = () => {
           onPress={() => setIsCalendarVisible(true)}>
           <Text style={styles.filterText}>{selectedDate || 'yyyy-mm-dd'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}> Filter By</Text>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setIsFilterModalVisible(true)}>
+          <Text style={styles.filterText}>Filter By: {selectedFilter}</Text>
         </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
@@ -150,6 +164,32 @@ const OrdersData = () => {
           onChangeText={handleSearchChange}
         />
       </View>
+
+
+       {/* Filter Modal */}
+       <Modal
+        visible={isFilterModalVisible}
+        animationType="slide"
+        transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.filterModalContent}>
+            <Text style={styles.modalTitle}>Select Payment Method</Text>
+            {['All', 'Credit Card', 'PayPal', 'Bank Transfer'].map((filter) => (
+              <TouchableOpacity
+                key={filter}
+                style={styles.filterOption}
+                onPress={() => handleFilterSelect(filter)}>
+                <Text style={styles.filterOptionText}>{filter}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setIsFilterModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Calendar Modal */}
       <Modal

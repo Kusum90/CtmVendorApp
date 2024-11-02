@@ -1,14 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, ScrollView } from 'react-native'
 import React from 'react'
 import SalesReport from '../../components/HomeScreen/SalesReport'
   import Header from '../../utils/header'
+import HomeScreenDashboard from '../../components/HomeScreen/HomeScreenDashboard'
 
 const HomeScreen = ({ navigation }) => {
   return (
-    <View>
+    <ScrollView>
       <Header navigation={navigation}/>
+      <HomeScreenDashboard/>
       <SalesReport/>
-    </View>
+    </ScrollView>
   )
 }
 
