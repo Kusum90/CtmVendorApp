@@ -7,10 +7,11 @@ import { getCustomer, setCurrentPage } from '../../redux/Customer/CustomerSlice'
 import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
 import { useNavigation } from '@react-navigation/native';
 
-// Helper function to format the date
+
 const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'; // Handle missing dates
   const date = new Date(dateString);
-  return date.toISOString().split('T')[0]; // This returns the date in 'YYYY-MM-DD' format
+  return isNaN(date.getTime()) ? 'N/A' : date.toISOString().split('T')[0]; // Format or return 'N/A' if invalid
 };
 
 const CustomersData = () => {

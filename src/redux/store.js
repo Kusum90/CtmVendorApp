@@ -5,6 +5,7 @@ import productReducer from '../redux/Product/ProductSlice';
 import categoryReducer from '../redux/Product/ProductAttribute/ProductAttribute';
 import attributesReducer from '../redux/Product/ProductAttribute/CreateAttribute';
 import ordersReducer from '../redux/Order/OrderSlice';
+import homeReducer from '../redux/Home/HomeSlice';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     categories: categoryReducer,
     attributes: attributesReducer,
     orders: ordersReducer,
+    home: homeReducer,
   },
 });
 

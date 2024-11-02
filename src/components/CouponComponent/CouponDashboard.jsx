@@ -6,6 +6,7 @@ import Active from '../../assets/svg/Couponsvg/Active';
 import Paused from '../../assets/svg/Couponsvg/Paushed';
 import Expire from '../../assets/svg/Couponsvg/Expire';
 import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+import Pushed from '../../assets/svg/Couponsvg/Paushed';
 
 const DashboardCard = ({ item }) => {
   const isExpired = item.label === 'Expired'; // Check if it's the "Expired" card
@@ -44,7 +45,7 @@ const CouponDashboard = () => {
         // Prepare the data for rendering
         const updatedData = [
           { id: '1', label: 'Active', value: data.active.toString(), additionalInfo: 'Draft (3)', icon: <Active /> },
-          { id: '2', label: 'Paused', value: data.paused.toString(), additionalInfo: 'Archived (3)', icon: <Paused /> },
+          { id: '2', label: 'Paused', value: data.paused.toString(), additionalInfo: 'Archived (3)', icon: <Pushed /> },
           { id: '3', label: 'Expired', value: data.expired.toString(), additionalInfo: '+28%', icon: <Expire /> },
         ];
         setDashboardData(updatedData);

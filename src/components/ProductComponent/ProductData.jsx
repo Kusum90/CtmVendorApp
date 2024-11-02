@@ -14,7 +14,7 @@ import {
   Alert,
   RefreshControl
 } from 'react-native';
-import { deleteProduct, getAllProduct,updateProduct } from '../../redux/Product/ProductSlice';
+import { deleteProduct, getAllProduct, updateProduct } from '../../redux/Product/ProductSlice';
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 import Edit from '../../assets/svg/Productsvg/Edit';
 import Delete from '../../assets/svg/Productsvg/Delete';
@@ -40,11 +40,19 @@ const ProductData = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('Filter by');
+
+  const filters = ['Published', 'Pending'];
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setIsCalendarVisible(false);
+  };
+
+  const handleFilterSelect = (filter) => {
+    setSelectedFilter(filter);
+    setModalVisible(false);
   };
 
   useEffect(() => {
@@ -60,8 +68,11 @@ const ProductData = () => {
     );
   }, [dispatch, selectedDate, searchTerm]);
 
-
   useEffect(() => {
+    filterProducts();
+  }, [searchTerm, selectedDate, selectedFilter, products]);
+
+  const filterProducts = () => {
     let filtered = products;
 
     if (searchTerm) {
@@ -78,10 +89,16 @@ const ProductData = () => {
       );
     }
 
-    setFilteredProducts(filtered);
-  }, [products, searchTerm, selectedDate]);
+    console.log(products);
+    const filteredProducts = products.filter(product => {
+      console.log(product.title); // This will help you identify undefined titles
+      return product.title && product.title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    
 
-  // Handle pull-to-refresh logic
+    setFilteredProducts(filtered);
+  };
+
   const onRefresh = () => {
     setIsRefreshing(true);
     dispatch(
@@ -99,8 +116,6 @@ const ProductData = () => {
   const handleSearchChange = (text) => {
     setSearchTerm(text);
   };
-
-  
 
   const handleDelete = (productId) => {
     Alert.alert(
@@ -138,7 +153,7 @@ const ProductData = () => {
     return (
       <View key={item._id ? item._id.toString() : Math.random().toString()} style={styles.tableRow}>
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.editButton}onPress={() => handleEdit(item)}>
+          <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
             <Edit width={50} height={50} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item._id)}>
@@ -148,7 +163,7 @@ const ProductData = () => {
         <Image source={{ uri: item.image[0] }} style={styles.productImage} />
         <Text style={styles.tableCell}>{item.title}</Text>
         <Text style={styles.tableCell}>{item.sku}</Text>
-        <Text style={styles.tableCell}>{item.status || 'Available'}</Text>
+        <Text style={styles.tableCell}>{item.status}</Text>
         <Text style={styles.tableCell}>{item.stockQty}</Text>
         <Text style={styles.tableCell}>{item.price}</Text>
         <Text style={styles.tableCell}>{Array.isArray(item.taxonomies) ? item.taxonomies.join(', ') : 'N/A'}</Text>
@@ -199,8 +214,8 @@ const ProductData = () => {
         <TouchableOpacity style={styles.filterButton} onPress={() => setIsCalendarVisible(true)}>
           <Text style={styles.filterText}>{selectedDate || 'yyyy-mm-dd'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Filter by</Text>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setModalVisible(true)}>
+          <Text style={styles.filterText}>{selectedFilter}</Text>
         </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
@@ -240,38 +255,28 @@ const ProductData = () => {
                   value={currentProduct.sku}
                   onChangeText={(text) => setCurrentProduct({ ...currentProduct, sku: text })}
                 />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Status"
-                  value={currentProduct.status}
-                  onChangeText={(text) => setCurrentProduct({ ...currentProduct, status: text })}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Stock"
-                  keyboardType="numeric"
-                  value={currentProduct.stockQty?.toString()}
-                  onChangeText={(text) => setCurrentProduct({ ...currentProduct, stockQty: Number(text) })}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Price"
-                  keyboardType="numeric"
-                  value={currentProduct.price?.toString()}
-                  onChangeText={(text) => setCurrentProduct({ ...currentProduct, price: Number(text) })}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Taxonomies"
-                  value={Array.isArray(currentProduct.taxonomies) ? currentProduct.taxonomies.join(', ') : ''}
-                  onChangeText={(text) => setCurrentProduct({ ...currentProduct, taxonomies: text.split(', ') })}
-                />
-                <TouchableOpacity style={styles.saveButton} onPress={handleUpdateProduct}>
-                  <Text style={styles.saveButtonText}>Save</Text>
+                <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProduct}>
+                  <Text style={styles.updateButtonText}>Update</Text>
                 </TouchableOpacity>
               </>
             )}
             <TouchableOpacity style={styles.closeButton} onPress={() => setIsEditModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.filterModal}>
+            <Text style={styles.modalTitle}>Select Filter</Text>
+            {filters.map((filter) => (
+              <TouchableOpacity key={filter} onPress={() => handleFilterSelect(filter)}>
+                <Text style={styles.filterOption}>{filter}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
@@ -312,6 +317,8 @@ const ProductData = () => {
     </View>
   );
 };
+
+
 
 
 // Styles
@@ -471,6 +478,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
 
+},
+modalContainer1: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent background
+},
+modalOption: {
+  fontSize: 18,
+  color: '#333',
+  paddingVertical: 2,
+  paddingHorizontal: 20,
+  marginVertical: 5,
+  backgroundColor: 'white', // Light background color
+  borderRadius: 6,
+  textAlign: 'center',
+  width: '100%',
 },
 });
 export default ProductData;
