@@ -354,21 +354,24 @@ const Coupondata = () => {
   }); // State for editing coupon data
   const filters = ['Percentage', 'Percentage Discount', 'Fixed Product Discount'];
 
-  const handleFilterSelect = (filter) => {
-    setSelectedFilter(filter);
-    setModalVisible(false); // Close the modal after selection
-  };
-
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setIsCalendarVisible(false);
   };
 
+  const handleFilterSelect = (filter) => {
+    setSelectedFilter(filter);
+    setModalVisible(false);
+  };
+
   useEffect(() => {
     fetchCoupons(); // Fetch coupons when component mounts
   }, []);
-
   useEffect(() => {
+    filterCoupons();
+  }, [searchTerm, selectedDate, selectedFilter, inventoryData]);
+
+  const filterCoupons = () => {
     let filtered = inventoryData;
 
     // Filter by search term
@@ -387,9 +390,16 @@ const Coupondata = () => {
       );
     }
 
+    // Filter by selected discount type
+  if (selectedFilter && selectedFilter !== 'Filter by') {
+    filtered = filtered.filter((coupon) =>
+      coupon.discountType.toLowerCase().includes(selectedFilter.toLowerCase())
+    );
+  }
+
 
     setFilteredCoupons(filtered);
-  }, [searchTerm, selectedDate, inventoryData]);
+  };
   
   
 
@@ -447,7 +457,7 @@ const Coupondata = () => {
       usageLimitPerCoupon: coupon.usageLimitPerCoupon.toString(),
       expiry: formatDate(coupon.expiry),
     });
-    setEditModalVisible(true); // Open modal for editing
+    setEditModalVisible(true);
   };
 
   // Handle save after editing
@@ -630,41 +640,22 @@ const Coupondata = () => {
 
 
       {/* Modal for filter options */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Handle back button close
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setModalVisible(false)} // Close when clicking outside modal
-        >
-          <View style={styles.modalContainer1}>
-            <Text style={styles.modalHeader}>Filter by</Text>
-            <FlatList
-              data={filters}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.modalItem}
-                  onPress={() => handleFilterSelect(item)}
-                >
-                  <Text style={styles.modalItemText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </TouchableOpacity>
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View style={styles.modalContainer1}>
+          {filters.map((filter) => (
+            <TouchableOpacity key={filter} onPress={() => handleFilterSelect(filter)}>
+              <Text style={styles.modalOption}>{filter}</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
       </Modal>
     </View>
     
   );
 };
-
-
-  
 
 const styles = StyleSheet.create({
   container: {
@@ -672,19 +663,12 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  searchInput: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-  },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#e0e0e0',
     paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 6,
+    marginTop:hp(1)
   },
   tableHeaderText: {
     width: 100, // Adjust width to ensure alignment
@@ -834,6 +818,23 @@ const styles = StyleSheet.create({
 
   modalItemText: {
     fontSize: 16,
+  },
+  modalContainer1: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent background
+  },
+  modalOption: {
+    fontSize: 18,
+    color: '#333',
+    paddingVertical: 2,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    backgroundColor: 'white', // Light background color
+    borderRadius: 6,
+    textAlign: 'center',
+    width: '100%',
   },
 });
 
