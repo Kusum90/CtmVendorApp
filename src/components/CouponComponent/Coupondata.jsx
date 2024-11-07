@@ -1248,7 +1248,7 @@ const Coupondata = () => {
               }
               style={styles.picker}>
               <Picker.Item label="Percentage" value="percentage" />
-              <Picker.Item label="Fixed Amount" value="fixed" />
+              <Picker.Item label="Fixed Product Discount" value="fixed" />
             </Picker>
           </View>
 
@@ -1678,11 +1678,29 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
     borderRadius: wp(1),
   },
-  selectButtonText: {color: '#fff', textAlign: 'center'},
-  sectionTitle: {fontSize: FontSize(18), marginTop: hp(2), fontWeight: 'bold'},
-  selectedProduct: {color: 'green', fontSize: FontSize(16)},
-  closeButtonText1: {textAlign: 'center', marginTop: hp(1), color: '#007BFF'},
-  productItem: {padding: hp(1), borderBottomWidth: 1, borderColor: '#ddd'},
+  selectButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: FontSize(18),
+    marginTop: hp(2),
+    fontWeight: 'bold',
+  },
+  selectedProduct: {
+    color: 'green',
+    fontSize: FontSize(16),
+  },
+  closeButtonText1: {
+    textAlign: 'center',
+    marginTop: hp(1),
+    color: '#007BFF',
+  },
+  productItem: {
+    padding: hp(1),
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#ccc',
