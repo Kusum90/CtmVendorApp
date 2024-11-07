@@ -1016,6 +1016,7 @@ const AddCoupon = () => {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Discount Type</Text>
+        <View style={styles.pickerContainer}>
         <Picker
           selectedValue={formData.discountType}
           onValueChange={(itemValue) => setFormData({ ...formData, discountType: itemValue })}
@@ -1025,6 +1026,8 @@ const AddCoupon = () => {
           <Picker.Item label="Fixed Product Discount" value="Fixed Product Discount" />
         </Picker>
       </View>
+      </View>
+
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Coupon Amount</Text>
         <TextInput
@@ -1125,11 +1128,18 @@ const AddCoupon = () => {
       marginBottom: hp(2),
       color: '#373737',
     },
-    picker: {
+    pickerContainer: {
       borderWidth: 1,
       borderColor: '#ccc',
-      borderRadius: wp(1.5),
-      marginBottom: hp(1.5),
+      borderRadius: 8,
+      overflow: 'hidden',
+      marginBottom: 10,
+      backgroundColor: '#fff',
+    },
+    picker: {
+      height: 50,
+      color: '#333',
+      paddingLeft: 10,
     },
     searchInput: {
       borderWidth: 1,
