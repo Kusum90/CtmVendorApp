@@ -4,6 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DrawerNavigation from './TabScreen/TabNavigation';
 import StackNavigation from './StackScreen/StackNavigation';
 import SplashScreen from '../screens/SplashScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ProfileScreen from '../components/AccountComponent/ProfileScreen';
+import RegisterDetails from '../screens/RegisterDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,7 +16,9 @@ const RootNavigation = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName='SplashScreen'>
         {/* DrawerNavigation which includes the TabNavigation */}
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} />
+        <Stack.Screen name="RegisterDetails" component={RegisterDetails} />
         <Stack.Screen name="Stack" component={StackNavigation} />
       </Stack.Navigator>
     </NavigationContainer>

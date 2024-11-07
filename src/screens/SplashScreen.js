@@ -5,7 +5,7 @@ import { scaleWidth, scaleHeight } from '../utils/responsiveUtils';
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('DrawerNavigation');
+      navigation.replace('RegisterScreen');
     }, 2000);
 
     return () => clearTimeout(timer); 
