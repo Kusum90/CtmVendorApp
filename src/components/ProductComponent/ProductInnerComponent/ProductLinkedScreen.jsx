@@ -7,31 +7,43 @@ import {
   FlatList,
   TextInput,
   ScrollView,
+  ActivityIndicator,
   ToastAndroid,
 } from 'react-native';
-import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { useDispatch, useSelector } from 'react-redux';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { fetchProducts } from '../../../redux/Coupon/Coupon'; // Action to fetch products
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Action to update product details
+import { setProductDetails, fetchProductDetails } from '../../../redux/Product/ProductSlice';
 
-const ProductLinkedScreen = ({ navigation }) => {
+const ProductLinkedScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
+  const { productId } = route.params || {}; // Product ID for editing if available
 
-  // Fetching up-sells and cross-sells from Redux state
-  const {
-    upSells: initialUpSells = [],
-    crossSells: initialCrossSells = [],
-    loading,
-    error,
-  } = useSelector((state) => state.products.productDetails);
-
-  const [upSells, setUpSellsState] = useState(initialUpSells || []);
-  const [crossSells, setCrossSellsState] = useState(initialCrossSells || []);
+  // Fetch initial data for up-sells and cross-sells
+  const { productDetails, loading, error } = useSelector((state) => state.products);
+  const [upSells, setUpSellsState] = useState([]);
+  const [crossSells, setCrossSellsState] = useState([]);
   const [searchUpSell, setSearchUpSell] = useState('');
   const [searchCrossSell, setSearchCrossSell] = useState('');
-
   const [upSellProducts, setUpSellProducts] = useState([]);
   const [crossSellProducts, setCrossSellProducts] = useState([]);
+
+  // Fetch product details if editing
+  useEffect(() => {
+    if (productId) {
+      console.log(`Fetching product details for product ID: ${productId}`);
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  // Populate up-sells and cross-sells if editing
+  useEffect(() => {
+    if (productDetails && productDetails._id === productId) {
+      console.log('Populating up-sells and cross-sells from product details:', productDetails);
+      setUpSellsState(productDetails.upSells || []);
+      setCrossSellsState(productDetails.crossSells || []);
+    }
+  }, [productDetails, productId]);
 
   // Fetch products for up-sell based on search input
   useEffect(() => {
@@ -40,11 +52,7 @@ const ProductLinkedScreen = ({ navigation }) => {
         .unwrap()
         .then((products) => setUpSellProducts(products))
         .catch((error) =>
-          ToastAndroid.showWithGravity(
-            `Error: ${error}`,
-            ToastAndroid.LONG,
-            ToastAndroid.BOTTOM
-          )
+          ToastAndroid.showWithGravity(`Error: ${error}`, ToastAndroid.LONG, ToastAndroid.BOTTOM)
         );
     } else {
       setUpSellProducts([]); // Clear products list when search term is empty
@@ -58,11 +66,7 @@ const ProductLinkedScreen = ({ navigation }) => {
         .unwrap()
         .then((products) => setCrossSellProducts(products))
         .catch((error) =>
-          ToastAndroid.showWithGravity(
-            `Error: ${error}`,
-            ToastAndroid.LONG,
-            ToastAndroid.BOTTOM
-          )
+          ToastAndroid.showWithGravity(`Error: ${error}`, ToastAndroid.LONG, ToastAndroid.BOTTOM)
         );
     } else {
       setCrossSellProducts([]); // Clear products list when search term is empty
@@ -89,23 +93,21 @@ const ProductLinkedScreen = ({ navigation }) => {
 
   // Handle "Next" button click
   const handleNext = () => {
-    // Log the current up-sells and cross-sells
-    console.log('Up-sells passed:', upSells);
-    console.log('Cross-sells passed:', crossSells);
-
-    // Navigate to the next screen
-    navigation.navigate('ProductSeoScreen');
+    console.log('Up-sells:', upSells);
+    console.log('Cross-sells:', crossSells);
+    dispatch(setProductDetails({ upSells, crossSells }));
+    navigation.navigate('ProductSeoScreen', { productId });
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* Display error if any */}
-      {error && (
-        <Text style={styles.errorText}>Error fetching products: {error}</Text>
+      {/* Show loading indicator if loading product details or search results */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0EAB3D" />
+          <Text>Loading product details...</Text>
+        </View>
       )}
-
-      {/* Show loading indicator */}
-      {loading && <Text style={styles.loadingText}>Loading products...</Text>}
 
       {/* Up-sells Section */}
       <View style={styles.section}>
@@ -136,10 +138,7 @@ const ProductLinkedScreen = ({ navigation }) => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[
-                styles.productItem,
-                upSells.includes(item._id) && styles.selectedProduct,
-              ]}
+              style={[styles.productItem, upSells.includes(item._id) && styles.selectedProduct]}
               onPress={() => toggleUpSell(item)}
             >
               <Text style={styles.productText}>{item.title}</Text>
@@ -177,10 +176,7 @@ const ProductLinkedScreen = ({ navigation }) => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[
-                styles.productItem,
-                crossSells.includes(item._id) && styles.selectedProduct,
-              ]}
+              style={[styles.productItem, crossSells.includes(item._id) && styles.selectedProduct]}
               onPress={() => toggleCrossSell(item)}
             >
               <Text style={styles.productText}>{item.title}</Text>
@@ -191,22 +187,17 @@ const ProductLinkedScreen = ({ navigation }) => {
 
       {/* Buttons for navigation */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.previousButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.previousButton} onPress={() => navigation.goBack()}>
           <Text style={styles.buttonText}>Previous</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleNext}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={handleNext}>
           <Text style={styles.buttonTextAdd}>Next</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

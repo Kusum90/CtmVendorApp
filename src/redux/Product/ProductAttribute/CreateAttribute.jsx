@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { Alert } from 'react-native';
+import { Alert,ToastAndroid } from 'react-native';
 
 const initialState = {
   loading: false,
@@ -8,12 +8,14 @@ const initialState = {
   error: null,
 };
 
-// Fetch attributes
+// Fetch attributes with optional searchValue parameter
 export const fetchAttributes = createAsyncThunk(
   'attributes/fetchAttributes',
-  async (_, { rejectWithValue }) => {
+  async (searchValue = '', { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://cm-backend-yk2y.onrender.com/user/attribute');
+      const response = await axios.get('http://cm-backend-yk2y.onrender.com/user/attribute', {
+        params: { searchValue },
+      });
       return response.data.attributes;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch attributes');
@@ -37,12 +39,31 @@ export const createAttribute = createAsyncThunk(
   }
 );
 
+// Add a new value to an existing attribute
+export const addAttributeValue = createAsyncThunk(
+  'attribute/addValue',
+  async ({ id, value }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+        `http://cm-backend-yk2y.onrender.com/user/update-attribute/${id}`,
+        { value }
+      );
+      console.log('Value added successfully!');
+      return response.data.attribute;
+    } catch (error) {
+      console.log(error?.response?.data?.error || 'Failed to add attribute value');
+      return rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
 const attributesSlice = createSlice({
   name: 'attribute',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Handle fetchAttributes
       .addCase(fetchAttributes.pending, (state) => {
         state.loading = true;
       })
@@ -54,6 +75,8 @@ const attributesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Handle createAttribute
       .addCase(createAttribute.pending, (state) => {
         state.loading = true;
       })
@@ -64,6 +87,20 @@ const attributesSlice = createSlice({
       .addCase(createAttribute.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(addAttributeValue.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addAttributeValue.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedAttribute = action.payload;
+        state.attributes = state.attributes.map((attribute) =>
+          attribute._id === updatedAttribute._id ? updatedAttribute : attribute
+        );
+      })
+      .addCase(addAttributeValue.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || action.error.message;
       });
   },
 });

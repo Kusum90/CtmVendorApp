@@ -47,14 +47,11 @@ export const createProduct = createAsyncThunk(
     try {
       console.log("Creating product with data:", productData);
       const response = await axios.post(
-        "http://cm-backend-yk2y.onrender.com/user/create-product",
+        "http://192.168.1.8:4001/user/create-product",
         productData
       );
 
-      // Check if the response contains product data
       console.log("Product created successfully:", response.data.data);
-
-      // Ensure this returns the product data properly
       return response.data.data;
     } catch (error) {
       console.error("Error creating product:", error);
@@ -62,6 +59,34 @@ export const createProduct = createAsyncThunk(
     }
   }
 );
+
+// Thunk to fetch a single product by ID
+// Thunk to fetch a single product by ID
+export const fetchProductDetails = createAsyncThunk(
+  "product/fetchProductDetails",
+  async (productId, { rejectWithValue }) => {
+    try {
+      console.log(`Fetching details for product with ID: ${productId}`);
+      const response = await axios.get(`http://192.168.1.8:4001/user/product/${productId}`);
+      console.log("Product details fetched successfully:", response.data.data.product); // Log to confirm the data structure
+      return response.data.data.product; // Return only the `product` object
+    } catch (error) {
+      if (error.response) {
+        console.error("Server error:", error.response.data);
+        showToast(error.response.data.error || "Failed to fetch product details");
+        return rejectWithValue(error.response.data);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        showToast("No response from server. Please check your network.");
+      } else {
+        console.error("Error setting up request:", error.message);
+        showToast(error.message || "Network error occurred. Please try again.");
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 
 
 // Thunk to get all products
@@ -111,7 +136,7 @@ export const updateProduct = createAsyncThunk(
     try {
       console.log("Updating product with data:", productData);
       const response = await axios.put(
-        `https://cm-backend-yk2y.onrender.com/user/update-product/${productData._id}`,
+        `http://192.168.1.8:4001/user/update-product/${productData._id}`,
         productData
       );
       console.log("Product updated successfully:", response.data.data);
@@ -188,21 +213,43 @@ const productSlice = createSlice({
         console.log("Product deleted from state");
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex(product => product._id === action.payload._id);
+        if (!Array.isArray(state.products)) {
+          state.products = []; // Initialize products if undefined
+        }
+      
+        const index = state.products.findIndex((product) => product._id === action.payload._id);
         if (index !== -1) {
+          // Update the existing product in the list
           state.products[index] = action.payload;
         }
-        const dataIndex = state.data.findIndex(product => product._id === action.payload._id);
-        if (dataIndex !== -1) {
-          state.data[dataIndex] = action.payload;
+      
+        // Also update the `data` array if it exists
+        if (Array.isArray(state.data)) {
+          const dataIndex = state.data.findIndex((product) => product._id === action.payload._id);
+          if (dataIndex !== -1) {
+            state.data[dataIndex] = action.payload;
+          }
         }
+      
         state.loading = false;
-        console.log("Product updated in state");
+        console.log("Product updated successfully in Redux state:", action.payload);
       })
+      
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error || action.error.message;
         console.error("Failed to update product:", state.error);
+      })
+      .addCase(fetchProductDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchProductDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productDetails = action.payload; // Directly set product details in state
+      })
+      .addCase(fetchProductDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || action.error.message;
       });
   },
 });

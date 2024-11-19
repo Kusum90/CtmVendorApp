@@ -1,43 +1,68 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Switch, ActivityIndicator } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux'; 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Switch,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { setProductDetails, createProduct } from '../../../redux/Product/ProductSlice'; 
+import { useNavigation } from '@react-navigation/native';
+import { setProductDetails, createProduct, updateProduct, fetchDashboardData } from '../../../redux/Product/ProductSlice';
 
-const ProductAdvanceScreen = () => {
-  const dispatch = useDispatch(); 
-  const productDetails = useSelector((state) => state.products.productDetails); 
+const ProductAdvanceScreen = ({ route }) => {
+  const { productId } = route.params || {}; // Get productId if editing
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const productDetails = useSelector((state) => state.products.productDetails);
 
+  // Local state for final fields on this screen
   const [enableReviews, setEnableReviews] = useState(false);
   const [purchaseNote, setPurchaseNote] = useState('');
-  const [loading, setLoading] = useState(false); 
-  const [toastMessage, setToastMessage] = useState(''); 
-  const [showToast, setShowToast] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
-  const handleAdd = async () => {
+  // Populate fields if editing an existing product
+  useEffect(() => {
+    if (productId && productDetails) {
+      setEnableReviews(productDetails.enableReviews || false);
+      setPurchaseNote(productDetails.purchaseNote || '');
+    }
+  }, [productDetails, productId]);
+
+  const handleAddOrUpdate = async () => {
     try {
       setLoading(true);
-      
-      // Log and update product details with data from the final screen
-      dispatch(setProductDetails({ enableReviews, purchaseNote }));
 
-      // Validate required fields from product details
-      if (!productDetails.title || !productDetails.price) {
-        alert('Product title and price are required!');
-        setLoading(false);
-        return;
+      // Only send updates for this screen when editing
+      const currentPageData = {
+        enableReviews,
+        purchaseNote,
+      };
+
+      if (productId) {
+        console.log('Updating only Advance Settings:', currentPageData);
+        const result = await dispatch(updateProduct({ _id: productId, ...currentPageData })).unwrap();
+        console.log('Product updated successfully:', result);
+        showToastMessage('Product updated successfully!');
+        navigation.navigate('ProductScreen');
+      } else {
+        console.log('Creating product with all details:', productDetails);
+        const result = await dispatch(createProduct({ ...productDetails, ...currentPageData })).unwrap();
+        console.log('Product created successfully:', result);
+        showToastMessage('Product created successfully!');
+        dispatch(fetchDashboardData()); // Refresh dashboard data
+        navigation.navigate('ProductScreen');
       }
 
-      // Create the product with the final collected product details
-      const result = await dispatch(createProduct(productDetails)).unwrap();
-      console.log('Product created successfully:', result);
-
-      // Show success toast
-      showToastMessage('Product created successfully!');
       setLoading(false);
-
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error('Error creating/updating product:', error);
 
       if (error?.errors) {
         error.errors.forEach((err, index) => {
@@ -45,7 +70,7 @@ const ProductAdvanceScreen = () => {
         });
       }
 
-      showToastMessage('Failed to create the product. Please try again.');
+      showToastMessage('Failed to create/update the product. Please try again.');
       setLoading(false);
     }
   };
@@ -53,13 +78,13 @@ const ProductAdvanceScreen = () => {
   const showToastMessage = (message) => {
     setToastMessage(message);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000); 
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.backButton}>Advance</Text>
-      
+      <Text style={styles.header}>Advance Settings</Text>
+
       <View style={styles.checkboxContainer}>
         <Switch
           value={enableReviews}
@@ -80,8 +105,8 @@ const ProductAdvanceScreen = () => {
         {loading ? (
           <ActivityIndicator size="large" color="#28a745" />
         ) : (
-          <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-            <Text style={styles.buttonTextAdd}>Add</Text>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddOrUpdate}>
+            <Text style={styles.buttonText}>{productId ? 'Update' : 'Add'}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -98,64 +123,56 @@ const ProductAdvanceScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp(4), 
-    backgroundColor: '#fff',
+    padding: wp(4),
   },
-  backButton: {
-    fontSize: FontSize(23), 
-    color: '#333',
-    marginBottom: hp(2), 
+  header: {
+    fontSize: FontSize(18),
     fontWeight: 'bold',
+    marginBottom: hp(2),
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: hp(2), 
+    marginVertical: hp(1),
   },
   checkboxLabel: {
-    marginLeft: wp(2), 
-    fontSize: FontSize(19), 
-    color: '#333',
+    marginLeft: wp(2),
+    fontSize: FontSize(16),
   },
   textarea: {
-    height: hp(10), 
-    borderColor: '#ccc',
     borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 4,
-    marginBottom: hp(2), 
-    paddingHorizontal: wp(2), 
-    paddingVertical: wp(2), 
-    textAlignVertical: 'top', 
-    fontSize: FontSize(19),
+    padding: wp(2),
+    fontSize: FontSize(14),
+    marginVertical: hp(1),
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: hp(2), 
+    marginTop: hp(3),
+    alignItems: 'center',
   },
   addButton: {
     backgroundColor: '#28a745',
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(8),
     borderRadius: 4,
-    paddingVertical: hp(1.5), 
-    paddingHorizontal: wp(6), 
   },
-  buttonTextAdd: {
-    fontSize: FontSize(19), 
+  buttonText: {
     color: '#fff',
+    fontSize: FontSize(16),
+    fontWeight: 'bold',
   },
   toastContainer: {
     position: 'absolute',
-    bottom: hp(5), 
-    left: wp(5),
-    right: wp(5),
+    bottom: hp(10),
+    alignSelf: 'center',
     backgroundColor: '#333',
-    padding: wp(3), 
-    borderRadius: 5,
-    alignItems: 'center',
+    padding: wp(4),
+    borderRadius: 4,
   },
   toastText: {
     color: '#fff',
-    fontSize: FontSize(16), 
+    fontSize: FontSize(14),
   },
 });
 

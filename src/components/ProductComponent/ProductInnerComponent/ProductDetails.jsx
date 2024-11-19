@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux'; 
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, TextInput, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, TextInput, Switch, ActivityIndicator, Alert } from 'react-native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
+import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import DocumentPicker from 'react-native-document-picker';
-import { setProductDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails, fetchProductDetails, updateProduct, createProduct } from '../../../redux/Product/ProductSlice';
 import CategorySearch from '../../../components/ProductComponent/ProductInnerComponent/ProductAttributes/CategorySearch';
 
-const ProductDetails = ({ navigation }) => {
+const ProductDetails = ({ navigation, route }) => {
   const dispatch = useDispatch();
+  const { productId } = route.params || {}; // Get productId from route if available
+  const { productDetails, loading } = useSelector((state) => state.products); // Get loading state and product details
+
+  // Local state for form inputs
   const [selectedProductType, setSelectedProductType] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null); 
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCatalogue, setIsCatalogue] = useState(false);
   const [isVirtual, setIsVirtual] = useState(false);
   const [isDownloadable, setIsDownloadable] = useState(false);
-  const [selectedVisibility, setSelectedVisibility] = useState('shop'); 
+  const [selectedVisibility, setSelectedVisibility] = useState('shop');
   const [imageBoxes, setImageBoxes] = useState([null]);
   const [title, setTitle] = useState('');
   const [salePrice, setSalePrice] = useState('');
@@ -22,208 +27,259 @@ const ProductDetails = ({ navigation }) => {
   const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
+  const [uploading, setUploading] = useState(false);
 
-  const handleNext = () => {
+  // Fetch product details if editing
+  useEffect(() => {
+    if (productId) {
+      console.log('Fetching product details for editing:', productId);
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  // Populate fields if editing an existing product
+  useEffect(() => {
+    if (productId && productDetails && productDetails._id === productId) {
+      setTitle(productDetails.title || '');
+      setSalePrice(productDetails.salePrice ? productDetails.salePrice.toString() : '');
+      setPrice(productDetails.price ? productDetails.price.toString() : '');
+      setShortDescription(productDetails.shortDescription || '');
+      setDescription(productDetails.description || '');
+      setSelectedProductType(productDetails.productType || 'simple');
+      setSelectedVisibility(productDetails.catalogVisibility || 'shop');
+      setTags(productDetails.tags ? productDetails.tags.join(', ') : '');
+      setIsCatalogue(productDetails.isCatalogue || false);
+      setIsVirtual(productDetails.isVirtual || false);
+      setIsDownloadable(productDetails.isDownloadable || false);
+
+      // Set category and images if available
+      if (productDetails.categories && productDetails.categories.length > 0) {
+        setSelectedCategory({ _id: productDetails.categories[0].id, name: productDetails.categories[0].name });
+      }
+      if (productDetails.image && productDetails.image.length > 0) {
+        setImageBoxes(productDetails.image);
+      }
+    }
+  }, [productDetails, productId]);
+
+  // Handler to update Redux state with edited fields
+  const updateField = (field, value) => {
+    console.log(`Updating field: ${field} with value:`, value);
+    dispatch(setProductDetails({ [field]: value }));
+  };
+
+  const prepareData = () => {
+    const formattedImages = imageBoxes.filter((img) => img !== null);
+
+    return {
+      _id: productId,
+      productType: selectedProductType || 'simple',
+      categories: [selectedCategory._id],
+      catalogVisibility: selectedVisibility || 'shop',
+      image: formattedImages,
+      title: title || 'Untitled Product',
+      salePrice: salePrice ? parseFloat(salePrice) : 0,
+      price: price ? parseFloat(price) : 0,
+      shortDescription: shortDescription || '',
+      description: description || '',
+      tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+      isVirtual,
+      isDownloadable,
+      isCatalogue,
+    };
+  };
+
+  const handleNext = async () => {
     if (!selectedCategory || !selectedCategory._id) {
-      alert('Please select a valid category');
+      Alert.alert('Please select a valid category');
       return;
     }
 
-    // Send dynamic data to Redux for later submission
-    dispatch(
-      setProductDetails({
-        productType: selectedProductType || 'simple', // Default to 'simple'
-        categories: [selectedCategory._id], // Send category as array with _id
-        catalogVisibility: selectedVisibility || 'shop', // Default to 'shop'
-        images: imageBoxes.filter((img) => img !== null), // Only send non-null images
-        title: title || 'Untitled Product', // Default title if not provided
-        salePrice: salePrice ? parseFloat(salePrice) : 0, // Convert to float
-        price: price ? parseFloat(price) : 0, // Convert to float
-        shortDescription: shortDescription || '', // Default to empty string
-        description: description || '', // Default to empty string
-        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [], // Convert tags to array
-        isVirtual,
-        isDownloadable,
-        isCatalogue,
-      })
-    );
+    if (imageBoxes.filter((img) => img !== null).length === 0) {
+      Alert.alert('Please upload at least one image.');
+      return;
+    }
 
-    // Navigate to the next screen (Product Inventory)
-    navigation.navigate('ProductInventoryScreen');
+    const preparedData = prepareData();
+    console.log('Data being sent to backend:', preparedData);
+
+    if (productId) {
+      try {
+        await dispatch(updateProduct(preparedData)).unwrap();
+        console.log('Product successfully updated in backend.');
+      } catch (error) {
+        console.error('Error updating product:', error);
+      }
+    } else {
+      dispatch(setProductDetails(preparedData));
+    }
+
+    navigation.navigate('ProductInventoryScreen', { productId });
   };
-
-  const handleUpload = async (index) => {
+  
+  
+  const handleUpload = async () => {
     try {
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
       });
-
-      if (res.size / (1024 * 1024) > 100) {
-        alert('Image size should be below 100MB');
-        return;
-      }
-
-      const updatedBoxes = [...imageBoxes];
-      updatedBoxes[index] = res.uri;
-      setImageBoxes(updatedBoxes);
-
-      // Allow adding up to 5 images
-      if (imageBoxes.length < 5 && !imageBoxes[index + 1]) {
-        setImageBoxes((prev) => [...prev, null]);
-      }
+  
+      const formData = new FormData();
+      formData.append('file', {
+        uri: res.uri,
+        type: res.type,
+        name: res.name,
+      });
+      formData.append('upload_preset', 'cleanTechMart');
+  
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/datf6laqn/image/upload',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+  
+      // Add the uploaded image URL as an object to the state
+      const uploadedUrl = response.data.secure_url;
+      console.log('Uploaded Image URL:', uploadedUrl);
+  
+      setImageBoxes((prev) => [...prev, uploadedUrl]);
+  
+      Alert.alert('Image uploaded successfully!');
     } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('Cancelled');
-      } else {
-        throw err;
-      }
+      console.log('Error uploading image:', err);
+      Alert.alert('Failed to upload image. Please try again.');
     }
   };
+  
+  
+  
+  
 
   const handleRemoveImage = (index) => {
     const updatedBoxes = [...imageBoxes];
     updatedBoxes.splice(index, 1);
-
+  
     if (updatedBoxes.length === 0) {
       updatedBoxes.push(null);
     }
-
+  
     setImageBoxes(updatedBoxes);
+    updateField('images', updatedBoxes.filter((img) => img !== null));
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Product Images Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Product Images</Text>
-        <View style={styles.imageContainer}>
-          {imageBoxes.map((image, index) => (
-            <View key={index} style={styles.imageBox}>
-              {image ? (
-                <View style={styles.imageWrapper}>
-                  <Image source={{ uri: image }} style={styles.image} />
-                  <TouchableOpacity onPress={() => handleRemoveImage(index)} style={styles.removeButton}>
-                    <Text style={styles.removeButtonText}>X</Text>
-                  </TouchableOpacity>
+      <Text style={styles.heading}>{productId ? 'Edit Product' : 'Create Product'}</Text>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <>
+          {/* Product Images Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Product Images</Text>
+            <View style={styles.imageContainer}>
+              {imageBoxes.map((image, index) => (
+                <View key={index} style={styles.imageBox}>
+                  {image ? (
+                    <View style={styles.imageWrapper}>
+                      <Image source={{ uri: image }} style={styles.image} />
+                      <TouchableOpacity onPress={() => handleRemoveImage(index)} style={styles.removeButton}>
+                        <Text style={styles.removeButtonText}>X</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity onPress={() => handleUpload(index)} style={styles.uploadButton}>
+                      <Text style={styles.uploadText}>Upload</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
-              ) : (
-                <TouchableOpacity onPress={() => handleUpload(index)} style={styles.uploadButton}>
-                  <Text style={styles.uploadText}>Upload</Text>
-                </TouchableOpacity>
-              )}
+              ))}
             </View>
-          ))}
-        </View>
-      </View>
+          </View>
 
-      {/* Product Type Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Product Type</Text>
-        <Picker
-          selectedValue={selectedProductType}
-          style={styles.picker}
-          onValueChange={(itemValue) => setSelectedProductType(itemValue)}
-        >
-          <Picker.Item label="Select Product Type" value="" />
-          <Picker.Item label="simple" value="simple" />
-          <Picker.Item label="variable" value="variable" />
-        </Picker>
-      </View>
+          {/* Product Type Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Product Type</Text>
+            <Picker
+              selectedValue={selectedProductType}
+              style={styles.picker}
+              onValueChange={(value) => {
+                setSelectedProductType(value);
+                updateField('productType', value);
+              }}
+            >
+              <Picker.Item label="Select Product Type" value="" />
+              <Picker.Item label="simple" value="simple" />
+              <Picker.Item label="variable" value="variable" />
+            </Picker>
+          </View>
 
-      {/* Product Settings */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Product Settings</Text>
-        <View style={styles.toggleContainer}>
-          <Text style={styles.label}>Catalogue</Text>
-          <Switch value={isCatalogue} onValueChange={(value) => setIsCatalogue(value)} />
-        </View>
-        <View style={styles.toggleContainer}>
-          <Text style={styles.label}>Downloadable</Text>
-          <Switch value={isDownloadable} onValueChange={(value) => setIsDownloadable(value)} />
-        </View>
-      </View>
+          {/* Product Settings */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Product Settings</Text>
+            <View style={styles.toggleContainer}>
+              <Text style={styles.label}>Catalogue</Text>
+              <Switch value={isCatalogue} onValueChange={(value) => { 
+                setIsCatalogue(value); 
+                updateField('isCatalogue', value); 
+              }} />
+            </View>
+            <View style={styles.toggleContainer}>
+              <Text style={styles.label}>Downloadable</Text>
+              <Switch value={isDownloadable} onValueChange={(value) => { 
+                setIsDownloadable(value); 
+                updateField('isDownloadable', value); 
+              }} />
+            </View>
+          </View>
 
-      {/* Product Information Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Product Information</Text>
-        <TextInput
-          placeholder="Product Name"
-          style={styles.input}
-          value={title}
-          onChangeText={setTitle}
-        />
-        <TextInput
-          placeholder="Sale Price"
-          style={styles.input}
-          value={salePrice}
-          onChangeText={setSalePrice}
-          keyboardType="numeric"
-        />
-        <TextInput
-          placeholder="Regular Price"
-          style={styles.input}
-          value={price}
-          onChangeText={setPrice}
-          keyboardType="numeric"
-        />
-        <TextInput
-          placeholder="Short Description"
-          style={styles.textArea}
-          value={shortDescription}
-          onChangeText={setShortDescription}
-          multiline
-        />
-        <TextInput
-          placeholder="Description"
-          style={styles.textArea}
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-      </View>
+          {/* Product Information Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Product Information</Text>
+            <TextInput placeholder="Product Name" style={styles.input} value={title} onChangeText={(text) => { setTitle(text); updateField('title', text); }} />
+            <TextInput placeholder="Sale Price" style={styles.input} value={salePrice} onChangeText={(text) => { setSalePrice(text); updateField('salePrice', text); }} keyboardType="numeric" />
+            <TextInput placeholder="Regular Price" style={styles.input} value={price} onChangeText={(text) => { setPrice(text); updateField('price', text); }} keyboardType="numeric" />
+            <TextInput placeholder="Short Description" style={styles.textArea} value={shortDescription} onChangeText={(text) => { setShortDescription(text); updateField('shortDescription', text); }} multiline />
+            <TextInput placeholder="Description" style={styles.textArea} value={description} onChangeText={(text) => { setDescription(text); updateField('description', text); }} multiline />
+          </View>
 
-      {/* Category Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Category</Text>
-        <CategorySearch
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-        />
-      </View>
+          {/* Category Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Category</Text>
+            <CategorySearch selectedCategory={selectedCategory} setSelectedCategory={(category) => { setSelectedCategory(category); updateField('categories', [category._id]); }} />
+          </View>
 
-      {/* Tags Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Tags</Text>
-        <TextInput
-          placeholder="Tags (comma separated)"
-          style={styles.input}
-          value={tags}
-          onChangeText={setTags}
-        />
-      </View>
+          {/* Tags Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Tags</Text>
+            <TextInput placeholder="Tags (comma separated)" style={styles.input} value={tags} onChangeText={(text) => { setTags(text); updateField('tags', text.split(',').map((tag) => tag.trim())); }} />
+          </View>
 
-      {/* Catalog Visibility Section */}
-      <View style={styles.section}>
-        <Text style={styles.heading}>Catalog Visibility</Text>
-        <Picker
-          selectedValue={selectedVisibility}
-          style={styles.picker}
-          onValueChange={(itemValue) => setSelectedVisibility(itemValue)}
-        >
-          <Picker.Item label="shop" value="shop" />
-          <Picker.Item label="search" value="search" />
-          <Picker.Item label="hidden" value="hidden" />
-        </Picker>
-      </View>
+          {/* Catalog Visibility Section */}
+          <View style={styles.section}>
+            <Text style={styles.heading}>Catalog Visibility</Text>
+            <Picker selectedValue={selectedVisibility} style={styles.picker} onValueChange={(value) => { setSelectedVisibility(value); updateField('catalogVisibility', value); }}>
+              <Picker.Item label="shop" value="shop" />
+              <Picker.Item label="search" value="search" />
+              <Picker.Item label="hidden" value="hidden" />
+            </Picker>
+          </View>
 
-      {/* Next Button */}
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity>
+          {/* Next Button */}
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+            <Text style={styles.nextButtonText}>{productId ? 'Update Product' : 'Next'}</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </ScrollView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {

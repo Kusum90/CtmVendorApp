@@ -1,113 +1,155 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProductDetails, fetchProductDetails, updateProduct } from '../../../redux/Product/ProductSlice';
+import { Picker } from '@react-native-picker/picker';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux'; 
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Assuming the action is already defined in the slice
-import { Picker } from '@react-native-picker/picker'; 
 
 const ProductTaxScreen = () => {
-  const navigation = useNavigation(); 
-  const dispatch = useDispatch(); 
+  const navigation = useNavigation();
+  const route = useRoute();
+  const dispatch = useDispatch();
+  const { productId } = route.params || {}; // Retrieve productId from route params
+  const { productDetails, loading } = useSelector((state) => state.products); // Fetch loading state and product details
 
-  const [taxStatus, setTaxStatus] = useState('taxable'); // Default value for taxStatus
-  const [taxClass, setTaxClass] = useState('standard');  // Default value for taxClass
+  // Local state for form inputs
+  const [taxStatus, setTaxStatus] = useState('taxable'); // Default value
+  const [taxClass, setTaxClass] = useState('standard'); // Default value
 
-  // Function to handle next button click
-  const handleNext = () => {
-    // Dispatch taxStatus and taxClass to Redux store
-    dispatch(setProductDetails({
-      taxStatus, // Valid value directly from the state
-      taxClass,  // Valid value directly from the state
-    }));
+  // Log the received productId for debugging
+  useEffect(() => {
+    console.log('Received productId:', productId);
+  }, [productId]);
 
-    console.log("Tax Details Dispatched:", { taxStatus, taxClass });
+  // Fetch product details if editing
+  useEffect(() => {
+    if (productId) {
+      console.log(`Fetching product details for product ID: ${productId}`);
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
 
-    // Navigate to the next screen
-    navigation.navigate('ProductAttributeScreen');
+  // Populate fields if editing an existing product
+  useEffect(() => {
+    if (productId && productDetails && productDetails._id === productId) {
+      console.log('Populating fields with existing product data:', productDetails);
+      setTaxStatus(productDetails.taxStatus || 'taxable');
+      setTaxClass(productDetails.taxClass || 'standard');
+    }
+  }, [productDetails, productId]);
+
+  // Update the specific field in Redux and log the changes
+  const updateField = (field, value) => {
+    console.log(`Updating field: ${field} with value:`, value);
+    dispatch(setProductDetails({ [field]: value }));
+  };
+
+  const handleNext = async () => {
+    const taxData = {
+      taxStatus,
+      taxClass,
+    };
+
+    console.log('Tax details being prepared for submission:', taxData);
+
+    if (productId) {
+      try {
+        await dispatch(updateProduct({ ...taxData, _id: productId })).unwrap();
+        console.log('Tax details successfully updated in backend.');
+      } catch (error) {
+        console.error('Error updating tax details:', error);
+      }
+    } else {
+      dispatch(setProductDetails(taxData));
+    }
+
+    console.log('Tax details updated in Redux:', taxData);
+
+    // Navigate to the next screen and pass productId
+    navigation.navigate('ProductAttributeScreen', { productId });
   };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.header}>Tax Details</Text>
-      </View>
+      {/* Show loader while fetching product details */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <View style={styles.card}>
+          {/* Tax Status Picker */}
+          <View style={styles.section}>
+            <Text style={styles.title}>Tax Status</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={taxStatus}
+                onValueChange={(itemValue) => {
+                  setTaxStatus(itemValue);
+                  updateField('taxStatus', itemValue);
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="Taxable" value="taxable" />
+                <Picker.Item label="Shipping Only" value="shipping only" />
+                <Picker.Item label="None" value="none" />
+              </Picker>
+            </View>
+          </View>
 
-      {/* Tax Status Picker */}
-      <View style={styles.card}>
-        <View style={styles.section}>
-          <Text style={styles.title}>Tax Status</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={taxStatus}
-              onValueChange={(itemValue) => setTaxStatus(itemValue)}
-              style={styles.picker}
+          {/* Tax Class Picker */}
+          <View style={styles.section}>
+            <Text style={styles.title}>Tax Class</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={taxClass}
+                onValueChange={(itemValue) => {
+                  setTaxClass(itemValue);
+                  updateField('taxClass', itemValue);
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="Standard" value="standard" />
+                <Picker.Item label="Reduced Rate" value="reduced rate" />
+                <Picker.Item label="Zero Rate" value="zero rate" />
+              </Picker>
+            </View>
+          </View>
+
+          {/* Navigation Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.previousButton}
+              onPress={() => navigation.goBack()}
             >
-              <Picker.Item label="Taxable" value="taxable" />
-              <Picker.Item label="Shipping Only" value="shipping only" />
-              <Picker.Item label="None" value="none" />
-            </Picker>
+              <Text style={styles.buttonText}>Previous</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleNext}
+            >
+              <Text style={styles.buttonTextAdd}>Next</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Tax Class Picker */}
-        <View style={styles.section}>
-          <Text style={styles.title}>Tax Class</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={taxClass}
-              onValueChange={(itemValue) => setTaxClass(itemValue)}
-              style={styles.ppicker}
-            >
-              <Picker.Item label="Standard" value="standard" />
-              <Picker.Item label="Reduced Rate" value="reduced rate" />
-              <Picker.Item label="Zero Rate" value="zero rate" />
-            </Picker>
-          </View>
-        </View>
-
-        {/* Button Container */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.previousButton}
-            onPress={() => navigation.goBack()} // Navigate to previous screen
-          >
-            <Text style={styles.buttonText}>Previous</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleNext} // Dispatch Redux action and navigate
-          >
-            <Text style={styles.buttonTextAdd}>Next</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      )}
     </ScrollView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(5),                    // Responsive padding
     backgroundColor: '#fff',
-  },
-  card: {
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    padding: wp(4),                    // Responsive padding
-    marginBottom: hp(2.5),             // Responsive margin
-    elevation: 3,                      // For Android shadow
-    shadowColor: '#000',               // For iOS shadow
-    shadowOffset: { width: 0, height: 1 }, // For iOS shadow
-    shadowOpacity: 0.2,                // For iOS shadow
-    shadowRadius: 1.5,                 // For iOS shadow
-  },
-  header: {
-    fontSize: FontSize(24),            // Responsive font size
-    fontWeight: 'bold',
-    marginBottom: hp(1),               // Responsive margin
-    color:'#373737'
   },
   section: {
     marginBottom: hp(2.5),             // Responsive margin
