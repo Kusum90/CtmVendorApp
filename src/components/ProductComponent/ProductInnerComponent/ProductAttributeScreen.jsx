@@ -8,27 +8,67 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAttributes } from '../../../redux/Product/ProductAttribute/CreateAttribute';
+import { fetchAttributes, addAttributeValue } from '../../../redux/Product/ProductAttribute/CreateAttribute';
 import AddAttribute from '../ProductInnerComponent/ProductAttributes/AddAttribute';
-import { setProductDetails } from '../../../redux/Product/ProductSlice'; // Import action for setting product details
+import { setProductDetails, fetchProductDetails } from '../../../redux/Product/ProductSlice';
+import CustomToast from '../../../utils/CustomToast';
 
 const ProductAttributeScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const dispatch = useDispatch();
 
-  // Fetch attributes from redux store
+  const { productId } = route.params || {};
   const { attributes, loading, error } = useSelector((state) => state.attributes);
+  const { productDetails } = useSelector((state) => state.products);
 
   const [searchTerms, setSearchTerms] = useState({});
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [formData, setFormData] = useState({});
+  const [filteredAttributes, setFilteredAttributes] = useState([]);
+  const [newValue, setNewValue] = useState('');
+  const [addingValue, setAddingValue] = useState(null);
+  const [toastVisible, setToastVisible] = useState(false);
 
   useEffect(() => {
-    // Dispatch the action to fetch attributes when the component mounts
-    dispatch(fetchAttributes());
-  }, [dispatch]);
+    dispatch(fetchAttributes()).then(() => {
+      setFilteredAttributes(attributes); 
+    });
+    if (productId) {
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  useEffect(() => {
+    if (attributes.length > 0) {
+      setFilteredAttributes(attributes);
+    }
+  }, [attributes]);
+
+  useEffect(() => {
+    if (productId && productDetails && productDetails.attributes) {
+      console.log('Populating fields with existing product data:', productDetails);
+  
+      // Initialize selectedAttributes and formData based on fetched product details
+      const preselectedAttributes = {};
+      const prefilledFormData = {};
+  
+      productDetails.attributes.forEach((attr) => {
+        const attributeKey = attr.attribute_name; // Use lowercase for consistency
+        preselectedAttributes[attr.attribute_name] = true; // Mark the attribute as selected
+        prefilledFormData[attributeKey] = attr.values || []; // Add selected values
+      });
+  
+      setSelectedAttributes(preselectedAttributes);
+      setFormData(prefilledFormData);
+  
+      console.log('Selected Attributes:', preselectedAttributes);
+      console.log('Form Data:', prefilledFormData);
+    }
+  }, [productDetails, productId]);
+  
 
   const handleAttributeCheckboxChange = (attributeName) => {
     setSelectedAttributes((prevState) => ({
@@ -42,88 +82,107 @@ const ProductAttributeScreen = () => {
       ...prevState,
       [attributeName.toLowerCase()]: text,
     }));
+
+    const filtered = attributes.map(attr => {
+      if (attr.attribute_name.toLowerCase() === attributeName.toLowerCase()) {
+        return {
+          ...attr,
+          values: attr.values.filter(value => 
+            value.toLowerCase().includes(text.toLowerCase())
+          )
+        };
+      }
+      return attr;
+    });
+    setFilteredAttributes(filtered);
   };
 
   const handleValueClick = (value, attributeName) => {
     const attributeKey = attributeName.toLowerCase();
 
-    if (!formData[attributeKey]?.includes(value)) {
-      setFormData((prevData) => ({
+    setFormData((prevData) => {
+      const values = prevData[attributeKey] || [];
+      return {
         ...prevData,
-        [attributeKey]: [...(prevData[attributeKey] || []), value],
-      }));
-      setSearchTerms((prevState) => ({
-        ...prevState,
-        [attributeKey]: '',
-      }));
-    }
+        [attributeKey]: values.includes(value)
+          ? values.filter((val) => val !== value)
+          : [...values, value],
+      };
+    });
   };
 
-  // Handle adding new value
-  const handleAddNewValue = (attributeName) => {
+  const handleAddNewValue = (attributeId) => {
+    setAddingValue(attributeId);
+  };
+
+  const handleSubmitNewValue = (attributeId) => {
+    if (newValue.trim() === '') return;
+
+    dispatch(addAttributeValue({ id: attributeId, value: newValue }))
+      .unwrap()
+      .then(() => {
+        setNewValue('');
+        setAddingValue(null);
+        dispatch(fetchAttributes());
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 2000);
+      })
+      .catch((error) => console.error('Error adding value:', error));
+  };
+
+  const handleRemoveValue = (attributeName, value) => {
     const attributeKey = attributeName.toLowerCase();
-    const newValue = searchTerms[attributeKey];
-
-    if (newValue && !formData[attributeKey]?.includes(newValue)) {
-      setFormData((prevData) => ({
-        ...prevData,
-        [attributeKey]: [...(prevData[attributeKey] || []), newValue],
-      }));
-      setSearchTerms((prevState) => ({
-        ...prevState,
-        [attributeKey]: '',
-      }));
-    }
-  };
+    setFormData((prevData) => ({
+      ...prevData,
+      [attributeKey]: prevData[attributeKey].filter((val) => val !== value),
+    }));
+  };  
 
   const handleNext = () => {
-    // Format the attributes into an array of objects
-    const formattedAttributes = Object.keys(formData).map((attributeName) => ({
-      name: attributeName,
-      values: formData[attributeName],
-    }));
-
-    // Dispatch selected attributes and values to the Redux store
-    dispatch(setProductDetails({
-      attributes: formattedAttributes, // Send attributes as an array
-    }));
-
+    // Create the correct structure for attributes
+    const formattedAttributes = filteredAttributes
+      .filter(attr => selectedAttributes[attr.attribute_name]) // Only include selected attributes
+      .map(attr => ({
+        attributeId: attr._id, // Use _id as attributeId
+        values: formData[attr.attribute_name.toLowerCase()] || [], // Include selected values
+      }));
+  
+    // Log the formatted attributes for debugging
+    console.log("Formatted attributes to send:", formattedAttributes);
+  
+    // Dispatch the product details, maintaining the backend-expected structure
+    dispatch(setProductDetails({ attributes: formattedAttributes }));
+  
     // Navigate to the next screen
-    navigation.navigate('ProductLinkedScreen');
+    navigation.navigate('ProductLinkedScreen', { productId });
   };
+  
+  
 
-  const CustomCheckBox = ({ isChecked, onPress, label }) => {
-    return (
-      <TouchableOpacity onPress={onPress} style={styles.checkboxContainer}>
-        <View style={styles.checkbox}>
-          {isChecked && <View style={styles.checked} />}
-        </View>
-        <Text style={styles.checkboxLabel}>{label}</Text>
-      </TouchableOpacity>
-    );
-  };
+  const CustomCheckBox = ({ isChecked, onPress, label }) => (
+    <TouchableOpacity onPress={onPress} style={styles.checkboxContainer}>
+      <View style={styles.checkbox}>{isChecked && <View style={styles.checked} />}</View>
+      <Text style={styles.checkboxLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Scrollable Attribute Section */}
       <ScrollView style={styles.container}>
         <Text style={styles.headerText}>Attributes</Text>
 
-        {/* Show loading spinner while attributes are loading */}
         {loading ? (
           <ActivityIndicator size="large" color="#0EAB3D" />
         ) : error ? (
           <Text style={styles.errorText}>Failed to load attributes: {error}</Text>
         ) : (
-          attributes.map((attribute) => (
+          filteredAttributes.map((attribute) => (
             <View key={attribute._id} style={styles.attributeSection}>
-              <View style={styles.checkboxContainer}>
-                <CustomCheckBox
-                  isChecked={selectedAttributes[attribute.attribute_name] || false}
-                  onPress={() => handleAttributeCheckboxChange(attribute.attribute_name)}
-                  label={attribute.attribute_name}
-                />
-              </View>
+              <CustomCheckBox
+                isChecked={selectedAttributes[attribute.attribute_name] || false}
+                onPress={() => handleAttributeCheckboxChange(attribute.attribute_name)}
+                label={attribute.attribute_name}
+              />
 
               {selectedAttributes[attribute.attribute_name] && (
                 <View style={styles.attributeDetails}>
@@ -131,13 +190,10 @@ const ProductAttributeScreen = () => {
                   <TextInput
                     style={styles.searchInput}
                     value={searchTerms[attribute.attribute_name.toLowerCase()] || ''}
-                    onChangeText={(text) =>
-                      handleSearchChange(text, attribute.attribute_name)
-                    }
+                    onChangeText={(text) => handleSearchChange(text, attribute.attribute_name)}
                     placeholder={`Search for ${attribute.attribute_name}`}
                   />
 
-                  {/* Display search results */}
                   {searchTerms[attribute.attribute_name.toLowerCase()] && (
                     <View style={styles.searchResults}>
                       {attribute.values
@@ -160,20 +216,48 @@ const ProductAttributeScreen = () => {
                     </View>
                   )}
 
-                  {/* Add New button */}
                   <TouchableOpacity
                     style={styles.addNewButton}
-                    onPress={() => handleAddNewValue(attribute.attribute_name)}
+                    onPress={() => handleAddNewValue(attribute._id)}
                   >
                     <Text style={styles.addNewButtonText}>Add New</Text>
                   </TouchableOpacity>
+
+                  {addingValue === attribute._id && (
+                    <View style={styles.addNewValueContainer}>
+                      <TextInput
+                        style={styles.newValueInput}
+                        value={newValue}
+                        onChangeText={setNewValue}
+                        placeholder="Enter new value"
+                      />
+                      <TouchableOpacity
+                        style={styles.submitButton}
+                        onPress={() => handleSubmitNewValue(attribute._id)}
+                      >
+                        <Text style={styles.submitButtonText}>
+                          {loading ? 'Submitting...' : 'Submit'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+
+                  <View style={styles.selectedValuesContainer}>
+                    {formData[attribute.attribute_name.toLowerCase()]?.map((value) => (
+                      <View key={value} style={styles.selectedValue}>
+                        <Text>{value}</Text>
+                        <TouchableOpacity onPress={() => handleRemoveValue(attribute.attribute_name, value)}>
+                          <Text style={styles.removeText}>X</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               )}
             </View>
           ))
         )}
 
-        {/* Navigation buttons */}
         <View style={styles.navigation}>
           <TouchableOpacity
             style={[styles.navButton, styles.previousButton]}
@@ -182,20 +266,20 @@ const ProductAttributeScreen = () => {
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.navButton, styles.nextButton]}
-            onPress={handleNext}
-          >
+          <TouchableOpacity style={[styles.navButton, styles.nextButton]} onPress={handleNext}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Import and render AddAttribute */}
       <AddAttribute />
+      <CustomToast visible={toastVisible} message="Value added successfully!" />
     </View>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -292,6 +376,69 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16,
+  },
+  selectedValuesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  selectedValue: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  removeText: {
+    color: 'red',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  },
+  addNewValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  newValueInput: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginRight: 10,
+    backgroundColor: '#fff',
+    color: '#333',
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: '#0EAB3D',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    shadowColor: '#0EAB3D',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 

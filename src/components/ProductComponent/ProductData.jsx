@@ -36,12 +36,13 @@ const ProductData = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
-
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('Filter by');
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const [isPaginationLoading, setIsPaginationLoading] = useState(false); // New loading state for pagination
 
   const filters = ['Published', 'Pending'];
 
@@ -56,17 +57,22 @@ const ProductData = () => {
   };
 
   useEffect(() => {
+    fetchProducts();
+  }, [dispatch, selectedDate, searchTerm, currentPage]);
+
+  const fetchProducts = () => {
+    setIsPaginationLoading(true); // Set loading for pagination
     dispatch(
       getAllProduct({
-        page: 1,
+        page: currentPage,
         limit: 10,
         searchTerm,
         selectedDate: selectedDate || '',
         stockFilter: '',
         category: '',
       })
-    );
-  }, [dispatch, selectedDate, searchTerm]);
+    ).finally(() => setIsPaginationLoading(false)); // Reset loading after fetch
+  };
 
   useEffect(() => {
     filterProducts();
@@ -101,16 +107,8 @@ const ProductData = () => {
 
   const onRefresh = () => {
     setIsRefreshing(true);
-    dispatch(
-      getAllProduct({
-        page: 1,
-        limit: 10,
-        searchTerm,
-        selectedDate: selectedDate || '',
-        stockFilter: '',
-        category: '',
-      })
-    ).then(() => setIsRefreshing(false));
+    fetchProducts();
+    setIsRefreshing(false);
   };
 
   const handleSearchChange = (text) => {
@@ -130,17 +128,26 @@ const ProductData = () => {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            dispatch(deleteProduct(productId));
+            dispatch(deleteProduct(productId)).then(() => {
+              // Immediately remove the deleted product from the filteredProducts list
+              setFilteredProducts((prevProducts) =>
+                prevProducts.filter((product) => product._id !== productId)
+              );
+            });
           },
         },
       ]
     );
   };
+  
 
-  const handleEdit = (product) => {
-    setCurrentProduct(product);
-    setIsEditModalVisible(true);
+  const handleEdit = (productId) => {
+    console.log(`Your Product id is ${productId}`);
+    
+    // Navigate to ProductDetails and pass productId as a parameter
+    navigation.navigate('ProductDetails', { productId });
   };
+  
 
   const handleUpdateProduct = () => {
     if (currentProduct) {
@@ -153,13 +160,24 @@ const ProductData = () => {
     return (
       <View key={item._id ? item._id.toString() : Math.random().toString()} style={styles.tableRow}>
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
+          {/* Edit button */}
+          <TouchableOpacity 
+            style={styles.editButton} 
+            onPress={() => handleEdit(item._id)} // Pass the current product's ID
+          >
             <Edit width={50} height={50} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item._id)}>
+  
+          {/* Delete button */}
+          <TouchableOpacity 
+            style={styles.deleteButton} 
+            onPress={() => handleDelete(item._id)}
+          >
             <Delete width={50} height={50} />
           </TouchableOpacity>
         </View>
+  
+        {/* Render other product information */}
         <Image source={{ uri: item.image[0] }} style={styles.productImage} />
         <Text style={styles.tableCell}>{item.title}</Text>
         <Text style={styles.tableCell}>{item.sku}</Text>
@@ -173,6 +191,7 @@ const ProductData = () => {
       </View>
     );
   };
+  
 
   const renderHeader = () => (
     <View style={styles.tableHeader}>
@@ -189,6 +208,16 @@ const ProductData = () => {
       <Text style={styles.tableHeaderText}>Date</Text>
     </View>
   );
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -283,8 +312,8 @@ const ProductData = () => {
         </View>
       </Modal>
 
-      {loading ? (
-        <ActivityIndicator style={styles.loadingIndicator} size="large" color="#000" />
+      {loading || isPaginationLoading ? (
+        <ActivityIndicator style={styles.loadingIndicator} size="large" color="green" />
       ) : (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View>
@@ -314,12 +343,21 @@ const ProductData = () => {
           </View>
         </ScrollView>
       )}
+
+      {/* Pagination Controls */}
+      <View style={styles.paginationContainer}>
+        {currentPage > 1 && (
+          <TouchableOpacity onPress={handlePreviousPage} style={styles.paginationButton}>
+            <Text style={styles.paginationText}>Previous</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={handleNextPage} style={styles.paginationButton}>
+          <Text style={styles.paginationText}>Next</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
-
-
-
 
 // Styles
 const styles = StyleSheet.create({
@@ -329,7 +367,7 @@ const styles = StyleSheet.create({
     padding: wp(3),
   },
   flatListContainer: {
-    paddingBottom: hp(2), // Add padding to the bottom of the list
+    paddingBottom: hp(2),
   },
   tableHeader: {
     flexDirection: 'row',
@@ -376,9 +414,9 @@ const styles = StyleSheet.create({
     fontSize: FontSize(16),
   },
   headerContainer: {
-    flexDirection: 'row', // Align title and buttons in the same row
-    justifyContent: 'space-between', // Spread title and buttons across the row
-    alignItems: 'center', // Align items vertically in the center
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: hp(1),
   },
   title: {
@@ -400,7 +438,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom:hp(1)
+    marginBottom: hp(1),
   },
   filterButton: {
     backgroundColor: '#f1f1f1',
@@ -424,7 +462,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)', // Transparent background for modal
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   calendarWrapper: {
     backgroundColor: '#fff',
@@ -442,12 +480,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   editModal: {
     width: '90%',
@@ -477,24 +509,39 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-
-},
-modalContainer1: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent background
-},
-modalOption: {
-  fontSize: 18,
-  color: '#333',
-  paddingVertical: 2,
-  paddingHorizontal: 20,
-  marginVertical: 5,
-  backgroundColor: 'white', // Light background color
-  borderRadius: 6,
-  textAlign: 'center',
-  width: '100%',
-},
+  },
+  modalContainer1: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  modalOption: {
+    fontSize: 18,
+    color: '#333',
+    paddingVertical: 2,
+    paddingHorizontal: 20,
+    marginVertical: 5,
+    backgroundColor: 'white',
+    borderRadius: 6,
+    textAlign: 'center',
+    width: '100%',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  paginationButton: {
+    padding: 10,
+    backgroundColor: 'green', // Set pagination button color to green
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  paginationText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
+
 export default ProductData;

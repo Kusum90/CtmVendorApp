@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,177 +6,222 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProductDetails, fetchProductDetails, updateProduct } from '../../../redux/Product/ProductSlice';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch } from 'react-redux';
-import { setProductDetails } from '../../../redux/Product/ProductSlice';
 
 const ProductShippingScreen = () => {
-  const navigation = useNavigation(); 
-  const dispatch = useDispatch(); 
+  const navigation = useNavigation();
+  const route = useRoute();
+  const dispatch = useDispatch();
+  const { productId } = route.params || {}; // Retrieve productId from route params
+  const { productDetails, loading } = useSelector((state) => state.products); // Fetch loading state and product details
 
-  const [weight, setWeight] = useState(''); 
-  const [dimensions, setDimensions] = useState({
-    length: '',
-    width: '',
-    height: '',
-  });
+  // Local state for form inputs
+  const [weight, setWeight] = useState('');
+  const [dimensions, setDimensions] = useState({ length: '', width: '', height: '' });
+  const [selectedProcessingTime, setSelectedProcessingTime] = useState('1 business day');
+  const [selectedShippingClass, setSelectedShippingClass] = useState('Free Shipping');
 
-  // Default valid enum values
-  const [selectedProcessingTime, setSelectedProcessingTime] = useState('1 business day'); 
-  const [selectedShippingClass, setSelectedShippingClass] = useState('Free Shipping'); 
+  // Fetch product details if editing
+  useEffect(() => {
+    if (productId) {
+      console.log(`Fetching product details for product ID: ${productId}`);
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  // Populate fields if editing an existing product
+  useEffect(() => {
+    if (productId && productDetails && productDetails._id === productId) {
+      console.log('Populating fields with existing product data:', productDetails);
+      setWeight(productDetails.weight ? productDetails.weight.toString() : '');
+      setDimensions({
+        length: productDetails.length ? productDetails.length.toString() : '',
+        width: productDetails.width ? productDetails.width.toString() : '',
+        height: productDetails.height ? productDetails.height.toString() : '',
+      });
+      setSelectedShippingClass(productDetails.shippingClass || 'Free Shipping');
+      setSelectedProcessingTime(productDetails.processingTime || '1 business day');
+    }
+  }, [productDetails, productId]);
 
   const handleDimensionChange = (key, value) => {
     setDimensions((prevDimensions) => ({ ...prevDimensions, [key]: value }));
+    updateField(key, parseFloat(value) || '');
   };
 
-  const handleProcessingTimeChange = (value) => {
-    setSelectedProcessingTime(value);
+  const updateField = (field, value) => {
+    console.log(`Updating field: ${field} with value:`, value);
+    dispatch(setProductDetails({ [field]: value }));
   };
 
-  const handleShippingClassChange = (value) => {
-    setSelectedShippingClass(value);
-  };
+  const handleNext = async () => {
+    const shippingData = {
+      weight: weight ? parseFloat(weight) : null,
+      length: dimensions.length ? parseFloat(dimensions.length) : null,
+      width: dimensions.width ? parseFloat(dimensions.width) : null,
+      height: dimensions.height ? parseFloat(dimensions.height) : null,
+      shippingClass: selectedShippingClass,
+      processingTime: selectedProcessingTime,
+    };
 
-  const handleNext = () => {
-    // Ensure all fields are valid before dispatching to the backend
-    dispatch(
-      setProductDetails({
-        weight: weight ? parseFloat(weight) : null, // Convert weight to number
-        length: dimensions.length ? parseFloat(dimensions.length) : null, 
-        width: dimensions.width ? parseFloat(dimensions.width) : null, 
-        height: dimensions.height ? parseFloat(dimensions.height) : null, 
-        shippingClass: selectedShippingClass, // Valid value from enum
-        processingTime: selectedProcessingTime, // Valid value from enum
-      })
-    );
+    console.log('Shipping details being prepared for submission:', shippingData);
 
-    // Navigate to the next screen
-    navigation.navigate('ProductTaxScreen');
+    if (productId) {
+      try {
+        await dispatch(updateProduct({ ...shippingData, _id: productId })).unwrap();
+        console.log('Shipping details successfully updated in backend.');
+      } catch (error) {
+        console.error('Error updating shipping details:', error);
+      }
+    } else {
+      dispatch(setProductDetails(shippingData));
+    }
+
+    navigation.navigate('ProductTaxScreen', { productId });
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.headerText}>Shipping</Text>
+        <Text style={styles.headerText}>{productId ? 'Edit Shipping Details' : 'Add Shipping Details'}</Text>
       </View>
 
-      <View style={styles.card}>
-        {/* Weight Input */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Weight (gms)</Text>
-          <TextInput
-            style={styles.input}
-            value={weight}
-            onChangeText={setWeight}
-            keyboardType="numeric"
-            placeholder="Enter product weight"
-          />
-        </View>
-
-        {/* Dimensions Input */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Dimensions</Text>
-          <View style={styles.dimensionButtons}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <View style={styles.card}>
+          {/* Weight Input */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Weight (gms)</Text>
             <TextInput
-              placeholder="Length"
-              value={dimensions.length}
-              onChangeText={(value) => handleDimensionChange('length', value)}
-              style={styles.dimensionInput}
+              style={styles.input}
+              value={weight}
+              onChangeText={(text) => {
+                setWeight(text);
+                updateField('weight', parseFloat(text));
+              }}
               keyboardType="numeric"
-            />
-            <TextInput
-              placeholder="Width"
-              value={dimensions.width}
-              onChangeText={(value) => handleDimensionChange('width', value)}
-              style={styles.dimensionInput}
-              keyboardType="numeric"
-            />
-            <TextInput
-              placeholder="Height"
-              value={dimensions.height}
-              onChangeText={(value) => handleDimensionChange('height', value)}
-              style={styles.dimensionInput}
-              keyboardType="numeric"
+              placeholder="Enter product weight"
             />
           </View>
-        </View>
 
-        {/* Shipping Class Selection */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Shipping Class</Text>
-          <TouchableOpacity
-            style={styles.radioButton}
-            onPress={() => handleShippingClassChange('Free Shipping')}>
-            <View
-              style={[
-                styles.radioButtonIcon,
-                selectedShippingClass === 'Free Shipping' &&
-                styles.radioButtonIconChecked,
-              ]}
-            />
-            <Text style={styles.radioButtonText}>Free Shipping</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.radioButton}
-            onPress={() => handleShippingClassChange('Third Party Shipping')}>
-            <View
-              style={[
-                styles.radioButtonIcon,
-                selectedShippingClass === 'Third Party Shipping' &&
-                styles.radioButtonIconChecked,
-              ]}
-            />
-            <Text style={styles.radioButtonText}>Third Party Shipping</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Dimensions Input */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Dimensions</Text>
+            <View style={styles.dimensionButtons}>
+              <TextInput
+                placeholder="Length"
+                value={dimensions.length}
+                onChangeText={(value) => handleDimensionChange('length', value)}
+                style={styles.dimensionInput}
+                keyboardType="numeric"
+              />
+              <TextInput
+                placeholder="Width"
+                value={dimensions.width}
+                onChangeText={(value) => handleDimensionChange('width', value)}
+                style={styles.dimensionInput}
+                keyboardType="numeric"
+              />
+              <TextInput
+                placeholder="Height"
+                value={dimensions.height}
+                onChangeText={(value) => handleDimensionChange('height', value)}
+                style={styles.dimensionInput}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
 
-        {/* Processing Time Selection */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Processing Time</Text>
-          {[
-            '1 business day',
-            '1-2 business days',
-            '1-3 business days',
-            '3-5 business days',
-            '1-2 weeks',
-            '2-3 weeks',
-            '3-4 weeks',
-            '4-6 weeks',
-            '6-8 weeks',
-          ].map((time, index) => (
+          {/* Shipping Class Selection */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Shipping Class</Text>
             <TouchableOpacity
-              key={index}
               style={styles.radioButton}
-              onPress={() => handleProcessingTimeChange(time)}>
+              onPress={() => {
+                setSelectedShippingClass('Free Shipping');
+                updateField('shippingClass', 'Free Shipping');
+              }}
+            >
               <View
                 style={[
                   styles.radioButtonIcon,
-                  selectedProcessingTime === time &&
-                  styles.radioButtonIconChecked,
+                  selectedShippingClass === 'Free Shipping' && styles.radioButtonIconChecked,
                 ]}
               />
-              <Text style={styles.radioButtonText}>{time}</Text>
+              <Text style={styles.radioButtonText}>Free Shipping</Text>
             </TouchableOpacity>
-          ))}
-        </View>
+            <TouchableOpacity
+              style={styles.radioButton}
+              onPress={() => {
+                setSelectedShippingClass('Third Party Shipping');
+                updateField('shippingClass', 'Third Party Shipping');
+              }}
+            >
+              <View
+                style={[
+                  styles.radioButtonIcon,
+                  selectedShippingClass === 'Third Party Shipping' && styles.radioButtonIconChecked,
+                ]}
+              />
+              <Text style={styles.radioButtonText}>Third Party Shipping</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Navigation Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.previousButton}
-            onPress={() => navigation.goBack()}>
-            <Text style={styles.buttonText}>Previous</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.addButton} onPress={handleNext}>
-            <Text style={styles.buttonTextAdd}>Next</Text>
-          </TouchableOpacity>
+          {/* Processing Time Selection */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Processing Time</Text>
+            {[
+              '1 business day',
+              '1-2 business days',
+              '1-3 business days',
+              '3-5 business days',
+              '1-2 weeks',
+              '2-3 weeks',
+              '3-4 weeks',
+              '4-6 weeks',
+              '6-8 weeks',
+            ].map((time, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.radioButton}
+                onPress={() => {
+                  setSelectedProcessingTime(time);
+                  updateField('processingTime', time);
+                }}
+              >
+                <View
+                  style={[
+                    styles.radioButtonIcon,
+                    selectedProcessingTime === time && styles.radioButtonIconChecked,
+                  ]}
+                />
+                <Text style={styles.radioButtonText}>{time}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Navigation Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.previousButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.buttonText}>Previous</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addButton} onPress={handleNext}>
+              <Text style={styles.buttonTextAdd}>Next</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </ScrollView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {

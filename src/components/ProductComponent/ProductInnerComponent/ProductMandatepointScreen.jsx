@@ -1,23 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProductDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails, fetchProductDetails } from '../../../redux/Product/ProductSlice';
 import { MandatePoints } from '../../../redux/Product/ProductAttribute/ProductAttribute';
 
-const ProductMandatepointScreen = () => {
+const ProductMandatepointScreen = ({ route }) => {
   const [assemblyRequired, setAssemblyRequired] = useState(false);
   const [powerSource, setPowerSource] = useState('');
   const [hsnSearchTerm, setHsnSearchTerm] = useState('');
   const [selectedHsnCodeId, setSelectedHsnCodeId] = useState('');
+  const { productId } = route.params || {}; // Get productId from route if available
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  // Fetch product details and HSN codes from Redux state
   const { loading, hsnCodes, error } = useSelector((state) => state.categories);
+  const { productDetails, loading: productLoading } = useSelector((state) => state.products);
 
+  // Fetch product details if editing an existing product
+  useEffect(() => {
+    if (productId) {
+      dispatch(fetchProductDetails(productId));
+    }
+  }, [dispatch, productId]);
+
+  // Populate mandate point fields if editing an existing product
+  useEffect(() => {
+    if (productId && productDetails) {
+      setAssemblyRequired(productDetails.isAssemblyRequired || false);
+      setPowerSource(productDetails.powerSource || '');
+
+      // Fetch and set the HSN code if available
+      if (productDetails.hsnCode && productDetails.hsnCode.length > 0) {
+        setSelectedHsnCodeId(productDetails.hsnCode[0]);
+      }
+    }
+  }, [productDetails, productId]);
+
+  // Fetch HSN codes based on search term
   useEffect(() => {
     if (hsnSearchTerm) {
       dispatch(MandatePoints(hsnSearchTerm));
@@ -38,20 +71,12 @@ const ProductMandatepointScreen = () => {
       })
     );
 
-    navigation.navigate('ProductSustanibilityScreen');
+    navigation.navigate('ProductSustanibilityScreen', { productId });
   };
 
-  const handleAssemblyRequiredChange = (value) => {
-    setAssemblyRequired(value);
-  };
-
-  const handlePowerSourceChange = (value) => {
-    setPowerSource(value);
-  };
-
-  const handleHsnCodeChange = (value) => {
-    setHsnSearchTerm(value);
-  };
+  const handleAssemblyRequiredChange = (value) => setAssemblyRequired(value);
+  const handlePowerSourceChange = (value) => setPowerSource(value);
+  const handleHsnCodeChange = (value) => setHsnSearchTerm(value);
 
   const handleSelectHsnCode = (hsnCodeId) => {
     setSelectedHsnCodeId(hsnCodeId);
@@ -65,6 +90,14 @@ const ProductMandatepointScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Display loader while product details are loading */}
+      {productLoading && (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Loading Product Details...</Text>
+        </View>
+      )}
+
       <View style={styles.titleCard}>
         <Text style={styles.title}>Mandate Point</Text>
       </View>
@@ -172,6 +205,7 @@ const ProductMandatepointScreen = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
