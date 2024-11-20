@@ -9,11 +9,11 @@ const StoreInvoiceScreen = ({ navigation }) => {
   const [gstNo, setGstNo] = useState('');
   const [disclaimer, setDisclaimer] = useState('');
   const [digitalSignature, setDigitalSignature] = useState('');
-
+  
   const handlePrevious = () => {
-    navigation.goBack(); // Navigate back to the previous screen
+    navigation.goBack(); // Navigate to the previous screen
   };
-
+  
   const handleNext = () => {
     navigation.navigate('SocialScreen'); // Navigate to SocialScreen
   };

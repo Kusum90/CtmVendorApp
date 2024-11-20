@@ -11,9 +11,9 @@ const LocationScreen = ({ navigation }) => {  // Inject navigation prop
   const [zip, setZip] = useState('');
 
   const handlePrevious = () => {
-    navigation.navigate('StoreSetting');
-    // Implement navigation to the previous screen if needed
+    navigation.goBack(); // Navigate to the previous screen
   };
+  
 
   const handleNext = () => {
     // Navigate to the PayScreen

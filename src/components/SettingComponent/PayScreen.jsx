@@ -18,8 +18,9 @@ const PayScreen = () => {
   ];
 
   const handlePrevious = () => {
-    Alert.alert('Navigating to the previous screen!');
+    navigation.goBack(); // Navigate to the previous screen
   };
+  
 
   const handleNext = () => {
       // Navigate to the Policies screen when "Next" is clicked
