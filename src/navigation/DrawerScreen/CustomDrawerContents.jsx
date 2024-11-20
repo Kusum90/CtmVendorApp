@@ -510,7 +510,7 @@ const CustomDrawerContent = props => {
         onPress={() => {
           setActiveItem('Setting');
           props.navigation.navigate('Stack', {
-            screen: 'SettingsScreen',
+            screen: 'SettingsScreenNav',
             params: {
               screen: 'StoreSettings',
             },

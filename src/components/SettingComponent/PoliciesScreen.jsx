@@ -9,9 +9,9 @@ const PoliciesScreen = ({ navigation }) => { // Add navigation prop here
   const [cancelPolicy, setCancelPolicy] = useState('');
 
   const handlePrevious = () => {
-    Alert.alert('Navigating to the previous screen!');
     navigation.goBack(); // Navigate to the previous screen
   };
+  
 
   const handleNext = () => {
     navigation.navigate('CustomerSupportScreen'); // Navigate to CustomerScreen

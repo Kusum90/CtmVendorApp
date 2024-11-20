@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // For dropdown
+import DocumentPicker from 'react-native-document-picker'; // Import Document Picker
+
 import { ScrollView } from 'react-native-gesture-handler';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
 import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
@@ -16,6 +17,8 @@ const navigation = useNavigation();
   const [storePhone, setStorePhone] = useState('');
   const [storeBannerType, setStoreBannerType] = useState('Static Image');
   const [storeListBannerType, setStoreListBannerType] = useState('Static Image');
+  const [storeLogo, setStoreLogo] = useState(null); // Store selected image URI
+
 
   const [errors, setErrors] = useState({}); 
 
@@ -42,15 +45,32 @@ const navigation = useNavigation();
     navigation.navigate('LocationScreen')
   };
 
+  const handlePickImage = async () => {
+    try {
+      const result = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.images],
+      });
+      setStoreLogo(result.uri);
+      console.log('Selected Image: ', result.uri);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled the document picker');
+      } else {
+        Alert.alert('Error', 'An error occurred while selecting the document');
+      }
+    }
+  };
+
+
   return (
     <View style={{ flex: 1 }}>
       {/* Header with back arrow and title */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrow name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Store Settings</Text>
-      </View>
+      </View> */}
     <ScrollView style={styles.container}>
       {/* Card for Heading */}
       <View style={styles.card}>
@@ -107,8 +127,12 @@ const navigation = useNavigation();
           <Text style={styles.subHeading}>Store Brand Setup</Text>
 
           <Text style={styles.label}>Store Logo</Text>
-          <TouchableOpacity style={styles.imagePicker}>
-            {/* <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.image} /> */}
+          <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+          {storeLogo ? (
+                <Image source={{ uri: storeLogo }} style={styles.image} />
+              ) : (
+                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
+              )}
           </TouchableOpacity>
 
           <Text style={styles.label}>Store Banner Type</Text>
@@ -126,15 +150,23 @@ const navigation = useNavigation();
           <View style={styles.row}>
             <View style={styles.imagePickerContainer}>
               <Text style={styles.label}>Store Banner</Text>
-              <TouchableOpacity style={styles.imagePicker}>
-                {/* <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.image} /> */}
+              <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+              {storeLogo ? (
+                <Image source={{ uri: storeLogo }} style={styles.image} />
+              ) : (
+                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
+              )}
               </TouchableOpacity>
             </View>
 
             <View style={styles.imagePickerContainer}>
               <Text style={styles.label}>Mobile Banner</Text>
-              <TouchableOpacity style={styles.imagePicker}>
-                {/* <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.image} /> */}
+              <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+              {storeLogo ? (
+                <Image source={{ uri: storeLogo }} style={styles.image} />
+              ) : (
+                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
+              )}
               </TouchableOpacity>
             </View>
           </View>
@@ -155,8 +187,12 @@ const navigation = useNavigation();
           </View>
 
           <Text style={styles.label}>Store List Banner</Text>
-          <TouchableOpacity style={styles.imagePicker}>
-            {/* <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.image} /> */}
+          <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+          {storeLogo ? (
+                <Image source={{ uri: storeLogo }} style={styles.image} />
+              ) : (
+                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
+              )}
           </TouchableOpacity>
         </View>
 

@@ -12,9 +12,9 @@ const CustomerSupportScreen = ({ navigation }) => {
   const [zip, setZip] = useState('');
 
   const handlePrevious = () => {
-    Alert.alert('Previous button clicked!');
-    // Implement navigation to the previous screen if needed
+    navigation.goBack(); // Navigate to the previous screen
   };
+  
 
   const handleNext = () => {
     navigation.navigate('StoreInvoiceScreen'); // Navigate to StoreInvoiceScreen
