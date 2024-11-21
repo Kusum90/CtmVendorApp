@@ -3,11 +3,11 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator 
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProductDetails, fetchProductDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails, fetchProductDetails,updateProduct } from '../../../redux/Product/ProductSlice';
 
 const ProductSustanibilityScreen = ({ route }) => {
-  const [sustainabilityRemark, setSustainabilityRemark] = useState('');
-  const [carbonFootprint, setCarbonFootprint] = useState('');
+  const [sustainability, setsustainability] = useState('');
+  const [carbonfootprint, setcarbonfootprint] = useState('');
   const { productId } = route.params || {}; // Get productId from route if available
 
   const dispatch = useDispatch();
@@ -26,27 +26,39 @@ const ProductSustanibilityScreen = ({ route }) => {
 
   // Populate fields if product details are available
   useEffect(() => {
-    if (productId && productDetails) {
+    if (productId && productDetails && productDetails._id === productId) {
       console.log('Populating fields with existing product data:', productDetails);
-      setSustainabilityRemark(productDetails.sustainabilityRemark || '');
-      setCarbonFootprint(productDetails.carbonFootprint || '');
+      setsustainability(productDetails.sustainability || '');
+      setcarbonfootprint(productDetails.carbonfootprint || '');
     }
   }, [productDetails, productId]);
 
-  const handleNext = () => {
-    const sustainabilityData = {
-      sustainabilityRemark,
-      carbonFootprint,
+  const prepareData = () => {
+    return {
+      _id: productId,
+      sustainability: sustainability || '',
+      carbonfootprint: carbonfootprint || '',
     };
+  };
 
-    console.log('Sustainability Details being sent to Redux and Backend:', sustainabilityData);
+  const handleNext = async () => {
+    const preparedData = prepareData();
+    console.log('Sustainability Data:', preparedData);
 
-    dispatch(setProductDetails(sustainabilityData));
+    if (productId) {
+      try {
+        await dispatch(updateProduct(preparedData)).unwrap();
+        console.log('Sustainability data updated successfully.');
+      } catch (error) {
+        console.error('Error updating sustainability data:', error);
+      }
+    } else {
+      dispatch(setProductDetails(preparedData));
+      console.log('Sustainability data saved locally.');
+    }
 
     // Navigate to the next screen
     navigation.navigate('ProductMOQScreen', { productId });
-
-    console.log('Navigating to ProductMOQScreen with productId:', productId);
   };
 
   return (
@@ -63,8 +75,8 @@ const ProductSustanibilityScreen = ({ route }) => {
             <Text style={styles.label}>Sustainability Remark</Text>
             <TextInput
               style={styles.input}
-              value={sustainabilityRemark}
-              onChangeText={setSustainabilityRemark}
+              value={sustainability}
+              onChangeText={setsustainability}
               multiline
               placeholder="Enter sustainability remarks"
             />
@@ -72,8 +84,8 @@ const ProductSustanibilityScreen = ({ route }) => {
             <Text style={styles.label}>Carbon Footprint</Text>
             <TextInput
               style={styles.input}
-              value={carbonFootprint}
-              onChangeText={setCarbonFootprint}
+              value={carbonfootprint}
+              onChangeText={setcarbonfootprint}
               multiline
               placeholder="Enter carbon footprint value"
             />

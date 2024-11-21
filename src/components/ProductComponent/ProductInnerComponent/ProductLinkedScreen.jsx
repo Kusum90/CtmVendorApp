@@ -8,25 +8,26 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  ToastAndroid,
+  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 import { fetchProducts } from '../../../redux/Coupon/Coupon'; // Action to fetch products
-import { setProductDetails, fetchProductDetails } from '../../../redux/Product/ProductSlice';
+import { setProductDetails, fetchProductDetails, updateProduct } from '../../../redux/Product/ProductSlice';
+import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
 
 const ProductLinkedScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { productId } = route.params || {}; // Product ID for editing if available
+  const { productDetails, loading } = useSelector((state) => state.products);
 
-  // Fetch initial data for up-sells and cross-sells
-  const { productDetails, loading, error } = useSelector((state) => state.products);
   const [upSells, setUpSellsState] = useState([]);
   const [crossSells, setCrossSellsState] = useState([]);
   const [searchUpSell, setSearchUpSell] = useState('');
   const [searchCrossSell, setSearchCrossSell] = useState('');
   const [upSellProducts, setUpSellProducts] = useState([]);
   const [crossSellProducts, setCrossSellProducts] = useState([]);
+  const [selectedUpSellTitles, setSelectedUpSellTitles] = useState({});
+  const [selectedCrossSellTitles, setSelectedCrossSellTitles] = useState({});
 
   // Fetch product details if editing
   useEffect(() => {
@@ -38,40 +39,79 @@ const ProductLinkedScreen = ({ navigation, route }) => {
 
   // Populate up-sells and cross-sells if editing
   useEffect(() => {
-    if (productDetails && productDetails._id === productId) {
+    if (productId && productDetails && productDetails._id === productId) {
       console.log('Populating up-sells and cross-sells from product details:', productDetails);
-      setUpSellsState(productDetails.upSells || []);
-      setCrossSellsState(productDetails.crossSells || []);
+      const upSellsIds = productDetails.upSells?.map((upSell) => upSell.id) || [];
+      const crossSellsIds = productDetails.crossSells?.map((crossSell) => crossSell.id) || [];
+      const upSellsTitles = {};
+      const crossSellsTitles = {};
+      productDetails.upSells?.forEach((upSell) => {
+        upSellsTitles[upSell.id] = upSell.title;
+      });
+      productDetails.crossSells?.forEach((crossSell) => {
+        crossSellsTitles[crossSell.id] = crossSell.title;
+      });
+
+      setUpSellsState(upSellsIds);
+      setCrossSellsState(crossSellsIds);
+      setSelectedUpSellTitles(upSellsTitles);
+      setSelectedCrossSellTitles(crossSellsTitles);
     }
   }, [productDetails, productId]);
 
-  // Fetch products for up-sell based on search input
+  // Fetch products for up-sell search
   useEffect(() => {
     if (searchUpSell) {
       dispatch(fetchProducts(searchUpSell))
         .unwrap()
         .then((products) => setUpSellProducts(products))
-        .catch((error) =>
-          ToastAndroid.showWithGravity(`Error: ${error}`, ToastAndroid.LONG, ToastAndroid.BOTTOM)
-        );
+        .catch((error) => Alert.alert('Error', `Failed to fetch up-sell products: ${error}`));
     } else {
-      setUpSellProducts([]); // Clear products list when search term is empty
+      setUpSellProducts([]);
     }
   }, [searchUpSell, dispatch]);
 
-  // Fetch products for cross-sell based on search input
+  // Fetch products for cross-sell search
   useEffect(() => {
     if (searchCrossSell) {
       dispatch(fetchProducts(searchCrossSell))
         .unwrap()
         .then((products) => setCrossSellProducts(products))
-        .catch((error) =>
-          ToastAndroid.showWithGravity(`Error: ${error}`, ToastAndroid.LONG, ToastAndroid.BOTTOM)
-        );
+        .catch((error) => Alert.alert('Error', `Failed to fetch cross-sell products: ${error}`));
     } else {
-      setCrossSellProducts([]); // Clear products list when search term is empty
+      setCrossSellProducts([]);
     }
   }, [searchCrossSell, dispatch]);
+
+  // Prepare data for saving
+  const prepareData = () => {
+    return {
+      _id: productId,
+      upSells,
+      crossSells,
+    };
+  };
+
+  // Handle "Next" button click
+  const handleNext = async () => {
+    const preparedData = prepareData();
+    console.log('Data being sent to backend:', preparedData);
+
+    if (productId) {
+      try {
+        await dispatch(updateProduct(preparedData)).unwrap();
+        console.log('Product successfully updated in backend.');
+      } catch (error) {
+        console.error('Error updating product:', error);
+        Alert.alert('Error', 'Failed to update product.');
+        return;
+      }
+    } else {
+      dispatch(setProductDetails(preparedData));
+    }
+
+    navigation.navigate('ProductSeoScreen', { productId });
+  };
 
   // Toggle selected up-sell product
   const toggleUpSell = (product) => {
@@ -79,7 +119,14 @@ const ProductLinkedScreen = ({ navigation, route }) => {
       ? upSells.filter((item) => item !== product._id)
       : [...upSells, product._id];
     setUpSellsState(updatedUpSells);
-    dispatch(setProductDetails({ upSells: updatedUpSells }));
+
+    const updatedTitles = { ...selectedUpSellTitles };
+    if (upSells.includes(product._id)) {
+      delete updatedTitles[product._id];
+    } else {
+      updatedTitles[product._id] = product.title;
+    }
+    setSelectedUpSellTitles(updatedTitles);
   };
 
   // Toggle selected cross-sell product
@@ -88,20 +135,18 @@ const ProductLinkedScreen = ({ navigation, route }) => {
       ? crossSells.filter((item) => item !== product._id)
       : [...crossSells, product._id];
     setCrossSellsState(updatedCrossSells);
-    dispatch(setProductDetails({ crossSells: updatedCrossSells }));
-  };
 
-  // Handle "Next" button click
-  const handleNext = () => {
-    console.log('Up-sells:', upSells);
-    console.log('Cross-sells:', crossSells);
-    dispatch(setProductDetails({ upSells, crossSells }));
-    navigation.navigate('ProductSeoScreen', { productId });
+    const updatedTitles = { ...selectedCrossSellTitles };
+    if (crossSells.includes(product._id)) {
+      delete updatedTitles[product._id];
+    } else {
+      updatedTitles[product._id] = product.title;
+    }
+    setSelectedCrossSellTitles(updatedTitles);
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* Show loading indicator if loading product details or search results */}
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0EAB3D" />
@@ -122,7 +167,7 @@ const ProductLinkedScreen = ({ navigation, route }) => {
           {upSells.map((productId) => (
             <View key={productId} style={styles.selectedBox}>
               <Text style={styles.selectedText}>
-                {upSellProducts.find((p) => p._id === productId)?.title || 'Product'}
+                {selectedUpSellTitles[productId] || 'Product'}
               </Text>
               <TouchableOpacity onPress={() => toggleUpSell({ _id: productId })}>
                 <Text style={styles.removeText}>X</Text>
@@ -130,9 +175,6 @@ const ProductLinkedScreen = ({ navigation, route }) => {
             </View>
           ))}
         </View>
-        {upSellProducts.length === 0 && !loading && searchUpSell && (
-          <Text>No products found for Up-sell.</Text>
-        )}
         <FlatList
           data={upSellProducts}
           keyExtractor={(item) => item._id}
@@ -160,7 +202,7 @@ const ProductLinkedScreen = ({ navigation, route }) => {
           {crossSells.map((productId) => (
             <View key={productId} style={styles.selectedBox}>
               <Text style={styles.selectedText}>
-                {crossSellProducts.find((p) => p._id === productId)?.title || 'Product'}
+                {selectedCrossSellTitles[productId] || 'Product'}
               </Text>
               <TouchableOpacity onPress={() => toggleCrossSell({ _id: productId })}>
                 <Text style={styles.removeText}>X</Text>
@@ -168,9 +210,6 @@ const ProductLinkedScreen = ({ navigation, route }) => {
             </View>
           ))}
         </View>
-        {crossSellProducts.length === 0 && !loading && searchCrossSell && (
-          <Text>No products found for Cross-sell.</Text>
-        )}
         <FlatList
           data={crossSellProducts}
           keyExtractor={(item) => item._id}
@@ -185,7 +224,7 @@ const ProductLinkedScreen = ({ navigation, route }) => {
         />
       </View>
 
-      {/* Buttons for navigation */}
+      {/* Navigation Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.previousButton} onPress={() => navigation.goBack()}>
           <Text style={styles.buttonText}>Previous</Text>
@@ -197,6 +236,7 @@ const ProductLinkedScreen = ({ navigation, route }) => {
     </ScrollView>
   );
 };
+
 
 
 const styles = StyleSheet.create({

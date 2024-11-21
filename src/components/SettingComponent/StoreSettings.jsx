@@ -12,7 +12,6 @@ const StoreSettings = () => {
 const navigation = useNavigation();
 
   const [storeName, setStoreName] = useState('');
-  const [storeSlug, setStoreSlug] = useState('');
   const [storeEmail, setStoreEmail] = useState('');
   const [storePhone, setStorePhone] = useState('');
   const [storeBannerType, setStoreBannerType] = useState('Static Image');
@@ -26,7 +25,6 @@ const navigation = useNavigation();
     const newErrors = {};
 
     if (!storeName) newErrors.storeName = 'Store Name is required';
-    // if (!storeSlug) newErrors.storeSlug = 'Store Slug is required';
     if (!storeEmail) newErrors.storeEmail = 'Store Email is required';
     if (!storePhone) newErrors.storePhone = 'Store Phone is required';
 
@@ -91,15 +89,6 @@ const navigation = useNavigation();
             placeholder="Enter store name" 
           />
           {errors.storeName && <Text style={styles.error}>{errors.storeName}</Text>}
-
-          <Text style={styles.label}>Store Slug*</Text>
-          <TextInput 
-            style={styles.input} 
-            value={storeSlug} 
-            onChangeText={setStoreSlug} 
-            placeholder="Enter store slug" 
-          />
-          {errors.storeSlug && <Text style={styles.error}>{errors.storeSlug}</Text>} 
 
           <Text style={styles.label}>Store Email*</Text>
           <TextInput 
