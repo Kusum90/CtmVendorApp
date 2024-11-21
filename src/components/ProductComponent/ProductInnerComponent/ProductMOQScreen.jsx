@@ -62,10 +62,10 @@ const ProductMOQScreen = ({ route }) => {
       return;
     }
 
-    if (savedQuantities.length === 0) {
-      Alert.alert('Validation Error', 'Please add at least one quantity range.');
-      return;
-    }
+    // if (savedQuantities.length === 0) {
+    //   Alert.alert('Validation Error', 'Please add at least one quantity range.');
+    //   return;
+    // }
 
     const preparedData = prepareData();
     console.log('Data being sent to backend:', preparedData);
