@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,18 +11,18 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-import { GetCountries, GetState, GetCity } from 'react-country-state-city';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   registerVendor,
   verifyVendorOtp,
   sendVendorOtp,
 } from '../redux/Auth/Register';
-import { Picker } from '@react-native-picker/picker';
-import { wp, hp, FontSize } from '../utils/responsiveUtils';
-import DocumentPicker from 'react-native-document-picker';
-import axios from 'axios';
+import {Picker} from '@react-native-picker/picker';
+import {wp, hp, FontSize} from '../utils/responsiveUtils';
+import AadhaarUpload from '../components/AuthComponent/Register/AadhaarUpload';
+import LocationPicker from '../components/AuthComponent/Register/LocationPicker';
+import CustomToast from '../utils/CustomToast';
 
 const RegisterDetails = () => {
   const navigation = useNavigation();
@@ -30,10 +30,14 @@ const RegisterDetails = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
-  const { email: reduxEmail, loading, otpSent } = useSelector(
-    (state) => state.register
-  );
+  const {
+    email: reduxEmail,
+    loading,
+    otpSent,
+  } = useSelector(state => state.register);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -70,9 +74,8 @@ const RegisterDetails = () => {
   const [otp, setOtp] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [countryList, setCountryList] = useState([]);
-  const [stateList, setStateList] = useState([]);
-  const [cityList, setCityList] = useState([]);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
 
   const vendorTypeOptions = [
     'Seller',
@@ -83,55 +86,8 @@ const RegisterDetails = () => {
   ];
   const businessProofOptions = ['Udhyam Aadhar', 'Shop License', 'GST', 'CIN'];
 
-  useEffect(() => {
-    GetCountries().then(setCountryList);
-  }, []);
-
-  useEffect(() => {
-    if (formData.country) GetState(formData.country).then(setStateList);
-  }, [formData.country]);
-
-  useEffect(() => {
-    if (formData.state_country)
-      GetCity(formData.country, formData.state_country).then(setCityList);
-  }, [formData.state_country]);
-
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handlePickImage = async (setter) => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.images],
-      });
-
-      const formData = new FormData();
-      formData.append('file', {
-        uri: res[0].uri,
-        type: res[0].type,
-        name: res[0].name,
-      });
-      formData.append('upload_preset', 'cleanTechMart');
-
-      const response = await axios.post(
-        'https://api.cloudinary.com/v1_1/datf6laqn/image/upload',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      );
-
-      const uploadedUrl = response.data.secure_url;
-      setter(uploadedUrl);
-      Alert.alert('Image uploaded successfully!');
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        Alert.alert('Cancelled', 'No image was selected.');
-      } else {
-        Alert.alert('Failed to upload image. Please try again.');
-      }
-    }
+    setFormData(prev => ({...prev, [field]: value}));
   };
 
   const validateForm = () => {
@@ -189,9 +145,7 @@ const RegisterDetails = () => {
     }
 
     try {
-      await dispatch(
-        verifyVendorOtp({ email: formData.email, otp })
-      ).unwrap();
+      await dispatch(verifyVendorOtp({email: formData.email, otp})).unwrap();
       Alert.alert('Success', 'Email verified successfully.');
       setIsModalVisible(false);
     } catch (error) {
@@ -211,20 +165,40 @@ const RegisterDetails = () => {
 
     const payload = {
       ...formData,
-      [proofFieldMapping[formData.businessProof]]:
-        formData.businessProofNumber,
-      aadhaarFrontImage: formData.aadhaarFrontImage,
-      aadhaarBackImage: formData.aadhaarBackImage,
+      [proofFieldMapping[formData.businessProof]]: formData.businessProofNumber,
+      uploadaddharcardImage_front: formData.aadhaarFrontImage,
+      uploadaddharcardImage_back: formData.aadhaarBackImage,
     };
 
     setIsSubmitting(true);
 
     try {
-      await dispatch(registerVendor(payload)).unwrap();
-      Alert.alert('Success', 'Vendor registered successfully.');
-      navigation.navigate('DrawerNavigation');
+      console.log('Payload sent to registerVendor API:', payload);
+
+      const response = await dispatch(registerVendor(payload)).unwrap();
+
+      console.log('Response from API:', response);
+
+      // Show success toast
+      setToastMessage('Registration successful!');
+      setToastVisible(true);
+
+      // Navigate to login screen after 2 seconds
+      setTimeout(() => {
+        setToastVisible(false);
+        navigation.navigate('Login');
+      }, 2000);
     } catch (error) {
-      Alert.alert('Error', 'Failed to register vendor.');
+      console.error('Registration error:', error);
+
+      // Show error toast
+      setToastMessage('Failed to register vendor.');
+      setToastVisible(true);
+
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        setToastVisible(false);
+      }, 3000);
     } finally {
       setIsSubmitting(false);
     }
@@ -234,73 +208,54 @@ const RegisterDetails = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Profile Registration</Text>
 
-      <View>
         <Text style={styles.label}>Email Verification *</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Email"
           value={formData.email}
-          onChangeText={(text) => handleChange('email', text)}
+          onChangeText={text => handleChange('email', text)}
         />
         <TouchableOpacity
           style={styles.uploadButton}
           onPress={handleSendOtp}
           disabled={otpSent}>
           <Text style={styles.uploadButtonText}>
-            {otpSent ? 'OTP Sent' : 'Verify Email'}
+            {' '}
+            {otpSent ? 'OTP Sent' : 'Verify Email'}{' '}
           </Text>
         </TouchableOpacity>
-      </View>
 
       {[
         {label: 'Username', field: 'username'},
         {label: 'First Name', field: 'firstname', required: true},
         {label: 'Last Name', field: 'lastname'},
-        // {
-        //   label: 'Email',
-        //   field: 'email',
-        //   keyboardType: 'email-address',
-        //   required: true,
-        // },
         {label: 'Phone', field: 'phone', keyboardType: 'phone-pad'},
         {label: 'Store Name', field: 'storename', required: true},
-      ].map(({label, field, required, ...inputProps}) => (
-        <View key={field}>
-          <Text style={styles.label}>
-            {label}
-            {required && ' *'}
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={formData[field]}
-            onChangeText={text => handleChange(field, text)}
-            {...inputProps}
-          />
-        </View>
-      ))}
-
-      {/* Address Fields */}
-      {[
-        {label: 'Address 1 *', field: 'address1'},
+        {label: 'Address 1', field: 'address1', required: true},
         {label: 'Address 2', field: 'address2'},
         {
-          label: 'Postcode/Zip *',
+          label: 'Postcode/Zip',
           field: 'postcode_zip',
           keyboardType: 'numeric',
+          required: true,
         },
         {
-          label: 'Store Phone *',
+          label: 'Store Phone',
           field: 'storephone',
           keyboardType: 'phone-pad',
+          required: true,
         },
         {
           label: 'Alternate Phone No.',
           field: 'altPhone',
           keyboardType: 'phone-pad',
         },
-      ].map(({label, field, ...inputProps}) => (
+      ].map(({label, field, required, ...inputProps}) => (
         <View key={field}>
-          <Text style={styles.label}>{label}</Text>
+          <Text style={styles.label}>
+            {' '}
+            {label} {required && ' *'}{' '}
+          </Text>
           <TextInput
             style={styles.input}
             value={formData[field]}
@@ -311,115 +266,22 @@ const RegisterDetails = () => {
       ))}
 
       {/* Location Fields */}
-      <Text style={styles.label}>Country</Text>
-      <Picker
-        selectedValue={formData.country}
-        onValueChange={value => {
-          handleChange('country', value);
-          handleChange('state_country', '');
-          handleChange('city_town', '');
-        }}
-        style={styles.picker}>
-        <Picker.Item label="Select Country" value="" />
-        {countryList.map(country => (
-          <Picker.Item
-            key={country.id}
-            label={country.name}
-            value={country.name}
-          />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>State</Text>
-      <Picker
-        selectedValue={formData.state_country}
-        onValueChange={value => {
-          handleChange('state_country', value);
-          handleChange('city_town', '');
-        }}
-        style={styles.picker}>
-        <Picker.Item label="Select State" value="" />
-        {stateList.map(state => (
-          <Picker.Item key={state.id} label={state.name} value={state.name} />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>City</Text>
-      <Picker
-        selectedValue={formData.city_town}
-        onValueChange={value => handleChange('city_town', value)}
-        style={styles.picker}>
-        <Picker.Item label="Select City" value="" />
-        {cityList.map(city => (
-          <Picker.Item key={city.id} label={city.name} value={city.name} />
-        ))}
-      </Picker>
-
-
-
-
-      {/* Aadhaar Fields */}
-      <Text style={styles.label}>Aadhaar Card No.</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="1234-5678-9012"
-        keyboardType="numeric"
-        value={formData.aadhaar}
-        maxLength={14} // 12 digits + 2 hyphens
-        onChangeText={text => {
-          // Remove all non-numeric characters
-          const numericText = text.replace(/[^0-9]/g, '');
-
-          // Format the text with hyphens
-          const formattedText =
-            numericText
-              .match(/.{1,4}/g) // Match groups of up to 4 digits
-              ?.join('-') // Join the groups with a hyphen
-              .slice(0, 14) || ''; // Limit to 14 characters (12 digits + 2 hyphens)
-
-          handleChange('aadhaar', formattedText); // Update the formData
-        }}
+      <LocationPicker
+        country={formData.country}
+        state={formData.state_country}
+        city={formData.city_town}
+        onChange={handleChange}
       />
 
-      <Text style={styles.label}>Aadhaar Image (Front)</Text>
-      <TouchableOpacity
-  style={styles.uploadButton}
-  onPress={() =>
-    handlePickImage(uri => handleChange('aadhaarFrontImage', uri))
-  }>
-  <Text style={styles.uploadButtonText}>
-    {formData.aadhaarFrontImage
-      ? 'Change Aadhaar Front Image'
-      : 'Upload Aadhaar Front Image'}
-  </Text>
-</TouchableOpacity>
-{formData.aadhaarFrontImage && (
-  <Image
-    source={{ uri: formData.aadhaarFrontImage }}
-    style={styles.image}
-  />
-)}
-
-
-      <Text style={styles.label}>Aadhaar Image (Back)</Text>
-      <TouchableOpacity
-  style={styles.uploadButton}
-  onPress={() =>
-    handlePickImage(uri => handleChange('aadhaarBackImage', uri))
-  }>
-  <Text style={styles.uploadButtonText}>
-    {formData.aadhaarBackImage
-      ? 'Change Aadhaar Back Image'
-      : 'Upload Aadhaar Back Image'}
-  </Text>
-</TouchableOpacity>
-{formData.aadhaarBackImage && (
-  <Image
-    source={{ uri: formData.aadhaarBackImage }}
-    style={styles.image}
-  />
-)}
-
+      {/* Aadhaar Fields */}
+      <AadhaarUpload
+        aadhaarNumber={formData.aadhaar}
+        frontImage={formData.aadhaarFrontImage}
+        backImage={formData.aadhaarBackImage}
+        onAadhaarChange={text => handleChange('aadhaar', text)}
+        onUploadFront={url => handleChange('aadhaarFrontImage', url)}
+        onUploadBack={url => handleChange('aadhaarBackImage', url)}
+      />
 
       {/* Vendor Type */}
       <Text style={styles.label}>Vendor Type *</Text>
@@ -454,76 +316,47 @@ const RegisterDetails = () => {
         />
       )}
 
-      {/* Password Fields */}
-      {/* {[
-        {label: 'Password *', field: 'password', secureTextEntry: true},
-        {
-          label: 'Confirm Password *',
-          field: 'confirmPassword',
-          secureTextEntry: true,
-        },
-      ].map(({label, field, ...inputProps}) => (
-        <View key={field}>
-          <Text style={styles.label}>{label}</Text>
-          <TextInput
-            style={styles.input}
-            value={formData[field]}
-            onChangeText={text => handleChange(field, text)}
-            {...inputProps}
-          />
-        </View>
-      ))} */}
+      <View style={{position: 'relative'}}>
+        <Text style={styles.label}>Password *</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.password}
+          onChangeText={text => handleChange('password', text)}
+          secureTextEntry={!showPassword} // Toggle visibility based on state
+        />
+        {/* Eye Emoji for toggling password visibility */}
+        <TouchableOpacity
+          style={{position: 'absolute', right: 10, top: 25}}
+          onPress={() => setShowPassword(!showPassword)}>
+          <Text style={{fontSize: 18}}>{showPassword ? '👁️' : '🙈'}</Text>
+        </TouchableOpacity>
+      </View>
 
-<View style={{ position: 'relative' }}>
-  <Text style={styles.label}>Password *</Text>
-  <TextInput
-    style={styles.input}
-    value={formData.password}
-    onChangeText={(text) => handleChange('password', text)}
-    secureTextEntry={!showPassword} // Toggle visibility based on state
-  />
-  {/* Eye Emoji for toggling password visibility */}
-  <TouchableOpacity
-    style={{ position: 'absolute', right: 10, top: 25 }}
-    onPress={() => setShowPassword(!showPassword)}
-  >
-    <Text style={{ fontSize: 18 }}>{showPassword ? '👁️' : '🙈'}</Text>
-  </TouchableOpacity>
-</View>
+      <View style={{position: 'relative', marginTop: 15}}>
+        <Text style={styles.label}>Confirm Password *</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.confirmPassword}
+          onChangeText={text => handleChange('confirmPassword', text)}
+          secureTextEntry={!showConfirmPassword} // Toggle visibility based on state
+        />
+        {/* Eye Emoji for toggling confirm password visibility */}
+        <TouchableOpacity
+          style={{position: 'absolute', right: 10, top: 25}}
+          onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Text style={{fontSize: 18}}>
+            {showConfirmPassword ? '👁️' : '🙈'}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-<View style={{ position: 'relative', marginTop: 15 }}>
-  <Text style={styles.label}>Confirm Password *</Text>
-  <TextInput
-    style={styles.input}
-    value={formData.confirmPassword}
-    onChangeText={(text) => handleChange('confirmPassword', text)}
-    secureTextEntry={!showConfirmPassword} // Toggle visibility based on state
-  />
-  {/* Eye Emoji for toggling confirm password visibility */}
-  <TouchableOpacity
-    style={{ position: 'absolute', right: 10, top: 25 }}
-    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-  >
-    <Text style={{ fontSize: 18 }}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
-  </TouchableOpacity>
-</View>
+      <CustomToast
+        message={toastMessage}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+      />
 
-
-      
-
-      {/* Submit Button */}
-      {/* <TouchableOpacity
-        style={styles.button}
-        onPress={handleVerifyEmail}
-        disabled={isSubmitting || loading}>
-        {isSubmitting || loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Submit</Text>
-        )}
-      </TouchableOpacity> */}
-
-<TouchableOpacity
+      <TouchableOpacity
         style={styles.button}
         onPress={handleRegisterVendor}
         disabled={isSubmitting || loading}>
@@ -587,13 +420,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10, // Adjust based on your layout
     top: '50%',
-    transform: [{ translateY: -12 }], // Center vertically
+    transform: [{translateY: -12}], // Center vertically
     padding: 5,
   },
   emojiText: {
     fontSize: 18, // Adjust size of the emoji
   },
-  
+
   label: {
     fontSize: FontSize(16),
     color: '#444444',
