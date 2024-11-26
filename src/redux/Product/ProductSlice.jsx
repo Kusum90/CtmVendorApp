@@ -47,7 +47,7 @@ export const createProduct = createAsyncThunk(
     try {
       console.log("Creating product with data:", productData);
       const response = await axios.post(
-        "http://192.168.1.5:4001/user/create-product",
+        "http://192.168.1.10:4001/user/create-product",
         productData
       );
 
@@ -67,7 +67,7 @@ export const fetchProductDetails = createAsyncThunk(
   async (productId, { rejectWithValue }) => {
     try {
       console.log(`Fetching details for product with ID: ${productId}`);
-      const response = await axios.get(`http://192.168.1.5:4001/user/product/${productId}`);
+      const response = await axios.get(`http://192.168.1.10:4001/user/product/${productId}`);
       console.log("Product details fetched successfully:", response.data.data.product); // Log to confirm the data structure
       return response.data.data.product; // Return only the `product` object
     } catch (error) {
@@ -136,7 +136,7 @@ export const updateProduct = createAsyncThunk(
     try {
       console.log("Updating product with data:", productData);
       const response = await axios.put(
-        `http://192.168.1.5:4001/user/update-product/${productData._id}`,
+        `http://192.168.1.10:4001/user/update-product/${productData._id}`,
         productData
       );
       console.log("Product updated successfully:", response.data.data);
@@ -206,12 +206,15 @@ const productSlice = createSlice({
         state.totalPages = action.payload.totalPages;
         console.log("All products fetched successfully");
       })
-      .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.products = state.products.filter((product) => product._id !== action.payload);
+
+       .addCase(deleteProduct.fulfilled, (state, action) => {
+        // Remove the product from the Redux state
         state.data = state.data.filter((product) => product._id !== action.payload);
-        state.loading = false;
-        console.log("Product deleted from state");
       })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
       .addCase(updateProduct.fulfilled, (state, action) => {
         if (!Array.isArray(state.products)) {
           state.products = []; // Initialize products if undefined

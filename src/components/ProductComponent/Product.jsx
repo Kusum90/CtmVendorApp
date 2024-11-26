@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardData } from '../../redux/Product/ProductSlice';
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
+import { useFocusEffect } from '@react-navigation/native';
 import Category from '../../assets/svg/Productsvg/Category';
 import Products from '../../assets/svg/Productsvg/Products';
 import Sales from '../../assets/svg/Productsvg/Sales';
@@ -16,9 +17,7 @@ const DashboardCard = ({ item }) => {
       <Text style={styles.label}>{item.label}</Text>
       <View style={styles.cardContent}>
         <Text style={styles.mainValue}>{item.value}</Text>
-        <View style={styles.iconContainer}>
-          {item.icon}
-        </View>
+        <View style={styles.iconContainer}>{item.icon}</View>
       </View>
       <Text style={styles.additionalInfo}>{item.additionalInfo}</Text>
     </View>
@@ -29,9 +28,19 @@ const Product = () => {
   const dispatch = useDispatch();
   const { products: dashboardData, loading, error } = useSelector((state) => state.products);
 
-  useEffect(() => {
+  const fetchDashboard = useCallback(() => {
     dispatch(fetchDashboardData());
   }, [dispatch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboard();
+    }, [fetchDashboard])
+  );
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   // Check for loading or error state
   if (loading) {

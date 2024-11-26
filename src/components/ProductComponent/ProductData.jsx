@@ -43,6 +43,8 @@ const ProductData = () => {
   const [selectedFilter, setSelectedFilter] = useState('Filter by');
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const [isPaginationLoading, setIsPaginationLoading] = useState(false); // New loading state for pagination
+  const productsPerPage = 10; // Defined by backend
+
 
   const filters = ['Published', 'Pending'];
 
@@ -65,7 +67,7 @@ const ProductData = () => {
     dispatch(
       getAllProduct({
         page: currentPage,
-        limit: 10,
+        limit: productsPerPage,
         searchTerm,
         selectedDate: selectedDate || '',
         stockFilter: '',
@@ -127,18 +129,27 @@ const ProductData = () => {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            dispatch(deleteProduct(productId)).then(() => {
-              // Immediately remove the deleted product from the filteredProducts list
-              setFilteredProducts((prevProducts) =>
-                prevProducts.filter((product) => product._id !== productId)
+          onPress: async () => {
+            try {
+              // Dispatch deleteProduct to update Redux state
+              await dispatch(deleteProduct(productId)).unwrap();
+  
+              // Immediately update local state for instant feedback
+              setFilteredProducts((prev) =>
+                prev.filter((product) => product._id !== productId)
               );
-            });
+  
+              Alert.alert('Success', 'Product deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting product:', error);
+              Alert.alert('Error', 'Failed to delete the product. Please try again.');
+            }
           },
         },
       ]
     );
   };
+  
   
 
   const handleEdit = (productId) => {
@@ -210,7 +221,9 @@ const ProductData = () => {
   );
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+    if (products.length === productsPerPage) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -218,7 +231,7 @@ const ProductData = () => {
       setCurrentPage((prevPage) => prevPage - 1);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -230,12 +243,12 @@ const ProductData = () => {
           >
             <Plus width={50} height={50} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconButton, styles.orangeButton]}>
+          {/* <TouchableOpacity style={[styles.iconButton, styles.orangeButton]}>
             <Upload width={50} height={50} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.iconButton, styles.blueButton]}>
             <Download width={50} height={50} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
 
@@ -351,9 +364,11 @@ const ProductData = () => {
             <Text style={styles.paginationText}>Previous</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={handleNextPage} style={styles.paginationButton}>
-          <Text style={styles.paginationText}>Next</Text>
-        </TouchableOpacity>
+        {products.length === productsPerPage && (
+          <TouchableOpacity onPress={handleNextPage} style={styles.paginationButton}>
+            <Text style={styles.paginationText}>Next</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
