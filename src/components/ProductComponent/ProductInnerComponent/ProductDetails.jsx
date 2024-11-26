@@ -139,7 +139,13 @@ const ProductDetails = ({navigation, route}) => {
   };
 
   const handleUpload = async () => {
+    if (imageBoxes.length > 5) {
+      Alert.alert('Limit Reached', 'You can upload up to 5 images only.');
+      return;
+    }
+
     try {
+      setUploading(true); // Start loader
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.images],
         copyTo: 'documentDirectory',
@@ -161,16 +167,14 @@ const ProductDetails = ({navigation, route}) => {
         },
       );
 
-      // Add the uploaded image URL as an object to the state
       const uploadedUrl = response.data.secure_url;
       console.log('Uploaded Image URL:', uploadedUrl);
 
       setImageBoxes(prev => [...prev, uploadedUrl]);
-
-      Alert.alert('Image uploaded successfully!');
     } catch (err) {
       console.log('Error uploading image:', err);
-      Alert.alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false); // Stop loader
     }
   };
 
@@ -183,10 +187,12 @@ const ProductDetails = ({navigation, route}) => {
     }
 
     setImageBoxes(updatedBoxes);
-    updateField(
-      'images',
-      updatedBoxes.filter(img => img !== null),
-    );
+
+    // // Reflect the updated image list in the Redux state
+    // updateField(
+    //   'image',
+    //   updatedBoxes.filter(img => img !== null) // Only non-null entries
+    // );
   };
 
   return (
@@ -214,9 +220,11 @@ const ProductDetails = ({navigation, route}) => {
                         <Text style={styles.removeButtonText}>X</Text>
                       </TouchableOpacity>
                     </View>
+                  ) : uploading ? ( // Show loader if uploading
+                    <ActivityIndicator size="small" color="#0000ff" />
                   ) : (
                     <TouchableOpacity
-                      onPress={() => handleUpload(index)}
+                    onPress={() => handleUpload(index)}
                       style={styles.uploadButton}>
                       <Text style={styles.uploadText}>Upload</Text>
                     </TouchableOpacity>
@@ -326,7 +334,7 @@ const ProductDetails = ({navigation, route}) => {
             <Text style={styles.heading}>Category</Text>
             <CategorySearch
               selectedCategory={selectedCategory}
-              setSelectedCategory={(category) => {
+              setSelectedCategory={category => {
                 setSelectedCategory(category); // Update the selected category
               }}
             />
@@ -499,232 +507,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProductDetails;
-
-
-
-// import React, { useState, useEffect } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import {
-//   View,
-//   Text,
-//   TouchableOpacity,
-//   StyleSheet,
-//   ScrollView,
-//   TextInput,
-//   ActivityIndicator,
-//   Alert,
-// } from 'react-native';
-// import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-// import {
-//   setProductDetails,
-//   fetchProductDetails,
-//   updateProduct,
-// } from '../../../redux/Product/ProductSlice';
-// import CategorySearch from '../../../components/ProductComponent/ProductInnerComponent/ProductAttributes/CategorySearch';
-
-// const ProductDetails = ({ navigation, route }) => {
-//   const dispatch = useDispatch();
-//   const { productId } = route.params || {};
-//   const { productDetails, loading } = useSelector((state) => state.products);
-
-//   const [selectedCategory, setSelectedCategory] = useState(null);
-//   const [title, setTitle] = useState('');
-//   const [price, setPrice] = useState('');
-//   const [salePrice, setSalePrice] = useState('');
-//   const [shortDescription, setShortDescription] = useState('');
-//   const [description, setDescription] = useState('');
-//   const [tags, setTags] = useState('');
-
-//   useEffect(() => {
-//     if (productId) {
-//       dispatch(fetchProductDetails(productId));
-//     }
-//   }, [dispatch, productId]);
-
-//   useEffect(() => {
-//     if (productId && productDetails && productDetails._id === productId) {
-//       setTitle(productDetails.title || '');
-//       setPrice(productDetails.price ? productDetails.price.toString() : '');
-//       setSalePrice(
-//         productDetails.salePrice ? productDetails.salePrice.toString() : '',
-//       );
-//       setShortDescription(productDetails.shortDescription || '');
-//       setDescription(productDetails.description || '');
-//       setTags(productDetails.tags ? productDetails.tags.join(', ') : '');
-
-//       if (productDetails.categories && productDetails.categories.length > 0) {
-//         setSelectedCategory({
-//           _id: productDetails.categories[0].id,
-//           name: productDetails.categories[0].name,
-//         });
-//       }
-//     }
-//   }, [productDetails, productId]);
-
-//   const prepareData = () => ({
-//     _id: productId,
-//     categories: selectedCategory?._id ? [selectedCategory._id] : [],
-//     title: title || 'Untitled Product',
-//     price: price ? parseFloat(price) : 0,
-//     salePrice: salePrice ? parseFloat(salePrice) : 0,
-//     shortDescription,
-//     description,
-//     tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
-//   });
-
-//   const handleNext = async () => {
-//     if (!selectedCategory || !selectedCategory._id) {
-//       Alert.alert('Please select a valid category');
-//       return;
-//     }
-
-//     const preparedData = prepareData();
-//     try {
-//       if (productId) {
-//         await dispatch(updateProduct(preparedData)).unwrap();
-//         Alert.alert('Product updated successfully!');
-//       } else {
-//         dispatch(setProductDetails(preparedData));
-//       }
-//       navigation.navigate('ProductInventoryScreen', { productId });
-//     } catch (error) {
-//       Alert.alert('Error saving product. Please try again.');
-//     }
-//   };
-
-//   return (
-//     <ScrollView contentContainerStyle={styles.container}>
-//       <Text style={styles.heading}>
-//         {productId ? 'Edit Product' : 'Create Product'}
-//       </Text>
-
-//       {loading ? (
-//         <ActivityIndicator size="large" color="#0000ff" />
-//       ) : (
-//         <>
-//           {/* Category Section */}
-//           <View style={styles.section}>
-//             <Text style={styles.heading}>Category</Text>
-//             <CategorySearch
-//               selectedCategory={selectedCategory}
-//               setSelectedCategory={(category) => {
-//                 setSelectedCategory(category); // Update the selected category
-//               }}
-//             />
-//             <Text style={styles.categoryDisplay}>
-//               {selectedCategory?.name || 'No category selected'}
-//             </Text>
-//           </View>
-
-//           {/* Product Details */}
-//           <View style={styles.section}>
-//             <Text style={styles.heading}>Product Information</Text>
-//             <TextInput
-//               placeholder="Product Name"
-//               style={styles.input}
-//               value={title}
-//               onChangeText={(text) => setTitle(text)}
-//             />
-//             <TextInput
-//               placeholder="Regular Price"
-//               style={styles.input}
-//               value={price}
-//               onChangeText={(text) => setPrice(text)}
-//               keyboardType="numeric"
-//             />
-//             <TextInput
-//               placeholder="Sale Price"
-//               style={styles.input}
-//               value={salePrice}
-//               onChangeText={(text) => setSalePrice(text)}
-//               keyboardType="numeric"
-//             />
-//             <TextInput
-//               placeholder="Short Description"
-//               style={styles.textArea}
-//               value={shortDescription}
-//               onChangeText={(text) => setShortDescription(text)}
-//               multiline
-//             />
-//             <TextInput
-//               placeholder="Description"
-//               style={styles.textArea}
-//               value={description}
-//               onChangeText={(text) => setDescription(text)}
-//               multiline
-//             />
-//             <TextInput
-//               placeholder="Tags (comma separated)"
-//               style={styles.input}
-//               value={tags}
-//               onChangeText={(text) => setTags(text)}
-//             />
-//           </View>
-
-//           {/* Next Button */}
-//           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-//             <Text style={styles.nextButtonText}>
-//               {productId ? 'Update Product' : 'Next'}
-//             </Text>
-//           </TouchableOpacity>
-//         </>
-//       )}
-//     </ScrollView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: wp(5),
-//     backgroundColor: '#fff',
-//   },
-//   section: {
-//     marginBottom: hp(2),
-//     padding: wp(3),
-//     backgroundColor: '#f9f9f9',
-//     borderRadius: 8,
-//     borderWidth: 1,
-//     borderColor: '#ddd',
-//   },
-//   heading: {
-//     fontSize: FontSize(18),
-//     color: '#333',
-//     fontWeight: 'bold',
-//     marginBottom: hp(1),
-//   },
-//   categoryDisplay: {
-//     fontSize: FontSize(16),
-//     color: '#555',
-//     marginTop: hp(1),
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#ddd',
-//     padding: wp(2.5),
-//     marginBottom: hp(1.5),
-//     borderRadius: 8,
-//     backgroundColor: '#fff',
-//   },
-//   textArea: {
-//     borderWidth: 1,
-//     borderColor: '#ddd',
-//     padding: wp(2.5),
-//     marginBottom: hp(1.5),
-//     borderRadius: 8,
-//     height: hp(10),
-//     backgroundColor: '#fff',
-//   },
-//   nextButton: {
-//     backgroundColor: 'green',
-//     paddingVertical: hp(2),
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     borderRadius: 8,
-//   },
-//   nextButtonText: {
-//     color: '#fff',
-//     fontSize: FontSize(16),
-//   },
-// });
-
-// export default ProductDetails;
