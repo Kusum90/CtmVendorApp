@@ -7,331 +7,562 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Image,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
+  Image,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import DocumentPicker from 'react-native-document-picker';
-import {
-  GetCountries,
-  GetState,
-  GetCity,
-} from 'react-country-state-city';
-import { wp, hp, FontSize } from '../utils/responsiveUtils';
+import { GetCountries, GetState, GetCity } from 'react-country-state-city';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerVendor, verifyVendorOtp } from '../redux/Auth/Register';
+import {
+  registerVendor,
+  verifyVendorOtp,
+  sendVendorOtp,
+} from '../redux/Auth/Register';
+import { Picker } from '@react-native-picker/picker';
+import { wp, hp, FontSize } from '../utils/responsiveUtils';
+import DocumentPicker from 'react-native-document-picker';
+import axios from 'axios';
 
 const RegisterDetails = () => {
   const navigation = useNavigation();
-
   const dispatch = useDispatch();
-  const { email: reduxEmail, loading, successMessage, errorMessage, isEmailVerified } = useSelector(
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { email: reduxEmail, loading, otpSent } = useSelector(
     (state) => state.register
   );
 
-  const [aadhaarNumber, setAadhaarNumber] = useState('');
-  const [aadhaarFrontImage, setAadhaarFrontImage] = useState(null);
-  const [aadhaarBackImage, setAadhaarBackImage] = useState(null);
-  const [vendorType, setVendorType] = useState('');
-  const [businessProof, setBusinessProof] = useState('');
-  const [businessProofNumber, setBusinessProofNumber] = useState('');
-  const [referralCode, setReferralCode] = useState('');
-  const [countryId, setCountryId] = useState('');
-  const [stateId, setStateId] = useState('');
-  const [cityId, setCityId] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    firstname: '',
+    lastname: '',
+    email: '',
+    phone: '',
+    storename: '',
+    address1: '',
+    address2: '',
+    country: '',
+    state_country: '',
+    city_town: '',
+    postcode_zip: '',
+    storephone: '',
+    altPhone: '',
+    vendorType: '',
+    businessProof: '',
+    businessProofNumber: '',
+    aadhaar: '',
+    aadhaarFrontImage: '',
+    aadhaarBackImage: '',
+    uploadedFrontImageUrl: '',
+    uploadedBackImageUrl: '',
+    gst: '',
+    shopLicense: '',
+    referacode: '',
+    udhyamAadhaar: '',
+    cin: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const [otp, setOtp] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [countryList, setCountryList] = useState([]);
   const [stateList, setStateList] = useState([]);
   const [cityList, setCityList] = useState([]);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [storename, setStorename] = useState('');
-  const [address1, setAddress1] = useState('');
-  const [address2, setAddress2] = useState('');
-  const [postcodeZip, setPostcodeZip] = useState('');
-  const [storephone, setStorePhone] = useState('');
-  const [isVerifyEnabled, setIsVerifyEnabled] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const businessProofOptions = [
-    { id: 'Udhyam Aadhar', name: 'Udhyam Aadhar' },
-    { id: 'Shop License', name: 'Shop License' },
-    { id: 'GST', name: 'GST' },
-    { id: 'CIN', name: 'CIN' },
-  ];
 
   const vendorTypeOptions = [
-    { id: 'Seller', name: 'Seller' },
-    { id: 'Manufacturer', name: 'Manufacturer' },
-    { id: 'Distributor', name: 'Distributor' },
-    { id: 'Wholeseller', name: 'Wholeseller' },
+    'Seller',
+    'Reseller',
+    'Manufacturer',
+    'Distributor',
+    'Wholeseller',
   ];
+  const businessProofOptions = ['Udhyam Aadhar', 'Shop License', 'GST', 'CIN'];
 
   useEffect(() => {
-    GetCountries().then(result => setCountryList(result));
+    GetCountries().then(setCountryList);
   }, []);
 
   useEffect(() => {
-    if (countryId) {
-      GetState(countryId).then(result => setStateList(result));
-    }
-  }, [countryId]);
+    if (formData.country) GetState(formData.country).then(setStateList);
+  }, [formData.country]);
 
   useEffect(() => {
-    if (stateId) {
-      GetCity(countryId, stateId).then(result => setCityList(result));
+    if (formData.state_country)
+      GetCity(formData.country, formData.state_country).then(setCityList);
+  }, [formData.state_country]);
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePickImage = async (setter) => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images],
+      });
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: res[0].uri,
+        type: res[0].type,
+        name: res[0].name,
+      });
+      formData.append('upload_preset', 'cleanTechMart');
+
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/datf6laqn/image/upload',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+
+      const uploadedUrl = response.data.secure_url;
+      setter(uploadedUrl);
+      Alert.alert('Image uploaded successfully!');
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        Alert.alert('Cancelled', 'No image was selected.');
+      } else {
+        Alert.alert('Failed to upload image. Please try again.');
+      }
     }
-  }, [stateId]);
-
-  const handleEmailChange = (text) => {
-    setEmail(text);
   };
 
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-  };
-
-  const handleFirstnameChange = (text) => {
-    setFirstname(text);
-  };
-
-  const handleVerifyEmail = async () => {
-    if (!email || !password || !firstname || !storename || !vendorType || !businessProof || !businessProofNumber) {
-      Alert.alert("Error", "Please fill in all required fields.");
-      return;
-    }
-  
-    // Map businessProof to the backend-compatible field
-    const proofFieldMapping = {
-      "GST": "gst",
-      "Shop License": "shopLicense",
-      "Udhyam Aadhar": "udhyamAadhaar",
-      "CIN": "cin",
-    };
-  
-    const mappedProofField = proofFieldMapping[businessProof];
-  
-    // Create vendorData with the mapped field
-    const vendorData = {
+  const validateForm = () => {
+    const {
       email,
       password,
+      confirmPassword,
       firstname,
-      lastname,
       storename,
       vendorType,
-      [mappedProofField]: businessProofNumber, // Dynamically set the correct field
-    };
-  
-    console.log("Payload being sent:", vendorData); // Debug payload
-  
-    setIsSubmitting(true);
-  
-    dispatch(registerVendor(vendorData))
-      .unwrap()
-      .then((response) => {
-        Alert.alert("Success", response.message);
-        setIsModalVisible(true);
-      })
-      .catch((error) => {
-        console.error("Error in registerVendor dispatch:", error); // Debug errors
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
-  };
-  
-  
+      businessProof,
+      businessProofNumber,
+    } = formData;
 
-  const handleSubmitOtp = () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return false;
+    }
+
+    if (
+      !email ||
+      !password ||
+      !firstname ||
+      !storename ||
+      !vendorType ||
+      !businessProof ||
+      !businessProofNumber
+    ) {
+      Alert.alert('Error', 'Please fill in all required fields.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSendOtp = async () => {
+    if (!formData.email) {
+      Alert.alert('Error', 'Please enter your email to verify.');
+      return;
+    }
+
+    try {
+      await dispatch(sendVendorOtp(formData.email)).unwrap();
+      Alert.alert('Success', 'OTP sent to your email.');
+      setIsModalVisible(true);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send OTP.');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
     if (otp.length !== 6) {
       Alert.alert('Error', 'Please enter a valid 6-digit OTP.');
       return;
     }
 
-    setIsSubmitting(true);
-
-    dispatch(verifyVendorOtp({ email: reduxEmail || email, otp }))
-      .unwrap()
-      .then((response) => {
-        Alert.alert('Success', response.message);
-        setIsModalVisible(false);
-        navigation.navigate('DrawerNavigation');
-      })
-      .catch((error) => {
-        Alert.alert('Error', error);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+    try {
+      await dispatch(
+        verifyVendorOtp({ email: formData.email, otp })
+      ).unwrap();
+      Alert.alert('Success', 'Email verified successfully.');
+      setIsModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'OTP verification failed.');
+    }
   };
 
-  const pickAadhaarImage = async setImage => {
+  const handleRegisterVendor = async () => {
+    if (!validateForm()) return;
+
+    const proofFieldMapping = {
+      'Udhyam Aadhar': 'udhyamAadhaar',
+      'Shop License': 'shopLicense',
+      GST: 'gst',
+      CIN: 'cin',
+    };
+
+    const payload = {
+      ...formData,
+      [proofFieldMapping[formData.businessProof]]:
+        formData.businessProofNumber,
+      aadhaarFrontImage: formData.aadhaarFrontImage,
+      aadhaarBackImage: formData.aadhaarBackImage,
+    };
+
+    setIsSubmitting(true);
+
     try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.images],
-      });
-      setImage(res[0].uri);
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        Alert.alert('Cancelled', 'No image was selected');
-      } else {
-        Alert.alert('Error', 'Failed to pick image');
-      }
+      await dispatch(registerVendor(payload)).unwrap();
+      Alert.alert('Success', 'Vendor registered successfully.');
+      navigation.navigate('DrawerNavigation');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to register vendor.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Profile Registration</Text>
-      </View>
+      <Text style={styles.headerText}>Profile Registration</Text>
 
-      <Text style={styles.label}>Email *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={handleEmailChange}
-      />
-
-      <Text style={styles.label}>Password *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={handlePasswordChange}
-      />
-
-      <Text style={styles.label}>First Name *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="First Name"
-        value={firstname}
-        onChangeText={handleFirstnameChange}
-      />
-
-      <Text style={styles.label}>Last Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Last Name"
-        value={lastname}
-        onChangeText={setLastname}
-      />
-
-      <Text style={styles.label}>Store Name *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Store Name"
-        value={storename}
-        onChangeText={setStorename}
-      />
-
-      <Text style={styles.label}>Vendor Type *</Text>
-      <Picker
-        selectedValue={vendorType}
-        onValueChange={(value) => setVendorType(value)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select Vendor Type" value="" />
-        {vendorTypeOptions.map(option => (
-          <Picker.Item key={option.id} label={option.name} value={option.id} />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>Business Proof *</Text>
-      <Picker
-        selectedValue={businessProof}
-        onValueChange={(value) => setBusinessProof(value)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select Business Proof" value="" />
-        {businessProofOptions.map(option => (
-          <Picker.Item key={option.id} label={option.name} value={option.id} />
-        ))}
-      </Picker>
-
-      {businessProof && (
+      <View>
+        <Text style={styles.label}>Email Verification *</Text>
         <TextInput
           style={styles.input}
-          placeholder={`${businessProof} Number`}
-          value={businessProofNumber}
-          onChangeText={setBusinessProofNumber}
+          placeholder="Enter Email"
+          value={formData.email}
+          onChangeText={(text) => handleChange('email', text)}
         />
-      )}
-
-      <Text style={styles.label}>Referral Code</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Referral Code"
-        value={referralCode}
-        onChangeText={setReferralCode}
-      />
-
-<View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleVerifyEmail}
-          disabled={isSubmitting || loading}
-        >
-          {isSubmitting || loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.continueButtonText}>Submit</Text>
-          )}
+          style={styles.uploadButton}
+          onPress={handleSendOtp}
+          disabled={otpSent}>
+          <Text style={styles.uploadButtonText}>
+            {otpSent ? 'OTP Sent' : 'Verify Email'}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <Modal
-  visible={isModalVisible}
-  transparent
-  animationType="slide"
-  onRequestClose={() => setIsModalVisible(false)}
->
-  <View style={styles.modalBackdrop}>
-    <View style={styles.modalContainer}>
-      {/* Close Button */}
-      <TouchableOpacity
-        style={styles.closeButton}
-        onPress={() => setIsModalVisible(false)}
-      >
-        <Text style={styles.closeButtonText}>✕</Text>
-      </TouchableOpacity>
+      {[
+        {label: 'Username', field: 'username'},
+        {label: 'First Name', field: 'firstname', required: true},
+        {label: 'Last Name', field: 'lastname'},
+        // {
+        //   label: 'Email',
+        //   field: 'email',
+        //   keyboardType: 'email-address',
+        //   required: true,
+        // },
+        {label: 'Phone', field: 'phone', keyboardType: 'phone-pad'},
+        {label: 'Store Name', field: 'storename', required: true},
+      ].map(({label, field, required, ...inputProps}) => (
+        <View key={field}>
+          <Text style={styles.label}>
+            {label}
+            {required && ' *'}
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={formData[field]}
+            onChangeText={text => handleChange(field, text)}
+            {...inputProps}
+          />
+        </View>
+      ))}
 
-      <Text style={styles.modalTitle}>Enter OTP</Text>
+      {/* Address Fields */}
+      {[
+        {label: 'Address 1 *', field: 'address1'},
+        {label: 'Address 2', field: 'address2'},
+        {
+          label: 'Postcode/Zip *',
+          field: 'postcode_zip',
+          keyboardType: 'numeric',
+        },
+        {
+          label: 'Store Phone *',
+          field: 'storephone',
+          keyboardType: 'phone-pad',
+        },
+        {
+          label: 'Alternate Phone No.',
+          field: 'altPhone',
+          keyboardType: 'phone-pad',
+        },
+      ].map(({label, field, ...inputProps}) => (
+        <View key={field}>
+          <Text style={styles.label}>{label}</Text>
+          <TextInput
+            style={styles.input}
+            value={formData[field]}
+            onChangeText={text => handleChange(field, text)}
+            {...inputProps}
+          />
+        </View>
+      ))}
+
+      {/* Location Fields */}
+      <Text style={styles.label}>Country</Text>
+      <Picker
+        selectedValue={formData.country}
+        onValueChange={value => {
+          handleChange('country', value);
+          handleChange('state_country', '');
+          handleChange('city_town', '');
+        }}
+        style={styles.picker}>
+        <Picker.Item label="Select Country" value="" />
+        {countryList.map(country => (
+          <Picker.Item
+            key={country.id}
+            label={country.name}
+            value={country.name}
+          />
+        ))}
+      </Picker>
+
+      <Text style={styles.label}>State</Text>
+      <Picker
+        selectedValue={formData.state_country}
+        onValueChange={value => {
+          handleChange('state_country', value);
+          handleChange('city_town', '');
+        }}
+        style={styles.picker}>
+        <Picker.Item label="Select State" value="" />
+        {stateList.map(state => (
+          <Picker.Item key={state.id} label={state.name} value={state.name} />
+        ))}
+      </Picker>
+
+      <Text style={styles.label}>City</Text>
+      <Picker
+        selectedValue={formData.city_town}
+        onValueChange={value => handleChange('city_town', value)}
+        style={styles.picker}>
+        <Picker.Item label="Select City" value="" />
+        {cityList.map(city => (
+          <Picker.Item key={city.id} label={city.name} value={city.name} />
+        ))}
+      </Picker>
+
+
+
+
+      {/* Aadhaar Fields */}
+      <Text style={styles.label}>Aadhaar Card No.</Text>
       <TextInput
-        style={styles.otpInput}
-        placeholder="Enter 6-digit OTP"
-        keyboardType="number-pad"
-        maxLength={6}
-        value={otp}
-        onChangeText={setOtp}
+        style={styles.input}
+        placeholder="1234-5678-9012"
+        keyboardType="numeric"
+        value={formData.aadhaar}
+        maxLength={14} // 12 digits + 2 hyphens
+        onChangeText={text => {
+          // Remove all non-numeric characters
+          const numericText = text.replace(/[^0-9]/g, '');
+
+          // Format the text with hyphens
+          const formattedText =
+            numericText
+              .match(/.{1,4}/g) // Match groups of up to 4 digits
+              ?.join('-') // Join the groups with a hyphen
+              .slice(0, 14) || ''; // Limit to 14 characters (12 digits + 2 hyphens)
+
+          handleChange('aadhaar', formattedText); // Update the formData
+        }}
       />
+
+      <Text style={styles.label}>Aadhaar Image (Front)</Text>
       <TouchableOpacity
-        style={styles.submitButton}
-        onPress={handleSubmitOtp}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
+  style={styles.uploadButton}
+  onPress={() =>
+    handlePickImage(uri => handleChange('aadhaarFrontImage', uri))
+  }>
+  <Text style={styles.uploadButtonText}>
+    {formData.aadhaarFrontImage
+      ? 'Change Aadhaar Front Image'
+      : 'Upload Aadhaar Front Image'}
+  </Text>
+</TouchableOpacity>
+{formData.aadhaarFrontImage && (
+  <Image
+    source={{ uri: formData.aadhaarFrontImage }}
+    style={styles.image}
+  />
+)}
+
+
+      <Text style={styles.label}>Aadhaar Image (Back)</Text>
+      <TouchableOpacity
+  style={styles.uploadButton}
+  onPress={() =>
+    handlePickImage(uri => handleChange('aadhaarBackImage', uri))
+  }>
+  <Text style={styles.uploadButtonText}>
+    {formData.aadhaarBackImage
+      ? 'Change Aadhaar Back Image'
+      : 'Upload Aadhaar Back Image'}
+  </Text>
+</TouchableOpacity>
+{formData.aadhaarBackImage && (
+  <Image
+    source={{ uri: formData.aadhaarBackImage }}
+    style={styles.image}
+  />
+)}
+
+
+      {/* Vendor Type */}
+      <Text style={styles.label}>Vendor Type *</Text>
+      <Picker
+        selectedValue={formData.vendorType}
+        onValueChange={value => handleChange('vendorType', value)}
+        style={styles.picker}>
+        <Picker.Item label="Select Vendor Type" value="" />
+        {vendorTypeOptions.map(type => (
+          <Picker.Item key={type} label={type} value={type} />
+        ))}
+      </Picker>
+
+      {/* Business Proof */}
+      <Text style={styles.label}>Business Proof *</Text>
+      <Picker
+        selectedValue={formData.businessProof}
+        onValueChange={value => handleChange('businessProof', value)}
+        style={styles.picker}>
+        <Picker.Item label="Select Business Proof" value="" />
+        {businessProofOptions.map(proof => (
+          <Picker.Item key={proof} label={proof} value={proof} />
+        ))}
+      </Picker>
+
+      {formData.businessProof && (
+        <TextInput
+          style={styles.input}
+          placeholder={`${formData.businessProof} Number`}
+          value={formData.businessProofNumber}
+          onChangeText={text => handleChange('businessProofNumber', text)}
+        />
+      )}
+
+      {/* Password Fields */}
+      {/* {[
+        {label: 'Password *', field: 'password', secureTextEntry: true},
+        {
+          label: 'Confirm Password *',
+          field: 'confirmPassword',
+          secureTextEntry: true,
+        },
+      ].map(({label, field, ...inputProps}) => (
+        <View key={field}>
+          <Text style={styles.label}>{label}</Text>
+          <TextInput
+            style={styles.input}
+            value={formData[field]}
+            onChangeText={text => handleChange(field, text)}
+            {...inputProps}
+          />
+        </View>
+      ))} */}
+
+<View style={{ position: 'relative' }}>
+  <Text style={styles.label}>Password *</Text>
+  <TextInput
+    style={styles.input}
+    value={formData.password}
+    onChangeText={(text) => handleChange('password', text)}
+    secureTextEntry={!showPassword} // Toggle visibility based on state
+  />
+  {/* Eye Emoji for toggling password visibility */}
+  <TouchableOpacity
+    style={{ position: 'absolute', right: 10, top: 25 }}
+    onPress={() => setShowPassword(!showPassword)}
+  >
+    <Text style={{ fontSize: 18 }}>{showPassword ? '👁️' : '🙈'}</Text>
+  </TouchableOpacity>
+</View>
+
+<View style={{ position: 'relative', marginTop: 15 }}>
+  <Text style={styles.label}>Confirm Password *</Text>
+  <TextInput
+    style={styles.input}
+    value={formData.confirmPassword}
+    onChangeText={(text) => handleChange('confirmPassword', text)}
+    secureTextEntry={!showConfirmPassword} // Toggle visibility based on state
+  />
+  {/* Eye Emoji for toggling confirm password visibility */}
+  <TouchableOpacity
+    style={{ position: 'absolute', right: 10, top: 25 }}
+    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+  >
+    <Text style={{ fontSize: 18 }}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
+  </TouchableOpacity>
+</View>
+
+
+      
+
+      {/* Submit Button */}
+      {/* <TouchableOpacity
+        style={styles.button}
+        onPress={handleVerifyEmail}
+        disabled={isSubmitting || loading}>
+        {isSubmitting || loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.submitButtonText}>Submit</Text>
+          <Text style={styles.buttonText}>Submit</Text>
+        )}
+      </TouchableOpacity> */}
+
+<TouchableOpacity
+        style={styles.button}
+        onPress={handleRegisterVendor}
+        disabled={isSubmitting || loading}>
+        {isSubmitting || loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Register</Text>
         )}
       </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
 
+      {/* OTP Modal */}
+      {otpSent && (
+        <Modal visible={isModalVisible} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Enter OTP</Text>
+            <TextInput
+              style={styles.otpInput}
+              placeholder="Enter 6-digit OTP"
+              keyboardType="number-pad"
+              maxLength={6}
+              value={otp}
+              onChangeText={setOtp}
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleVerifyOtp}
+              disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Verify OTP</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -352,6 +583,17 @@ const styles = StyleSheet.create({
     fontSize: FontSize(26), // Larger font size for header
     fontWeight: 'bold',
   },
+  eyeEmoji: {
+    position: 'absolute',
+    right: 10, // Adjust based on your layout
+    top: '50%',
+    transform: [{ translateY: -12 }], // Center vertically
+    padding: 5,
+  },
+  emojiText: {
+    fontSize: 18, // Adjust size of the emoji
+  },
+  
   label: {
     fontSize: FontSize(16),
     color: '#444444',
@@ -418,90 +660,35 @@ const styles = StyleSheet.create({
     height: hp(6),
     color: '#444444',
   },
-  emailContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  emailInput: {
-    flex: 1,
-  },
-  verifyButton: {
-    padding: 10,
-    borderRadius: 8,
-    marginLeft: 10,
-  },
-  verifyButtonEnabled: {
-    backgroundColor: '#007bff',
-  },
-  verifyButtonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  verifyButtonText: {
-    backgroundColor:'green',
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent backdrop
-  },
   modalContainer: {
-    width: "90%",
-    padding: 20,
+    width: '90%',
+    padding: 10,
     borderRadius: 10,
-    backgroundColor: "#fff",
-    alignItems: "center",
+    backgroundColor: '#fff',
+    alignItems: 'center',
     elevation: 10, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    shadowColor: '#000', // Shadow for iOS
     shadowOpacity: 0.3,
     shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-  },
-  closeButton: {
-    alignSelf: "flex-end",
-    backgroundColor: "#ff4d4d",
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    shadowOffset: {width: 0, height: 5},
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: 'bold',
+    color: '#333',
     marginBottom: 20,
   },
   otpInput: {
-    width: "80%",
+    width: '80%',
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderRadius: 5,
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 18,
     marginBottom: 20,
   },
-  submitButton: {
-    width: "80%",
-    padding: 12,
-    backgroundColor: "#4CAF50",
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  submitButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  button: {backgroundColor: '#007BFF', padding: hp(2), borderRadius: wp(1)},
 });
 
 export default RegisterDetails;
