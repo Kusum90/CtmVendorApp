@@ -17,7 +17,7 @@ export const sendVendorOtp = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.12:4001/user/vendors/send-otp",
+        "http://192.168.1.8:4001/user/vendors/send-otp",
         { email }
       );
 
@@ -44,7 +44,7 @@ export const verifyVendorOtp = createAsyncThunk(
   async ({ email, otp }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.12:4001/user/vendors/verify-otp",
+        "http://192.168.1.8:4001/user/vendors/verify-otp",
         { email, otp }
       );
 
@@ -65,13 +65,40 @@ export const verifyVendorOtp = createAsyncThunk(
   }
 );
 
+// Async thunk for resending OTP
+export const resendVendorOtp = createAsyncThunk(
+  "vendor/resendOtp",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://192.168.1.8:4001/user/vendors/resend-otp",
+        { email }
+      );
+
+      return { message: response.data.message };
+    } catch (error) {
+      console.error("Error in resendVendorOtp:", error);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to resend OTP.";
+
+      if (Platform.OS === "android") {
+        ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
+      } else {
+        Alert.alert("Error", errorMessage);
+      }
+
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 // Async thunk for vendor registration
 export const registerVendor = createAsyncThunk(
   "vendor/register",
   async (vendorData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.12:4001/user/vendors/register",
+        "http://192.168.1.8:4001/user/vendors/register",
         vendorData
       );
 
@@ -142,6 +169,22 @@ const registerSlice = createSlice({
         state.successMessage = null;
         state.errorMessage = action.payload;
         state.isEmailVerified = false;
+      })
+
+      // Handle Resend OTP
+      .addCase(resendVendorOtp.pending, (state) => {
+        state.loading = true;
+        state.successMessage = null;
+        state.errorMessage = null;
+      })
+      .addCase(resendVendorOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+      })
+      .addCase(resendVendorOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.successMessage = null;
+        state.errorMessage = action.payload;
       })
 
       // Handle Register Vendor
