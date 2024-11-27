@@ -17,12 +17,15 @@ import {
   registerVendor,
   verifyVendorOtp,
   sendVendorOtp,
+  resendVendorOtp
 } from '../redux/Auth/Register';
 import {Picker} from '@react-native-picker/picker';
 import {wp, hp, FontSize} from '../utils/responsiveUtils';
 import AadhaarUpload from '../components/AuthComponent/Register/AadhaarUpload';
 import LocationPicker from '../components/AuthComponent/Register/LocationPicker';
 import CustomToast from '../utils/CustomToast';
+import DocumentPicker from 'react-native-document-picker';
+import axios from 'axios';
 
 const RegisterDetails = () => {
   const navigation = useNavigation();
@@ -32,6 +35,7 @@ const RegisterDetails = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [showResendOtp, setShowResendOtp] = useState(false);
 
   const {
     email: reduxEmail,
@@ -75,7 +79,6 @@ const RegisterDetails = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-
 
   const vendorTypeOptions = [
     'Seller',
@@ -133,6 +136,10 @@ const RegisterDetails = () => {
       await dispatch(sendVendorOtp(formData.email)).unwrap();
       Alert.alert('Success', 'OTP sent to your email.');
       setIsModalVisible(true);
+      setShowResendOtp(false); // Reset resend visibility
+    setTimeout(() => {
+      setShowResendOtp(true); // Show the "Resend OTP" button after 1 minute
+    }, 6000);
     } catch (error) {
       Alert.alert('Error', 'Failed to send OTP.');
     }
@@ -148,6 +155,7 @@ const RegisterDetails = () => {
       await dispatch(verifyVendorOtp({email: formData.email, otp})).unwrap();
       Alert.alert('Success', 'Email verified successfully.');
       setIsModalVisible(false);
+      setIsEmailVerified(true);
     } catch (error) {
       Alert.alert('Error', 'OTP verification failed.');
     }
@@ -186,7 +194,7 @@ const RegisterDetails = () => {
       // Navigate to login screen after 2 seconds
       setTimeout(() => {
         setToastVisible(false);
-        navigation.navigate('Login');
+        navigation.navigate('LoginScreen');
       }, 2000);
     } catch (error) {
       console.error('Registration error:', error);
@@ -204,26 +212,32 @@ const RegisterDetails = () => {
     }
   };
 
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Profile Registration</Text>
 
+      <View style={{position: 'relative'}}>
         <Text style={styles.label}>Email Verification *</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Email"
           value={formData.email}
-          onChangeText={text => handleChange('email', text)}
+          onChangeText={text => {
+            handleChange('email', text);
+            setIsEmailVerified(false); // Reset verification status if email changes
+          }}
         />
+        {isEmailVerified && <Text style={styles.tickMark}>✔️</Text>}
         <TouchableOpacity
           style={styles.uploadButton}
           onPress={handleSendOtp}
           disabled={otpSent}>
           <Text style={styles.uploadButtonText}>
-            {' '}
-            {otpSent ? 'OTP Sent' : 'Verify Email'}{' '}
+            {otpSent ? 'OTP Sent' : 'Verify Email'}
           </Text>
         </TouchableOpacity>
+      </View>
 
       {[
         {label: 'Username', field: 'username'},
@@ -369,30 +383,51 @@ const RegisterDetails = () => {
 
       {/* OTP Modal */}
       {otpSent && (
-        <Modal visible={isModalVisible} transparent animationType="slide">
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Enter OTP</Text>
-            <TextInput
-              style={styles.otpInput}
-              placeholder="Enter 6-digit OTP"
-              keyboardType="number-pad"
-              maxLength={6}
-              value={otp}
-              onChangeText={setOtp}
-            />
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleVerifyOtp}
-              disabled={loading}>
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Verify OTP</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </Modal>
+  <Modal visible={isModalVisible} transparent animationType="slide">
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>Enter OTP</Text>
+      <TextInput
+        style={styles.otpInput}
+        placeholder="Enter 6-digit OTP"
+        keyboardType="number-pad"
+        maxLength={6}
+        value={otp}
+        onChangeText={setOtp}
+      />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleVerifyOtp}
+        disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Verify OTP</Text>
+        )}
+      </TouchableOpacity>
+      
+      {/* Show Resend OTP button after 1 minute */}
+      {showResendOtp && (
+        <TouchableOpacity
+          style={styles.resendButton}
+          onPress={async () => {
+            try {
+              await dispatch(resendVendorOtp(formData.email)).unwrap();
+              Alert.alert('Success', 'New OTP sent to your email.');
+              setShowResendOtp(false); // Restart timer
+              setTimeout(() => {
+                setShowResendOtp(true);
+              }, 60000);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to resend OTP.');
+            }
+          }}>
+          <Text style={styles.resendButtonText}>Resend OTP</Text>
+        </TouchableOpacity>
       )}
+    </View>
+  </Modal>
+)}
+
     </ScrollView>
   );
 };
@@ -443,6 +478,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     fontSize: FontSize(15),
     elevation: 1, // Slight shadow for inputs
+  },
+  tickMark: {
+    position: 'absolute',
+    right: 10,
+    top: '30%',
+    transform: [{translateY: -10}], // Adjust to vertically center
+    color: 'green',
+    fontSize: 18,
   },
   uploadButton: {
     height: hp(6),
@@ -520,6 +563,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginBottom: 20,
+  },
+  resendButton: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+  },
+  resendButtonText: {
+    color: '#007BFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   button: {backgroundColor: '#007BFF', padding: hp(2), borderRadius: wp(1)},
 });
