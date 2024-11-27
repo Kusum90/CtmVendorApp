@@ -384,6 +384,7 @@ const RegisterDetails = () => {
       {/* OTP Modal */}
       {otpSent && (
   <Modal visible={isModalVisible} transparent animationType="slide">
+  <View style={styles.overlay}>
     <View style={styles.modalContainer}>
       <Text style={styles.modalTitle}>Enter OTP</Text>
       <TextInput
@@ -404,8 +405,7 @@ const RegisterDetails = () => {
           <Text style={styles.buttonText}>Verify OTP</Text>
         )}
       </TouchableOpacity>
-      
-      {/* Show Resend OTP button after 1 minute */}
+
       {showResendOtp && (
         <TouchableOpacity
           style={styles.resendButton}
@@ -425,7 +425,8 @@ const RegisterDetails = () => {
         </TouchableOpacity>
       )}
     </View>
-  </Modal>
+  </View>
+</Modal>
 )}
 
     </ScrollView>
@@ -536,6 +537,12 @@ const styles = StyleSheet.create({
     height: hp(6),
     color: '#444444',
   },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dimmed background for the modal
+  },
   modalContainer: {
     width: '90%',
     padding: 10,
@@ -546,7 +553,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', // Shadow for iOS
     shadowOpacity: 0.3,
     shadowRadius: 10,
-    shadowOffset: {width: 0, height: 5},
+    shadowOffset: { width: 0, height: 5 },
   },
   modalTitle: {
     fontSize: 20,
@@ -576,7 +583,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  button: {backgroundColor: '#007BFF', padding: hp(2), borderRadius: wp(1)},
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+  },
 });
 
 export default RegisterDetails;
