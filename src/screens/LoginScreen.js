@@ -9,17 +9,18 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../redux/Auth/Login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loginUser } from '../redux/Auth/Login'; // Adjust path as needed
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const dispatch = useDispatch();
-  const { loading, token, error } = useSelector((state) => state.login); // Adjust state.auth based on your setup
+  const { loading, error } = useSelector((state) => state.login);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+    if (!email.trim() || !password) { // Removed `trim` for password
       Alert.alert('Validation Error', 'Please enter both email and password.');
       return;
     }
@@ -27,12 +28,29 @@ const LoginScreen = ({navigation}) => {
     try {
       // Dispatch login action
       const result = await dispatch(loginUser({ email, password })).unwrap();
-      console.log('Login successful. Token:', result.token); // JWT token
-      navigation.navigate('DrawerNavigation')
+      console.log('Login successful. Token:', result.token);
+
+      // Store token in Async Storage
+      await AsyncStorage.setItem('userToken', result.token);
+      console.log('Token stored in AsyncStorage:', result.token);
+
+      // Reset the navigation stack to prevent going back to the login screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'DrawerNavigation' }], // Replace with your main screen
+      });
     } catch (err) {
       Alert.alert('Login Error', err || 'Failed to log in.');
     }
   };
+
+  const checkStoredToken = async () => {
+    const storedToken = await AsyncStorage.getItem('userToken');
+    console.log('Retrieved Token from AsyncStorage:', storedToken);
+  };
+
+  // Call `checkStoredToken` on load or whenever needed for testing
+  checkStoredToken();
 
   return (
     <View style={styles.container}>
