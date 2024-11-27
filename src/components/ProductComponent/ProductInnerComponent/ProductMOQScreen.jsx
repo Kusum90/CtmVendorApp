@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,27 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { wp, hp, FontSize } from '../../../utils/responsiveUtils';
-import { useDispatch, useSelector } from 'react-redux';
-import { setProductDetails, fetchProductDetails, updateProduct } from '../../../redux/Product/ProductSlice';
+import {useNavigation} from '@react-navigation/native';
+import {wp, hp, FontSize} from '../../../utils/responsiveUtils';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  setProductDetails,
+  fetchProductDetails,
+  updateProduct,
+} from '../../../redux/Product/ProductSlice';
 
-const ProductMOQScreen = ({ route }) => {
+const ProductMOQScreen = ({route}) => {
   const [moq, setMoq] = useState('');
-  const [quantities, setQuantities] = useState([{ minQty: '', maxQty: '', price: '' }]);
+  const [quantities, setQuantities] = useState([
+    {minQty: '', maxQty: '', price: ''},
+  ]);
   const [savedQuantities, setSavedQuantities] = useState([]);
-  const { productId } = route.params || {}; // Get productId from route if available
+  const {productId} = route.params || {}; // Get productId from route if available
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { productDetails, loading } = useSelector((state) => state.products);
+  const {productDetails, loading} = useSelector(state => state.products);
 
   // Fetch product details if editing
   useEffect(() => {
@@ -36,8 +42,15 @@ const ProductMOQScreen = ({ route }) => {
   // Populate fields if editing an existing product
   useEffect(() => {
     if (productId && productDetails && productDetails._id === productId) {
-      console.log('Populating fields with existing product data:', productDetails);
-      setMoq(productDetails.minimumOrderQuantity ? String(productDetails.minimumOrderQuantity) : '');
+      console.log(
+        'Populating fields with existing product data:',
+        productDetails,
+      );
+      setMoq(
+        productDetails.minimumOrderQuantity
+          ? String(productDetails.minimumOrderQuantity)
+          : '',
+      );
       setSavedQuantities(productDetails.priceRanges || []);
     }
   }, [productDetails, productId]);
@@ -45,7 +58,7 @@ const ProductMOQScreen = ({ route }) => {
   // Handler to update Redux state with edited fields
   const updateField = (field, value) => {
     console.log(`Updating field: ${field} with value:`, value);
-    dispatch(setProductDetails({ [field]: value }));
+    dispatch(setProductDetails({[field]: value}));
   };
 
   const prepareData = () => {
@@ -55,10 +68,20 @@ const ProductMOQScreen = ({ route }) => {
       priceRanges: savedQuantities,
     };
   };
+  const handleRemove = index => {
+    const updatedSavedQuantities = savedQuantities.filter(
+      (_, i) => i !== index,
+    );
+    setSavedQuantities(updatedSavedQuantities);
+    console.log('Removed quantity at index:', index);
+  };
 
   const handleNext = async () => {
     if (!moq) {
-      Alert.alert('Validation Error', 'Please enter a valid minimum order quantity.');
+      Alert.alert(
+        'Validation Error',
+        'Please enter a valid minimum order quantity.',
+      );
       return;
     }
 
@@ -83,34 +106,45 @@ const ProductMOQScreen = ({ route }) => {
       dispatch(setProductDetails(preparedData));
     }
 
-    navigation.navigate('ProductUnitsScreen', { productId });
+    navigation.navigate('ProductUnitsScreen', {productId});
     console.log('Navigating to ProductUnitsScreen with productId:', productId);
   };
 
   const handleAddMore = () => {
     if (quantities.length < 5) {
-      setQuantities([...quantities, { minQty: '', maxQty: '', price: '' }]);
+      setQuantities([...quantities, {minQty: '', maxQty: '', price: ''}]);
     } else {
       Alert.alert('Limit Reached', 'You can only add up to 5 quantity ranges.');
     }
   };
 
   const handleDone = () => {
-    if (quantities.some((q) => (q.minQty || q.maxQty || q.price) && (!q.minQty || !q.maxQty || !q.price))) {
-      Alert.alert('Validation Error', 'Please complete all fields in the range before saving.');
+    if (
+      quantities.some(
+        q =>
+          (q.minQty || q.maxQty || q.price) &&
+          (!q.minQty || !q.maxQty || !q.price),
+      )
+    ) {
+      Alert.alert(
+        'Validation Error',
+        'Please complete all fields in the range before saving.',
+      );
       return;
     }
-    const newQuantities = quantities.filter((q) => q.minQty && q.maxQty && q.price);
+    const newQuantities = quantities.filter(
+      q => q.minQty && q.maxQty && q.price,
+    );
 
     console.log('Saving quantities:', newQuantities);
 
     setSavedQuantities([...savedQuantities, ...newQuantities]);
-    setQuantities([{ minQty: '', maxQty: '', price: '' }]);
+    setQuantities([{minQty: '', maxQty: '', price: ''}]);
   };
 
   const handleInputChange = (index, field, value) => {
     const updatedQuantities = quantities.map((q, i) =>
-      i === index ? { ...q, [field]: value } : q
+      i === index ? {...q, [field]: value} : q,
     );
     setQuantities(updatedQuantities);
   };
@@ -132,7 +166,7 @@ const ProductMOQScreen = ({ route }) => {
           <TextInput
             style={styles.input}
             value={moq}
-            onChangeText={(value) => {
+            onChangeText={value => {
               setMoq(value);
               updateField('minimumOrderQuantity', value);
             }}
@@ -149,27 +183,35 @@ const ProductMOQScreen = ({ route }) => {
                   placeholder="Min Quantity"
                   value={quantity.minQty}
                   keyboardType="numeric"
-                  onChangeText={(value) => handleInputChange(index, 'minQty', value)}
+                  onChangeText={value =>
+                    handleInputChange(index, 'minQty', value)
+                  }
                 />
                 <TextInput
                   style={styles.quantityInput}
                   placeholder="Max Quantity"
                   value={quantity.maxQty}
                   keyboardType="numeric"
-                  onChangeText={(value) => handleInputChange(index, 'maxQty', value)}
+                  onChangeText={value =>
+                    handleInputChange(index, 'maxQty', value)
+                  }
                 />
                 <TextInput
                   style={styles.quantityInput}
                   placeholder="Price"
                   value={quantity.price}
                   keyboardType="numeric"
-                  onChangeText={(value) => handleInputChange(index, 'price', value)}
+                  onChangeText={value =>
+                    handleInputChange(index, 'price', value)
+                  }
                 />
               </View>
             ))}
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.addButton} onPress={handleAddMore}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddMore}>
                 <Text style={styles.buttonTextAdd}>Add More</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
@@ -185,12 +227,17 @@ const ProductMOQScreen = ({ route }) => {
                 <Text style={styles.savedText}>
                   {`Min: ${quantity.minQty}, Max: ${quantity.maxQty}, Price: ${quantity.price}`}
                 </Text>
+                <TouchableOpacity onPress={() => handleRemove(index)}>
+                  <Text style={styles.removeButton}>X</Text>
+                </TouchableOpacity>
               </View>
             ))}
           </View>
 
           <View style={styles.navigationButtons}>
-            <TouchableOpacity style={styles.previousButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              style={styles.previousButton}
+              onPress={() => navigation.goBack()}>
               <Text style={styles.buttonText}>Previous</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
@@ -202,8 +249,6 @@ const ProductMOQScreen = ({ route }) => {
     </ScrollView>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -270,7 +315,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
   },
   doneButton: {
@@ -280,7 +325,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
   },
   buttonText: {
@@ -296,6 +341,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   savedBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#e1f0ff',
     padding: wp(2),
     marginBottom: hp(1),
@@ -320,7 +368,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowRadius: 2,
   },
   nextButton: {
@@ -330,8 +378,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
+  },
+  removeButton: {
+    fontSize: FontSize(18),
+    color: 'red',
+    fontWeight: 'bold',
+    padding: wp(2),
   },
 });
 
