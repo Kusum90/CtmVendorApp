@@ -1,8 +1,11 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState,useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
 import {DrawerContentScrollView} from '@react-navigation/drawer';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import { logoutUser } from '../../redux/Auth/Login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 
 // Use RefundIcon for all icons (you can replace it with your actual SVG file)
 import ShopIcon from '../../assets/svg/DrawerSVG/ShopIcon';
@@ -29,14 +32,28 @@ import SupportIcon from '../../assets/svg/DrawerSVG/SupportIcon';
 import ArrowIcon from '../../assets/svg/DrawerSVG/ArrowIcon';
 
 const CustomDrawerContent = props => {
+  const dispatch = useDispatch();
   const {top} = useSafeAreaInsets();
   const paddingTop = top > 0 ? top + 10 : 15;
 
   const [activeItem, setActiveItem] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   const [isContentOpen, setContentOpen] = useState(false);
   const [isFinanceOpen, setFinanceOpen] = useState(false);
   const [isSocialOpen, setSocialOpen] = useState(false);
+
+
+  // Check for token in AsyncStorage
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('userToken');
+      console.log('token found'+token);
+      
+      setIsLoggedIn(!!token); // Set to true if token exists, false otherwise
+    };
+    checkLoginStatus();
+  }, []);
  
 
   const handleSectionPress = (section, isOpenSetter, isOpen) => {
@@ -48,6 +65,26 @@ const CustomDrawerContent = props => {
     setActiveItem(section); // Set active item
     props.navigation.navigate(route, params); // Navigate to the specified route with params
   };
+
+  const [logoutLoading, setLogoutLoading] = useState(false); // Add a loading state
+
+const handleLogout = async () => {
+  setLogoutLoading(true); // Start loading
+  try {
+    await dispatch(logoutUser()).unwrap(); // Execute logout API call
+    await AsyncStorage.removeItem('userToken'); // Remove token from storage
+    setIsLoggedIn(false); // Update state
+    props.navigation.navigate('LoginScreen'); // Navigate to Login screen
+  } catch (error) {
+    console.log('Logout Error:', error); // Debugging
+    Alert.alert("Error", "Failed to log out. Please try again.");
+  } finally {
+    setLogoutLoading(false); // Stop loading
+  }
+};
+
+  
+  
 
   return (
     <DrawerContentScrollView {...props} style={{paddingTop}}>
@@ -563,15 +600,37 @@ const CustomDrawerContent = props => {
       </TouchableOpacity>
 
       {/* Logout Section */}
-      <TouchableOpacity
-        onPress={() => {
-          alert('Logout pressed');
-          setActiveItem('Logout');
-        }}
-        style={[
-          styles.menuItem,
-          activeItem === 'Logout' ? styles.activeMenuItem : null,
-        ]}>
+      {isLoggedIn && (
+  <TouchableOpacity
+    onPress={() => {
+      Alert.alert(
+        "Confirm Logout", // Alert title
+        "Are you sure you want to log out?", // Alert message
+        [
+          {
+            text: "Cancel", // Cancel button
+            onPress: () => console.log("Logout cancelled"), // Log for Cancel
+            style: "cancel", // Visually distinguishes the Cancel button
+          },
+          {
+            text: "Yes", // Confirm button
+            onPress: handleLogout, // Call the logout logic directly
+          },
+        ],
+        { cancelable: false } // Prevents dismissing the alert by tapping outside
+      );
+    }}
+    disabled={logoutLoading} // Disable button if logout is in progress
+    style={[
+      styles.menuItem,
+      activeItem === 'Logout' ? styles.activeMenuItem : null,
+      logoutLoading ? styles.disabledMenuItem : null, // Add disabled style
+    ]}
+  >
+    {logoutLoading ? (
+      <ActivityIndicator size="small" color="green" /> // Show loader if logging out
+    ) : (
+      <>
         <LogoutIcon
           color={activeItem === 'Logout' ? 'green' : 'black'}
           width={20}
@@ -581,10 +640,16 @@ const CustomDrawerContent = props => {
           style={[
             styles.menuLabel,
             activeItem === 'Logout' ? styles.activeMenuLabel : null,
-          ]}>
+          ]}
+        >
           Logout
         </Text>
-      </TouchableOpacity>
+      </>
+    )}
+  </TouchableOpacity>
+)}
+
+
     </DrawerContentScrollView>
   );
 };

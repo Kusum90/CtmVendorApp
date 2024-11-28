@@ -8,6 +8,7 @@ import ordersReducer from '../redux/Order/OrderSlice';
 import homeReducer from '../redux/Home/HomeSlice';
 import registerReducer from "../redux/Auth/Register";
 import loginReducer from '../redux/Auth/Login';
+import passwordReducer from '../redux/Auth/Password';
 
 const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
     orders: ordersReducer,
     home: homeReducer,
     register: registerReducer,
-    login:loginReducer
+    login:loginReducer,
+    password: passwordReducer,
   },
 });
 
