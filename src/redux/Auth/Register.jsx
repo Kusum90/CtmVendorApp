@@ -17,7 +17,7 @@ export const sendVendorOtp = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.8:4001/user/vendors/send-otp",
+        "https://cm-backend-yk2y.onrender.com/user/vendors/send-otp",
         { email }
       );
 
@@ -44,7 +44,7 @@ export const verifyVendorOtp = createAsyncThunk(
   async ({ email, otp }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.8:4001/user/vendors/verify-otp",
+        "https://cm-backend-yk2y.onrender.com/user/vendors/verify-otp",
         { email, otp }
       );
 
@@ -71,7 +71,7 @@ export const resendVendorOtp = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.8:4001/user/vendors/resend-otp",
+        "https://cm-backend-yk2y.onrender.com/user/vendors/resend-otp",
         { email }
       );
 

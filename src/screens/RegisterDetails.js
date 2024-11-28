@@ -198,11 +198,35 @@ const RegisterDetails = () => {
       }, 2000);
     } catch (error) {
       console.error('Registration error:', error);
-
+    
+      let errorMessage = 'Failed to register vendor.'; // Default error message
+    
+      // Check if the error is from Axios and contains a response
+      if (error.response) {
+        const { status, data } = error.response;
+    
+        // Handle specific status codes or backend messages
+        if (status === 400) {
+          errorMessage = data.message || 'Invalid data provided.';
+        } else if (status === 401) {
+          errorMessage = 'Unauthorized. Please log in.';
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = data.message || 'An unexpected error occurred.';
+        }
+      } else if (error.request) {
+        // Handle network errors or no response from server
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        // Handle unexpected errors (non-Axios errors)
+        errorMessage = error.message || 'An error occurred.';
+      }
+    
       // Show error toast
-      setToastMessage('Failed to register vendor.');
+      setToastMessage(errorMessage);
       setToastVisible(true);
-
+    
       // Hide toast after 3 seconds
       setTimeout(() => {
         setToastVisible(false);
@@ -225,7 +249,7 @@ const RegisterDetails = () => {
           value={formData.email}
           onChangeText={text => {
             handleChange('email', text);
-            setIsEmailVerified(false); // Reset verification status if email changes
+            setIsEmailVerified(false);
           }}
         />
         {isEmailVerified && <Text style={styles.tickMark}>✔️</Text>}
