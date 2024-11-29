@@ -9,6 +9,7 @@ import homeReducer from '../redux/Home/HomeSlice';
 import registerReducer from "../redux/Auth/Register";
 import loginReducer from '../redux/Auth/Login';
 import passwordReducer from '../redux/Auth/Password';
+import vendorReducer from '../redux/StoreSetting/Setting';
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     register: registerReducer,
     login:loginReducer,
     password: passwordReducer,
+    vendor: vendorReducer,
   },
 });
 
