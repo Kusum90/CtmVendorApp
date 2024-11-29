@@ -1,31 +1,67 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // For dropdown
 import DocumentPicker from 'react-native-document-picker'; // Import Document Picker
-
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux'; // Redux hooks
+import { fetchVendor, updateVendor } from '../../redux/StoreSetting/Setting'; // Redux actions
 import { wp,hp,FontSize } from '../../utils/responsiveUtils';
-import BackArrow from '../../assets/svg/Couponsvg/BackArrow';
+
 
 const StoreSettings = () => {
-const navigation = useNavigation();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
+  // Redux state
+  const { vendorData, loading, errorMessage } = useSelector((state) => state.vendor);
+
+  // Local state
   const [storeName, setStoreName] = useState('');
   const [storeEmail, setStoreEmail] = useState('');
   const [storePhone, setStorePhone] = useState('');
   const [storeBannerType, setStoreBannerType] = useState('Static Image');
   const [storeListBannerType, setStoreListBannerType] = useState('Static Image');
   const [storeLogo, setStoreLogo] = useState(null); // Store selected image URI
+  const [storeLogoFile, setStoreLogoFile] = useState(null); // File for upload
+  const [errors, setErrors] = useState({});
 
+  // Fetch vendor data on component mount
+  useEffect(() => {
+    console.log('Fetching vendor profile...');
+    dispatch(fetchVendor())
+      .unwrap()
+      .then((data) => {
+        console.log('Vendor data fetched successfully:', data);
 
-  const [errors, setErrors] = useState({}); 
+        // Populate the form with fetched data
+        const vendorInfo = data.data; // Ensure the correct structure is accessed
+        setStoreName(vendorInfo.storename || '');
+        setStoreEmail(vendorInfo.email || '');
+        setStorePhone(vendorInfo.phone || '');
+        setStoreBannerType(vendorInfo.storeBannerType || 'Static Image');
+        setStoreListBannerType(vendorInfo.storeListBannerType || 'Static Image');
+        setStoreLogo(vendorInfo.storeLogo || null);
+      })
+      .catch((err) => {
+        console.error('Error fetching vendor profile:', err);
+      });
+  }, [dispatch]);
 
+  // Validate form inputs
   const validateForm = () => {
     const newErrors = {};
 
     if (!storeName) newErrors.storeName = 'Store Name is required';
-    if (!storeEmail) newErrors.storeEmail = 'Store Email is required';
     if (!storePhone) newErrors.storePhone = 'Store Phone is required';
 
     setErrors(newErrors);
@@ -33,23 +69,41 @@ const navigation = useNavigation();
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  // Save changes handler
+  const handleUpdateAndNext = async () => {
     if (validateForm()) {
-      // If no errors, proceed to save action
-      console.log("Store settings saved!");
+      const vendorDetails = {
+        storename: storeName, // Only updating Store Name
+        storephone: storePhone,    // Only updating Store Phone
+      };
+
+      console.log('Updating vendor profile with:', vendorDetails);
+
+      dispatch(updateVendor({ vendorDetails }))
+        .unwrap()
+        .then((response) => {
+          console.log('Vendor profile updated successfully:', response);
+          Alert.alert('Success', 'Vendor profile updated successfully!');
+          navigation.navigate('LocationScreen'); // Navigate to the next screen
+        })
+        .catch((err) => {
+          console.error('Error updating vendor profile:', err);
+          Alert.alert('Error', 'Failed to update vendor profile.');
+        });
     } else {
-      console.log("Validation failed");
+      console.log('Validation failed');
     }
-    navigation.navigate('LocationScreen')
   };
 
+  // Image picker handler
   const handlePickImage = async () => {
     try {
       const result = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.images],
       });
       setStoreLogo(result.uri);
-      console.log('Selected Image: ', result.uri);
+      setStoreLogoFile(result);
+      console.log('Selected Image: ', result);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         console.log('User cancelled the document picker');
@@ -59,152 +113,102 @@ const navigation = useNavigation();
     }
   };
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header with back arrow and title */}
-      {/* <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackArrow name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Store Settings</Text>
-      </View> */}
-    <ScrollView style={styles.container}>
-      {/* Card for Heading */}
-      <View style={styles.card}>
-        <Text style={styles.heading}>Store Settings</Text>
-      </View>
-
-      {/* Card for Form */}
-      <View style={styles.card}>
-        {/* General Settings */}
-        <View style={styles.section}>
-          <Text style={styles.subHeading}>General Setting</Text>
-
-          <Text style={styles.label}>Store Name*</Text>
-          <TextInput 
-            style={styles.input} 
-            value={storeName} 
-            onChangeText={setStoreName} 
-            placeholder="Enter store name" 
-          />
-          {errors.storeName && <Text style={styles.error}>{errors.storeName}</Text>}
-
-          <Text style={styles.label}>Store Email*</Text>
-          <TextInput 
-            style={styles.input} 
-            value={storeEmail} 
-            onChangeText={setStoreEmail} 
-            placeholder="Enter store email" 
-            keyboardType="email-address"
-          />
-          {errors.storeEmail && <Text style={styles.error}>{errors.storeEmail}</Text>} 
-
-          <Text style={styles.label}>Store Phone*</Text>
-          <TextInput 
-            style={styles.input} 
-            value={storePhone} 
-            onChangeText={setStorePhone} 
-            placeholder="Enter store phone" 
-            keyboardType="phone-pad"
-          />
-          {errors.storePhone && <Text style={styles.error}>{errors.storePhone}</Text>} 
+      <ScrollView style={styles.container}>
+        {/* Card for Heading */}
+        <View style={styles.card}>
+          <Text style={styles.heading}>Store Settings</Text>
         </View>
 
-        {/* Store Brand Setup */}
-        <View style={styles.section}>
-          <Text style={styles.subHeading}>Store Brand Setup</Text>
+        {/* Card for Form */}
+        <View style={styles.card}>
+          {/* General Settings */}
+          <View style={styles.section}>
+            <Text style={styles.subHeading}>General Setting</Text>
 
-          <Text style={styles.label}>Store Logo</Text>
-          <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-          {storeLogo ? (
-                <Image source={{ uri: storeLogo }} style={styles.image} />
-              ) : (
-                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
-              )}
-          </TouchableOpacity>
+            <Text style={styles.label}>Store Name*</Text>
+            <TextInput
+              style={styles.input}
+              value={storeName}
+              onChangeText={setStoreName}
+              placeholder="Enter store name"
+            />
+            {errors.storeName && <Text style={styles.error}>{errors.storeName}</Text>}
 
-          <Text style={styles.label}>Store Banner Type</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={storeBannerType}
-              onValueChange={(itemValue) => setStoreBannerType(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Static Image" value="Static Image" />
-              <Picker.Item label="Dynamic Image" value="Dynamic Image" />
-            </Picker>
+            <Text style={styles.label}>Store Email*</Text>
+            <TextInput
+              style={styles.input}
+              value={storeEmail}
+              onChangeText={setStoreEmail}
+              placeholder="Enter store email"
+              keyboardType="email-address"
+              editable={false} // Email will not be updated
+            />
+            {errors.storeEmail && <Text style={styles.error}>{errors.storeEmail}</Text>}
+
+            <Text style={styles.label}>Store Phone*</Text>
+            <TextInput
+              style={styles.input}
+              value={storePhone}
+              onChangeText={setStorePhone}
+              placeholder="Enter store phone"
+              keyboardType="phone-pad"
+            />
+            {errors.storePhone && <Text style={styles.error}>{errors.storePhone}</Text>}
           </View>
 
-          <View style={styles.row}>
-            <View style={styles.imagePickerContainer}>
-              <Text style={styles.label}>Store Banner</Text>
-              <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+          {/* Store Brand Setup */}
+          <View style={styles.section}>
+            <Text style={styles.subHeading}>Store Brand Setup</Text>
+
+            <Text style={styles.label}>Store Logo</Text>
+            <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
               {storeLogo ? (
                 <Image source={{ uri: storeLogo }} style={styles.image} />
               ) : (
                 <Text style={styles.imagePlaceholder}>Pick an Image</Text>
               )}
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
 
-            <View style={styles.imagePickerContainer}>
-              <Text style={styles.label}>Mobile Banner</Text>
-              <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-              {storeLogo ? (
-                <Image source={{ uri: storeLogo }} style={styles.image} />
-              ) : (
-                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
-              )}
-              </TouchableOpacity>
+            <Text style={styles.label}>Store Banner Type</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={storeBannerType}
+                onValueChange={(itemValue) => setStoreBannerType(itemValue)}
+                style={styles.picker}
+                enabled={false} // Disable picker
+              >
+                <Picker.Item label="Static Image" value="Static Image" />
+                <Picker.Item label="Dynamic Image" value="Dynamic Image" />
+              </Picker>
             </View>
           </View>
-        </View>
 
-        {/* Store List Banner Setup */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Store List Banner Type</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={storeListBannerType}
-              onValueChange={(itemValue) => setStoreListBannerType(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Static Image" value="Static Image" />
-              <Picker.Item label="Dynamic Image" value="Dynamic Image" />
-            </Picker>
-          </View>
-
-          <Text style={styles.label}>Store List Banner</Text>
-          <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-          {storeLogo ? (
-                <Image source={{ uri: storeLogo }} style={styles.image} />
-              ) : (
-                <Text style={styles.imagePlaceholder}>Pick an Image</Text>
-              )}
+          {/* Update and Next Button */}
+          <TouchableOpacity style={styles.saveButton} onPress={handleUpdateAndNext}>
+            <Text style={styles.saveButtonText}>Next</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveButton1} onPress={handleUpdateAndNext}>
+            <Text style={styles.saveButtonText}>Update and Next</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Shop Description */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Shop Description</Text>
-          <TextInput
-            style={styles.input}
-            multiline
-            numberOfLines={4}
-            placeholder="Enter shop description"
-          />
-        </View>
-
-        {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </View>
   );
 };
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -288,6 +292,17 @@ const styles = StyleSheet.create({
     borderRadius: wp(2), // Responsive borderRadius
     height: hp(6.5), // Responsive height
     width: wp(25), // Responsive width
+    marginLeft: wp(60), // Responsive marginLeft
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveButton1: {
+    backgroundColor: '#4CAF50',
+    marginTop:20,
+    padding: hp(1.5),
+    borderRadius: wp(2), // Responsive borderRadius
+    height: hp(7.9), // Responsive height
+    width: wp(30), // Responsive width
     marginLeft: wp(60), // Responsive marginLeft
     justifyContent: 'center',
     alignItems: 'center',
