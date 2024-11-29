@@ -10,56 +10,97 @@ const initialState = {
 };
 
 // Async thunk for sending forgot password OTP
-export const sendForgotPasswordOtp = createAsyncThunk(
-  "password/sendForgotPasswordOtp",
-  async (email, { rejectWithValue }) => {
+export const resetPassword = createAsyncThunk(
+  "password/resetPassword",
+  async ({ email, otp, newPassword, confirmNewPassword }, { rejectWithValue }) => {
     try {
+      console.log("Reset Password API called with payload:", {
+        email,
+        otp,
+        newPassword,
+        confirmNewPassword,
+      });
+
       const response = await axios.post(
-        "https://cm-backend-yk2y.onrender.com/user/vendorforgot-password", // Replace with your API URL
-        { email }
+        "https://cm-backend-yk2y.onrender.com/user/vendorreset-password",
+        { email, newPassword, confirmNewPassword } // Note: Exclude OTP if not needed
       );
-      return { message: response.data.message, email };
+
+      console.log("Reset Password API response:", response.data);
+      return { message: response.data.message };
     } catch (error) {
-      console.error("Error in sendForgotPasswordOtp:", error);
+      console.error("Error in resetPassword:", error.response?.data);
       const errorMessage =
-        error?.response?.data?.message || "Failed to send OTP.";
-      
+        error?.response?.data?.message || "Failed to reset password.";
+
       if (Platform.OS === "android") {
         ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
       } else {
         Alert.alert("Error", errorMessage);
       }
-      
+
       return rejectWithValue(errorMessage);
     }
   }
 );
 
-// Async thunk for resetting password
-export const resetPassword = createAsyncThunk(
-  "password/resetPassword",
-  async ({ email, otp, newPassword }, { rejectWithValue }) => {
+
+
+export const sendForgotPasswordOtp = createAsyncThunk(
+  "password/sendForgotPasswordOtp",
+  async (email, { rejectWithValue }) => {
     try {
+      console.log("Send OTP API called with email:", email);
       const response = await axios.post(
-        "https://cm-backend-yk2y.onrender.com/user/vendorreset-password", // Replace with your API URL
-        { email, otp, newPassword }
+        "https://cm-backend-yk2y.onrender.com/user/vendorforgot-password",
+        { email }
       );
-      return { message: response.data.message };
+      console.log("Send OTP API response:", response.data);
+      return { message: response.data.message, email };
     } catch (error) {
-      console.error("Error in resetPassword:", error);
+      console.error("Error in sendForgotPasswordOtp:", error.response?.data);
       const errorMessage =
-        error?.response?.data?.message || "Failed to reset password.";
-      
+        error?.response?.data?.message || "Failed to send OTP.";
+
       if (Platform.OS === "android") {
         ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
       } else {
         Alert.alert("Error", errorMessage);
       }
-      
+
       return rejectWithValue(errorMessage);
     }
   }
 );
+
+export const verifyOtp = createAsyncThunk(
+  "password/verifyOtp",
+  async ({ email, otp }, { rejectWithValue }) => {
+    try {
+      console.log("Verify OTP API called with payload:", { email, otp });
+      const response = await axios.post(
+        "https://cm-backend-yk2y.onrender.com/user/vendors/verify-otp",
+        { email, otp }
+      );
+      console.log("Verify OTP API response:", response.data);
+      return response.data.message;
+    } catch (error) {
+      console.error("Error in verifyOtp:", error.response?.data);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to verify OTP.";
+
+      if (Platform.OS === "android") {
+        ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
+      } else {
+        Alert.alert("Error", errorMessage);
+      }
+
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+
 
 const passwordSlice = createSlice({
   name: "password",
@@ -103,6 +144,21 @@ const passwordSlice = createSlice({
         state.loading = false;
         state.successMessage = null;
         state.errorMessage = action.payload;
+      })
+
+       // Verify OTP
+       .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload;
+        state.otpVerified = true;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

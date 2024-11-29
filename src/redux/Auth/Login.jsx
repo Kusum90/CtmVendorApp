@@ -11,19 +11,17 @@ const initialState = {
 
 // AsyncThunk to handle login API call
 export const loginUser = createAsyncThunk(
-  'auth/loginUser',
+  "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        'https://cm-backend-yk2y.onrender.com/user/vendor',
+        "https://cm-backend-yk2y.onrender.com/user/vendor",
         { email, password }
       );
-      // Store token in AsyncStorage
-      await AsyncStorage.setItem('userToken', response.data.token);
       return response.data; // Assuming response includes user data and token
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Login failed, please try again.'
+        error.response?.data?.message || "Login failed. Please try again."
       );
     }
   }
