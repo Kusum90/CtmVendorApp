@@ -55,7 +55,7 @@ const CustomerSupportScreen = ({ navigation }) => {
   }, [successMessage, errorMessage, dispatch]);
 
   // Handle update
-  const handleUpdate = () => {
+  const handleNext = async () => {
     const vendorDetails = {
       email,
       phone: storePhone,
@@ -65,7 +65,20 @@ const CustomerSupportScreen = ({ navigation }) => {
       state,
       zip,
     };
-    dispatch(updateVendor({ vendorDetails }));
+
+    try {
+      console.log('Updating customer support details...');
+      await dispatch(updateVendor({ vendorDetails })).unwrap();
+      console.log('Details updated successfully.');
+      Alert.alert('Success', 'Details updated successfully!');
+      navigation.navigate('StoreInvoiceScreen'); // Navigate to the next screen
+    } catch (error) {
+      console.error('Error updating details:', error);
+      Alert.alert('Error', 'Failed to update details.');
+    }
+  };
+  const handlePrevious = () => {
+    navigation.goBack(); // Navigate to the previous screen
   };
 
   return (
@@ -144,17 +157,13 @@ const CustomerSupportScreen = ({ navigation }) => {
 
         {/* Buttons */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-            <Text style={styles.buttonText}>Update</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.secondaryButton]}
-            onPress={() => navigation.navigate('StoreInvoiceScreen')}
-          >
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.navButton} onPress={handlePrevious}>
+          <Text style={styles.buttonText}>Previous</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
       </View>
     </ScrollView>
   );
@@ -201,16 +210,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: hp(2.5),
   },
-  button: {
+  navButton: {
     backgroundColor: '#4CAF50',
     padding: hp(1.5),
     borderRadius: wp(2),
     flex: 1,
     marginHorizontal: wp(1),
     alignItems: 'center',
-  },
-  secondaryButton: {
-    backgroundColor: '#2196F3',
   },
   buttonText: {
     color: '#fff',

@@ -103,17 +103,15 @@ export const verifyOtp = createAsyncThunk(
 
 // AsyncThunk to change password
 export const changePassword = createAsyncThunk(
-  'user/changePassword',
+  'auth/changePassword',
   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
     console.log('Executing changePassword thunk with:', { oldPassword, newPassword });
     try {
       const token = await AsyncStorage.getItem('userToken');
-      if (!token) {
-        throw new Error('Token is missing.');
-      }
+      if (!token) throw new Error('No token available');
 
       const response = await axios.put(
-        'https://cm-backend-yk2y.onrender.com/user/change-password', // Ensure this matches backend
+        'https://cm-backend-yk2y.onrender.com/user/change-password',
         { oldPassword, newPassword },
         {
           headers: {
@@ -122,12 +120,27 @@ export const changePassword = createAsyncThunk(
           },
         }
       );
+
+      console.log('Password changed successfully in thunk:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error in changePassword thunk:', error);
+      if (error.response) {
+        console.error('Response error:', error.response.data);
+        return rejectWithValue(
+          error.response.data.message || 'Failed to change password. Please check your input.'
+        );
+      } else if (error.request) {
+        console.error('Request error:', error.message);
+        return rejectWithValue('Network error. Please check your connection.');
+      } else {
+        console.error('Unexpected error:', error.message);
+        return rejectWithValue('An unexpected error occurred.');
+      }
     }
   }
 );
+
 
 const passwordSlice = createSlice({
   name: "password",

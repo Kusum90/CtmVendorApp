@@ -7,12 +7,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Alert
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchVendor, updateVendor, clearVendorMessages } from '../../redux/StoreSetting/Setting'
 import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 
-const SocialScreen = () => {
+const SocialScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const { loading, vendorData, successMessage, errorMessage } = useSelector((state) => state.vendor);
 
@@ -54,10 +55,19 @@ const SocialScreen = () => {
   };
 
   // Handle save button click
-  const handleSave = () => {
-    dispatch(updateVendor({ vendorDetails: formData }));
+  const handleSave = async () => {
+    try {
+      console.log('Updating vendor settings...');
+      await dispatch(updateVendor({ vendorDetails: formData })).unwrap();
+      console.log('Vendor settings updated successfully.');
+      Alert.alert('Success', 'Vendor settings updated successfully!', [
+        { text: 'OK', onPress: () => navigation.navigate('DrawerNavigation') }, // Redirect to Home Screen
+      ]);
+    } catch (error) {
+      console.error('Error updating vendor settings:', error);
+      Alert.alert('Error', 'Failed to update vendor settings.');
+    }
   };
-
   // Clear messages on unmount
   useEffect(() => {
     return () => {

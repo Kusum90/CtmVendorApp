@@ -413,6 +413,8 @@
 
 // export default ProfileScreen;
 
+
+
 import React, {useState, useEffect} from 'react';
 import {
   View,
@@ -428,6 +430,8 @@ import {
 import {useDispatch, useSelector} from 'react-redux'; // Import hooks from Redux
 import {fetchVendor} from '../../redux/StoreSetting/Setting';
 import {changePassword} from '../../redux/Auth/Password';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logoutUser } from '../../redux/Auth/Login';
 
 const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -436,15 +440,14 @@ const ProfileScreen = ({navigation}) => {
     state => state.vendor,
   );
   const {successMessage} = useSelector(state => state.password);
+  const [logoutLoading, setLogoutLoading] = useState(false); // State for logout loading
+
 
   // Function to get initials from the name
-  const getInitials = name => {
-    if (!name) return ''; // Return an empty string if name is undefined or empty
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase();
+  const getInitials = (firstname, lastname) => {
+    const firstInitial = firstname?.[0] || ''; // Get the first letter of firstname
+    const lastInitial = lastname?.[0] || ''; // Get the first letter of lastname
+    return (firstInitial + lastInitial).toUpperCase(); // Concatenate and convert to uppercase
   };
 
   // State for Modal visibility
@@ -453,6 +456,8 @@ const ProfileScreen = ({navigation}) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   // const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   useEffect(() => {
     // Dispatch fetchVendor action when component loads
@@ -474,9 +479,46 @@ const ProfileScreen = ({navigation}) => {
   };
 
   // Function to handle logout
-  const logout = () => {
-    navigation.navigate('LoginScreen'); // Adjust the screen name accordingly
+  const handleLogout = async () => {
+    console.log('Logout process started...'); // Debugging
+  
+    Alert.alert(
+      'Logout Confirmation',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          onPress: () => console.log('Logout canceled'), // Debugging
+        },
+        {
+          text: 'Yes',
+          onPress: async () => {
+            console.log('Confirmed logout, proceeding...'); // Debugging
+            setLogoutLoading(true); // Start loading
+            try {
+              console.log('Dispatching logoutUser action...'); // Debugging
+              await dispatch(logoutUser()).unwrap(); // Execute logout API call
+  
+              console.log('Removing token from AsyncStorage...'); // Debugging
+              await AsyncStorage.removeItem('userToken'); // Remove token from storage
+  
+              console.log('Token removed successfully, navigating to LoginScreen...'); // Debugging
+              navigation.navigate('LoginScreen'); // Navigate to Login screen
+            } catch (error) {
+              console.log('Logout Error:', error); // Debugging
+              Alert.alert('Error', 'Failed to log out. Please try again.');
+            } finally {
+              console.log('Logout process finished.'); // Debugging
+              setLogoutLoading(false); // Stop loading
+            }
+          },
+        },
+      ],
+      {cancelable: true},
+    );
   };
+  
 
   // Function to handle password change
 const handleChangePassword = () => {
@@ -495,7 +537,11 @@ const handleChangePassword = () => {
       Alert.alert('Error', error || 'Failed to change password. Please try again.');
     });
 };
-
+// Define the resetPasswordFields function
+const resetPasswordFields = () => {
+  setOldPassword(''); // Clear old password field
+  setNewPassword(''); // Clear new password field
+};
 
   // If loading, show loading text
   if (loading) {
@@ -524,7 +570,7 @@ const handleChangePassword = () => {
       <View style={styles.profileCard}>
         <View style={styles.initialsContainer}>
           <Text style={styles.initialsText}>
-            {getInitials(vendorData?.username)}
+          {getInitials(vendorData?.firstname, vendorData?.lastname)}
           </Text>
         </View>
         <View style={styles.detailsContainer}>
@@ -570,7 +616,7 @@ const handleChangePassword = () => {
       </TouchableOpacity>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
 
@@ -592,20 +638,42 @@ const handleChangePassword = () => {
             <Text style={styles.modalHeader}>Change Password</Text>
 
             {/* Password Fields */}
-            <Text>Old Password</Text>
-            <TextInput
-              style={styles.inputField}
-              value={oldPassword}
-              onChangeText={setOldPassword}
-              secureTextEntry
-            />
-            <Text>New Password</Text>
-            <TextInput
-              style={styles.inputField}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-            />
+            <View style={styles.inputWrapper}>
+  <Text>Old Password</Text>
+  <View style={styles.passwordField}>
+    <TextInput
+      style={styles.inputField}
+      value={oldPassword}
+      onChangeText={setOldPassword}
+      secureTextEntry={!showOldPassword}
+      placeholder="Enter old password"
+    />
+    <TouchableOpacity
+      style={styles.eyeIcon}
+      onPress={() => setShowOldPassword(!showOldPassword)}>
+      <Text>{showOldPassword ? '👁️' : '🙈'}</Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
+
+<View style={styles.inputWrapper}>
+  <Text>New Password</Text>
+  <View style={styles.passwordField}>
+    <TextInput
+      style={styles.inputField}
+      value={newPassword}
+      onChangeText={setNewPassword}
+      secureTextEntry={!showNewPassword}
+      placeholder="Enter new password"
+    />
+    <TouchableOpacity
+      style={styles.eyeIcon}
+      onPress={() => setShowNewPassword(!showNewPassword)}>
+      <Text>{showNewPassword ? '👁️' : '🙈'}</Text>
+    </TouchableOpacity>
+  </View>
+</View>
             {/* <Text>Confirm Password</Text>
             <TextInput
               style={styles.inputField}
@@ -616,13 +684,18 @@ const handleChangePassword = () => {
 
             {/* Modal Buttons */}
             <View style={styles.modalButtons}>
-              <Button title="Save" onPress={handleChangePassword} />
-              <Button
-                title="Cancel"
-                color="red"
-                onPress={() => setIsPasswordModalVisible(false)}
-              />
-            </View>
+  <View style={styles.buttonWrapper}>
+    <Button title="Save" onPress={handleChangePassword} />
+  </View>
+  <View style={styles.buttonWrapper}>
+    <Button
+      title="Cancel"
+      color="red"
+      onPress={() => setIsPasswordModalVisible(false)}
+    />
+  </View>
+</View>
+
           </View>
         </View>
       </Modal>
@@ -765,15 +838,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  inputField: {
+  inputWrapper: {
+    marginBottom: 16,
+  },
+  passwordField: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    padding: 10,
-    marginVertical: 8,
     borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  inputField: {
+    flex: 1,
+    fontSize: 16,
+  },
+  eyeIcon: {
+    paddingHorizontal: 10,
   },
   modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Space between buttons
     marginTop: 20,
+  },
+  buttonWrapper: {
+    flex: 1, // Ensures each button takes equal space
+    marginHorizontal: 5, // Adds spacing between buttons
   },
 });
 
