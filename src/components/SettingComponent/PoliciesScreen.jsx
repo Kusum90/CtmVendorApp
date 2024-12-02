@@ -32,24 +32,31 @@ const PoliciesScreen = ({ navigation }) => {
   }, [vendorData]);
 
 
-  // Handle update vendor
-  const handleUpdate = () => {
-    const vendorDetails = {
-      policyTabLabel,
-      shippingPolicy,
-      refundPolicy,
-      cancelPolicy,
-    };
-    dispatch(updateVendor({ vendorDetails }));
+ // Handle Next button click
+ const handleNext = async () => {
+  const vendorDetails = {
+    policyTabLabel,
+    shippingPolicy,
+    refundPolicy,
+    cancelPolicy,
   };
 
+  try {
+    console.log('Updating policies...');
+    await dispatch(updateVendor({ vendorDetails })).unwrap();
+    console.log('Policies updated successfully.');
+    Alert.alert('Success', 'Policies updated successfully!');
+    navigation.navigate('CustomerSupportScreen'); // Navigate to the next screen
+  } catch (error) {
+    console.error('Error updating policies:', error);
+    Alert.alert('Error', 'Failed to update policies.');
+  }
+};
   const handlePrevious = () => {
     navigation.goBack();
   };
 
-  const handleNext = () => {
-    navigation.navigate('CustomerSupportScreen');
-  };
+ 
 
   return (
     <ScrollView style={styles.container}>
@@ -102,13 +109,6 @@ const PoliciesScreen = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.navButton} onPress={handlePrevious}>
           <Text style={styles.buttonText}>Previous</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.navButton, { backgroundColor: '#2196F3' }]}
-          onPress={handleUpdate}
-          disabled={loading} // Disable button while loading
-        >
-          <Text style={styles.buttonText}>{loading ? 'Updating...' : 'Save'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>

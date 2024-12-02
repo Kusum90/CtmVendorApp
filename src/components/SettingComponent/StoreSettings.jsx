@@ -79,25 +79,22 @@ const StoreSettings = () => {
     setTimeout(() => setToastVisible(false), 9000);
   };
 
-  // Save changes handler
-  const handleUpdateAndNext = () =>{
-    navigation.navigate('LocationScreen');
-
-  };
-
-  // Handle save button click
-  const handleSave = async () => {
+  // Handle Next button click
+  const handleNext = async () => {
     if (validateForm()) {
       setIsSaving(true);
       const vendorDetails = {
-        storeName,
-        storePhone,
+        storename: storeName,
+        phone: storePhone,
       };
       try {
-        await dispatch(updateVendor({ vendorDetails })).unwrap();
+        console.log('Updating store details...');
+        await dispatch(updateVendor({vendorDetails})).unwrap();
+        console.log('Store details updated successfully!');
         Alert.alert('Success', 'Store details updated successfully!');
+        navigation.navigate('LocationScreen'); // Redirect to the next screen
       } catch (error) {
-        console.error('Error updating vendor details:', error);
+        console.error('Error updating store details:', error);
         Alert.alert('Error', 'Failed to update store details.');
       } finally {
         setIsSaving(false);
@@ -213,23 +210,12 @@ const StoreSettings = () => {
 
           {/* Update and Next Button */}
           <TouchableOpacity
-            style={styles.saveButton}
-            onPress={handleUpdateAndNext}>
-            <Text style={styles.saveButtonText}>Next</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.navButton, ]}
-            onPress={handleSave}
-            disabled={loading}>
-            <Text style={styles.saveButtonText}>
-              {loading ? 'Updating...' : 'Save'}
+            style={styles.nextButton}
+            onPress={handleNext}
+            disabled={isSaving}>
+            <Text style={styles.nextButtonText}>
+              {isSaving ? 'Saving...' : 'Next'}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.saveButton1}
-            onPress={handleUpdateAndNext}>
-            <Text style={styles.saveButtonText}>Update and Next</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -317,30 +303,15 @@ const styles = StyleSheet.create({
     height: wp(25), // Responsive height
     borderRadius: wp(2), // Responsive borderRadius
   },
-  saveButton: {
+  nextButton: {
     backgroundColor: '#4CAF50',
-    padding: hp(1.5), // Responsive padding
-    borderRadius: wp(2), // Responsive borderRadius
-    height: hp(6.5), // Responsive height
-    width: wp(25), // Responsive width
-    marginLeft: wp(60), // Responsive marginLeft
-    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  saveButton1: {
-    backgroundColor: '#4CAF50',
-    marginTop: 20,
-    padding: hp(1.5),
-    borderRadius: wp(2), // Responsive borderRadius
-    height: hp(7.9), // Responsive height
-    width: wp(30), // Responsive width
-    marginLeft: wp(60), // Responsive marginLeft
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  saveButtonText: {
+  nextButtonText: {
     color: '#fff',
-    fontSize: FontSize(16), // Responsive font size
+    fontSize: 16,
     fontWeight: 'bold',
   },
   error: {

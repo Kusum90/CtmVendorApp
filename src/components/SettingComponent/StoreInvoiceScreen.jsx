@@ -42,25 +42,40 @@ const StoreInvoiceScreen = ({ navigation }) => {
     }
   }, [successMessage, errorMessage, dispatch]);
 
-  const handleUpdate = () => {
-    const vendorDetails = {
-      invoiceNoPrefix,
-      invoiceNoSuffix,
-      invoiceNoDigit:parseInt(invoiceNoDigit),
-      gstNo,
-      disclaimer,
-      digitalSignature,
-    };
-    dispatch(updateVendor({ vendorDetails }));
-  };
+ 
 
   const handlePrevious = () => {
     navigation.goBack();
   };
 
-  const handleNext = () => {
-    navigation.navigate('SocialScreen');
+  const handleNext = async () => {
+    const vendorDetails = {
+      invoiceNoPrefix,
+      invoiceNoSuffix,
+      invoiceNoDigit: parseInt(invoiceNoDigit, 10),
+      gstNo,
+      disclaimer,
+      digitalSignature,
+    };
+    try {
+      console.log('Updating invoice details...');
+      await dispatch(updateVendor({ vendorDetails })).unwrap();
+      console.log('Invoice details updated successfully.');
+      Alert.alert('Success', 'Details updated successfully!');
+      navigation.navigate('SocialScreen'); // Navigate to the next screen
+    } catch (error) {
+      console.error('Error updating invoice details:', error);
+      Alert.alert('Error', 'Failed to update invoice details.');
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -115,9 +130,6 @@ const StoreInvoiceScreen = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.navButton} onPress={handlePrevious}>
           <Text style={styles.buttonText}>Previous</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={handleUpdate}>
-          <Text style={styles.buttonText}>Update</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>

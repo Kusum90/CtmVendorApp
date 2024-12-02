@@ -20,6 +20,8 @@ const LocationScreen = ({ navigation }) => {
   const [state, setState] = useState('');
   const [city,setcity]=useState('');
   const [zip, setZip] = useState('');
+  const [isSaving, setIsSaving] = useState(false); // State for saving status
+
 
   // Fetch vendor data when the screen is mounted
   useEffect(() => {
@@ -48,15 +50,37 @@ const LocationScreen = ({ navigation }) => {
     navigation.goBack(); // Navigate to the previous screen
   };
 
-  const handleNext = () => {
-    navigation.navigate('PayScreen');
-  }
-  
+  const handleNext = async () => {
+    setIsSaving(true); // Start saving state
+    const vendorDetails = {
+      address1,
+      address2,
+      country,
+      state,
+      city,
+      postcode_zip: zip,
+    };
 
-  const handleSave = async () => {
-    const vendorDetails = { address1, address2, country, state,city, zip };
-   dispatch(updateVendor({ vendorDetails }));
+    try {
+      console.log('Updating vendor details...');
+      await dispatch(updateVendor({ vendorDetails })).unwrap();
+      console.log('Vendor details updated successfully.');
+      Alert.alert('Success', 'Store address updated successfully!');
+      navigation.navigate('PayScreen'); // Navigate to the next screen
+    } catch (error) {
+      console.error('Error updating vendor details:', error);
+      Alert.alert('Error', 'Failed to update store address.');
+    } finally {
+      setIsSaving(false); // Stop saving state
+    }
   };
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
     
 
   return (
@@ -121,12 +145,14 @@ const LocationScreen = ({ navigation }) => {
             <Text style={styles.buttonText}>Previous</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>Next</Text>
+          <TouchableOpacity
+            style={[styles.button, isSaving && styles.disabledButton]}
+            onPress={handleNext}
+            disabled={isSaving}
+          >
+            <Text style={styles.buttonText}>
+              {isSaving ? 'Saving...' : 'Next'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -187,6 +213,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: FontSize(16), // Responsive font size
+  },
+  disabledButton: {
+    backgroundColor: '#A5D6A7', // Lighter green for disabled state
   },
 });
 
