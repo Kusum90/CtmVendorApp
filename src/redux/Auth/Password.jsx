@@ -112,7 +112,7 @@ export const changePassword = createAsyncThunk(
         throw new Error('Token is missing.');
       }
 
-      const response = await axios.patch(
+      const response = await axios.put(
         'https://cm-backend-yk2y.onrender.com/user/change-password', // Ensure this matches backend
         { oldPassword, newPassword },
         {
@@ -122,31 +122,12 @@ export const changePassword = createAsyncThunk(
           },
         }
       );
-
-      console.log('Password changed successfully in thunk:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error in changePassword thunk:', error);
-      if (error.response) {
-        console.error('Response error:', error.response.data);
-        return rejectWithValue(error.response.data.message || 'Failed to change password.');
-      } else if (error.request) {
-        console.error('Request error:', error.message);
-        return rejectWithValue('Network error. Please check your connection.');
-      } else {
-        console.error('Unexpected error:', error.message);
-        return rejectWithValue('Unexpected error occurred.');
-      }
     }
   }
 );
-
-
-
-
-
-
-
 
 const passwordSlice = createSlice({
   name: "password",
