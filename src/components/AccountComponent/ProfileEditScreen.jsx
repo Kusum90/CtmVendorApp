@@ -12,7 +12,9 @@ const ProfileEditScreen = ({ route, navigation }) => {
   const { vendorData, loading, errorMessage } = useSelector((state) => state.vendor); // Get vendor data from Redux store
 
   // State for editable fields
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
   const [phone, setPhone] = useState('');
   const [storeName, setStoreName] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
@@ -26,7 +28,9 @@ const ProfileEditScreen = ({ route, navigation }) => {
       dispatch(fetchVendor());
     } else {
       // Initialize state from fetched data
-      setName(vendorData?.firstname || '');
+      setUsername(vendorData?.username || '');
+      setFirstname(vendorData?.firstname || '');
+      setLastname(vendorData?.lastname || '');
       setPhone(vendorData?.phone || '');
       setStoreName(vendorData?.storename || '');
       setStoreUrl(vendorData?.storeUrl || '');  // Assuming store URL is part of the fetched data
@@ -39,7 +43,9 @@ const ProfileEditScreen = ({ route, navigation }) => {
   // Handle save changes
   const saveChanges = () => {
     const vendorDetails = {
-      firstname: name,
+      username,
+      firstname,
+      lastname,
       phone,
       storename: storeName,
       storeUrl,
@@ -74,12 +80,27 @@ const ProfileEditScreen = ({ route, navigation }) => {
       <Text style={styles.header}>Edit Profile</Text>
 
       {/* Editable Fields */}
-      <Text>Name</Text>
+      <Text>Username</Text>
       <TextInput
         style={styles.input}
-        value={name}
-        onChangeText={setName}
+        value={username}
+        onChangeText={setUsername}
       />
+
+      <Text>First Name</Text>
+      <TextInput
+        style={styles.input}
+        value={firstname}
+        onChangeText={setFirstname}
+      />
+
+      <Text>Last Name</Text>
+      <TextInput
+        style={styles.input}
+        value={lastname}
+        onChangeText={setLastname}
+      />
+
 
       <Text>Email (Non-editable)</Text>
       <TextInput
