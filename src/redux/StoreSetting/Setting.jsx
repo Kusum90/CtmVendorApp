@@ -44,7 +44,7 @@ export const fetchVendor = createAsyncThunk(
 
       // Fetch specific vendor data using the vendor ID
       const response = await axios.get(
-        `http://192.168.1.10:4001/user/vendors/${vendorId}`,
+        `https://cm-backend-yk2y.onrender.com/user/vendors/${vendorId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ export const updateVendor = createAsyncThunk(
       console.log('Vendor ID from token:', vendorId);
 
       const response = await axios.patch(
-        `http://192.168.1.10:4001/user/update-vendor/${vendorId}`,
+        `https://cm-backend-yk2y.onrender.com/user/update-vendor/${vendorId}`,
         vendorDetails,
         {
           headers: {

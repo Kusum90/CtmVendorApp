@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,53 +9,57 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // For dropdown
+import {Picker} from '@react-native-picker/picker'; // For dropdown
 import DocumentPicker from 'react-native-document-picker'; // Import Document Picker
-import { ScrollView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux'; // Redux hooks
-import { fetchVendor, updateVendor } from '../../redux/StoreSetting/Setting'; // Redux actions
-import { wp,hp,FontSize } from '../../utils/responsiveUtils';
-
+import {ScrollView} from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux'; // Redux hooks
+import {fetchVendor, updateVendor} from '../../redux/StoreSetting/Setting'; // Redux actions
+import {wp, hp, FontSize} from '../../utils/responsiveUtils';
+import CustomToast from '../../utils/CustomToast';
 
 const StoreSettings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
   // Redux state
-  const { vendorData, loading, errorMessage } = useSelector((state) => state.vendor);
+  const {vendorData, loading, errorMessage} = useSelector(
+    state => state.vendor,
+  );
 
   // Local state
   const [storeName, setStoreName] = useState('');
   const [storeEmail, setStoreEmail] = useState('');
   const [storePhone, setStorePhone] = useState('');
   const [storeBannerType, setStoreBannerType] = useState('Static Image');
-  const [storeListBannerType, setStoreListBannerType] = useState('Static Image');
+  const [storeListBannerType, setStoreListBannerType] =
+    useState('Static Image');
   const [storeLogo, setStoreLogo] = useState(null); // Store selected image URI
   const [storeLogoFile, setStoreLogoFile] = useState(null); // File for upload
   const [errors, setErrors] = useState({});
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
 
   // Fetch vendor data on component mount
   useEffect(() => {
-    console.log('Fetching vendor profile...');
-    dispatch(fetchVendor())
-      .unwrap()
-      .then((data) => {
-        console.log('Vendor data fetched successfully:', data);
-
-        // Populate the form with fetched data
-        const vendorInfo = data.data; // Ensure the correct structure is accessed
-        setStoreName(vendorInfo.storename || '');
-        setStoreEmail(vendorInfo.email || '');
-        setStorePhone(vendorInfo.phone || '');
-        setStoreBannerType(vendorInfo.storeBannerType || 'Static Image');
-        setStoreListBannerType(vendorInfo.storeListBannerType || 'Static Image');
-        setStoreLogo(vendorInfo.storeLogo || null);
-      })
-      .catch((err) => {
-        console.error('Error fetching vendor profile:', err);
-      });
+    dispatch(fetchVendor());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (vendorData) {
+        setStoreName(vendorData.storename || '');
+        setStoreEmail(vendorData.email || '');
+        setStorePhone(vendorData.phone || '');
+        setStoreBannerType(vendorData.storeBannerType || 'Static Image');
+        setStoreListBannerType(
+          vendorData.storeListBannerType || 'Static Image',
+        );
+        setStoreLogo(vendorData.storeLogo || null);
+      }
+    }, [vendorData]);
+     
 
   // Validate form inputs
   const validateForm = () => {
@@ -69,29 +73,35 @@ const StoreSettings = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const showToast = message => {
+    setToastMessage(message);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 9000);
+  };
+
   // Save changes handler
-  const handleUpdateAndNext = async () => {
+  const handleUpdateAndNext = () =>{
+    navigation.navigate('LocationScreen');
+
+  };
+
+  // Handle save button click
+  const handleSave = async () => {
     if (validateForm()) {
+      setIsSaving(true);
       const vendorDetails = {
-        storename: storeName, // Only updating Store Name
-        storephone: storePhone,    // Only updating Store Phone
+        storeName,
+        storePhone,
       };
-
-      console.log('Updating vendor profile with:', vendorDetails);
-
-      dispatch(updateVendor({ vendorDetails }))
-        .unwrap()
-        .then((response) => {
-          console.log('Vendor profile updated successfully:', response);
-          Alert.alert('Success', 'Vendor profile updated successfully!');
-          navigation.navigate('LocationScreen'); // Navigate to the next screen
-        })
-        .catch((err) => {
-          console.error('Error updating vendor profile:', err);
-          Alert.alert('Error', 'Failed to update vendor profile.');
-        });
-    } else {
-      console.log('Validation failed');
+      try {
+        await dispatch(updateVendor({ vendorDetails })).unwrap();
+        Alert.alert('Success', 'Store details updated successfully!');
+      } catch (error) {
+        console.error('Error updating vendor details:', error);
+        Alert.alert('Error', 'Failed to update store details.');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -115,14 +125,14 @@ const StoreSettings = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <ScrollView style={styles.container}>
         {/* Card for Heading */}
         <View style={styles.card}>
@@ -142,7 +152,9 @@ const StoreSettings = () => {
               onChangeText={setStoreName}
               placeholder="Enter store name"
             />
-            {errors.storeName && <Text style={styles.error}>{errors.storeName}</Text>}
+            {errors.storeName && (
+              <Text style={styles.error}>{errors.storeName}</Text>
+            )}
 
             <Text style={styles.label}>Store Email*</Text>
             <TextInput
@@ -153,7 +165,9 @@ const StoreSettings = () => {
               keyboardType="email-address"
               editable={false} // Email will not be updated
             />
-            {errors.storeEmail && <Text style={styles.error}>{errors.storeEmail}</Text>}
+            {errors.storeEmail && (
+              <Text style={styles.error}>{errors.storeEmail}</Text>
+            )}
 
             <Text style={styles.label}>Store Phone*</Text>
             <TextInput
@@ -163,7 +177,9 @@ const StoreSettings = () => {
               placeholder="Enter store phone"
               keyboardType="phone-pad"
             />
-            {errors.storePhone && <Text style={styles.error}>{errors.storePhone}</Text>}
+            {errors.storePhone && (
+              <Text style={styles.error}>{errors.storePhone}</Text>
+            )}
           </View>
 
           {/* Store Brand Setup */}
@@ -171,9 +187,11 @@ const StoreSettings = () => {
             <Text style={styles.subHeading}>Store Brand Setup</Text>
 
             <Text style={styles.label}>Store Logo</Text>
-            <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+            <TouchableOpacity
+              style={styles.imagePicker}
+              onPress={handlePickImage}>
               {storeLogo ? (
-                <Image source={{ uri: storeLogo }} style={styles.image} />
+                <Image source={{uri: storeLogo}} style={styles.image} />
               ) : (
                 <Text style={styles.imagePlaceholder}>Pick an Image</Text>
               )}
@@ -183,7 +201,7 @@ const StoreSettings = () => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={storeBannerType}
-                onValueChange={(itemValue) => setStoreBannerType(itemValue)}
+                onValueChange={itemValue => setStoreBannerType(itemValue)}
                 style={styles.picker}
                 enabled={false} // Disable picker
               >
@@ -194,22 +212,35 @@ const StoreSettings = () => {
           </View>
 
           {/* Update and Next Button */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleUpdateAndNext}>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleUpdateAndNext}>
             <Text style={styles.saveButtonText}>Next</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.saveButton1} onPress={handleUpdateAndNext}>
+
+          <TouchableOpacity
+            style={[styles.navButton, ]}
+            onPress={handleSave}
+            disabled={loading}>
+            <Text style={styles.saveButtonText}>
+              {loading ? 'Updating...' : 'Save'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.saveButton1}
+            onPress={handleUpdateAndNext}>
             <Text style={styles.saveButtonText}>Update and Next</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <CustomToast
+        message={toastMessage}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+      />
     </View>
   );
 };
-
-
-
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -221,7 +252,7 @@ const styles = StyleSheet.create({
     padding: wp(4), // Responsive padding
     marginBottom: hp(2), // Responsive marginBottom
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: hp(0.25) }, // Responsive shadowOffset
+    shadowOffset: {width: 0, height: hp(0.25)}, // Responsive shadowOffset
     shadowOpacity: 0.1,
     shadowRadius: wp(2), // Responsive shadowRadius
     elevation: 5,
@@ -298,7 +329,7 @@ const styles = StyleSheet.create({
   },
   saveButton1: {
     backgroundColor: '#4CAF50',
-    marginTop:20,
+    marginTop: 20,
     padding: hp(1.5),
     borderRadius: wp(2), // Responsive borderRadius
     height: hp(7.9), // Responsive height
@@ -323,7 +354,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 5,
   },
@@ -331,7 +362,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 80,
-    color:'#373737',
+    color: '#373737',
+  },
+  navButton: {
+    backgroundColor: '#4CAF50',
+    padding: hp(1.5),
+    borderRadius: wp(2),
+    flex: 1,
+    marginHorizontal: wp(1.5),
+    alignItems: 'center',
   },
 });
 

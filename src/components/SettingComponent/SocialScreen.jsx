@@ -1,33 +1,81 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchVendor, updateVendor, clearVendorMessages } from '../../redux/StoreSetting/Setting'
+import { wp, hp, FontSize } from '../../utils/responsiveUtils';
 
 const SocialScreen = () => {
-  const [twitter, setTwitter] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [youtube, setYoutube] = useState('');
-  const [linkedin, setLinkedin] = useState('');
-  const [googlePlus, setGooglePlus] = useState('');
-  const [snapchat, setSnapchat] = useState('');
-  const [pinterest, setPinterest] = useState('');
+  const dispatch = useDispatch();
+  const { loading, vendorData, successMessage, errorMessage } = useSelector((state) => state.vendor);
 
-  const handleSave = () => {
-    console.log('Saved Social Info', {
-      twitter,
-      facebook,
-      instagram,
-      youtube,
-      linkedin,
-      googlePlus,
-      snapchat,
-      pinterest,
-    });
-    // Implement saving logic here
+  const [formData, setFormData] = useState({
+    twitterHandler: '',
+    facebookHandler: '',
+    instagramUsername: '',
+    youtubeChannelName: '',
+    linkedinUsername: '',
+    googlePlusProfileId: '',
+    snapchatId: '',
+    pinterestUsername: '',
+  });
+
+  // Fetch vendor data on component mount
+  useEffect(() => {
+    dispatch(fetchVendor());
+  }, [dispatch]);
+
+  // Update local state when vendor data is fetched
+  useEffect(() => {
+    if (vendorData) {
+      setFormData({
+        twitterHandler: vendorData.twitterHandler || '',
+        facebookHandler: vendorData.facebookHandler || '',
+        instagramUsername: vendorData.instagramUsername || '',
+        youtubeChannelName: vendorData.youtubeChannelName || '',
+        linkedinUsername: vendorData.linkedinUsername || '',
+        googlePlusProfileId: vendorData.googlePlusProfileId || '',
+        snapchatId: vendorData.snapchatId || '',
+        pinterestUsername: vendorData.pinterestUsername || '',
+      });
+    }
+  }, [vendorData]);
+
+  // Handle form input changes
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Handle save button click
+  const handleSave = () => {
+    dispatch(updateVendor({ vendorDetails: formData }));
+  };
+
+  // Clear messages on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearVendorMessages());
+    };
+  }, [dispatch]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Loading Spinner */}
+      {loading && <ActivityIndicator size="large" color="#4CAF50" />}
+
+      {/* Error Message */}
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
+      {/* Success Message */}
+      {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+
       {/* Card for Heading */}
       <View style={styles.card}>
         <Text style={styles.heading}>Social</Text>
@@ -36,69 +84,17 @@ const SocialScreen = () => {
       {/* Card for Form */}
       <View style={styles.card}>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Twitter</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Twitter Handler"
-            value={twitter}
-            onChangeText={setTwitter}
-          />
-
-          <Text style={styles.label}>Facebook</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Facebook Handler"
-            value={facebook}
-            onChangeText={setFacebook}
-          />
-
-          <Text style={styles.label}>Instagram</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Instagram Username"
-            value={instagram}
-            onChangeText={setInstagram}
-          />
-
-          <Text style={styles.label}>YouTube</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="YouTube Channel Name"
-            value={youtube}
-            onChangeText={setYoutube}
-          />
-
-          <Text style={styles.label}>LinkedIn</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="LinkedIn Username"
-            value={linkedin}
-            onChangeText={setLinkedin}
-          />
-
-          <Text style={styles.label}>Google Plus</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Google Plus Profile ID"
-            value={googlePlus}
-            onChangeText={setGooglePlus}
-          />
-
-          <Text style={styles.label}>Snapchat</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Snapchat ID"
-            value={snapchat}
-            onChangeText={setSnapchat}
-          />
-
-          <Text style={styles.label}>Pinterest</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Pinterest Username"
-            value={pinterest}
-            onChangeText={setPinterest}
-          />
+          {Object.entries(formData).map(([key, value]) => (
+            <View key={key}>
+              <Text style={styles.label}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1')}`}
+                value={value}
+                onChangeText={(text) => handleInputChange(key, text)}
+              />
+            </View>
+          ))}
         </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -112,52 +108,61 @@ const SocialScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: wp(4), // Responsive padding
+    padding: wp(4),
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#fff',
-    padding: wp(4), // Responsive padding
-    borderRadius: wp(2.5), // Responsive borderRadius
-    elevation: 4, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: hp(0.25) }, // Responsive shadowOffset
+    padding: wp(4),
+    borderRadius: wp(2.5),
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: hp(0.25) },
     shadowOpacity: 0.25,
-    shadowRadius: wp(1), // Responsive shadowRadius
-    marginBottom: hp(2.5), // Responsive marginBottom
+    shadowRadius: wp(1),
+    marginBottom: hp(2.5),
   },
   heading: {
-    fontSize: FontSize(18), // Responsive font size
+    fontSize: FontSize(18),
     fontWeight: 'bold',
     color: '#000',
   },
   inputContainer: {
-    marginBottom: hp(2.5), // Responsive marginBottom
+    marginBottom: hp(2.5),
   },
   label: {
-    fontSize: FontSize(14), // Responsive font size
+    fontSize: FontSize(14),
     color: '#000',
-    marginBottom: hp(0.6), // Responsive marginBottom
+    marginBottom: hp(0.6),
   },
   input: {
-    borderWidth: wp(0.3), // Responsive borderWidth
+    borderWidth: wp(0.3),
     borderColor: '#ddd',
-    borderRadius: wp(2), // Responsive borderRadius
-    padding: wp(2.5), // Responsive padding
-    marginBottom: hp(2), // Responsive marginBottom
+    borderRadius: wp(2),
+    padding: wp(2.5),
+    marginBottom: hp(2),
     backgroundColor: '#f9f9f9',
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    padding: hp(1.5), // Responsive padding
-    borderRadius: wp(2), // Responsive borderRadius
+    padding: hp(1.5),
+    borderRadius: wp(2),
     alignItems: 'center',
-    marginLeft: wp(65), // Responsive marginLeft
   },
   saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: FontSize(16), // Responsive font size
+    fontSize: FontSize(16),
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: hp(1),
+  },
+  successText: {
+    color: 'green',
+    textAlign: 'center',
+    marginBottom: hp(1),
   },
 });
 
