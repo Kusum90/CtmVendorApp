@@ -17,7 +17,7 @@ import {
   registerVendor,
   verifyVendorOtp,
   sendVendorOtp,
-  resendVendorOtp
+  resendVendorOtp,
 } from '../redux/Auth/Register';
 import {Picker} from '@react-native-picker/picker';
 import {wp, hp, FontSize} from '../utils/responsiveUtils';
@@ -26,6 +26,7 @@ import LocationPicker from '../components/AuthComponent/Register/LocationPicker'
 import CustomToast from '../utils/CustomToast';
 import DocumentPicker from 'react-native-document-picker';
 import axios from 'axios';
+import VendorBusinessPicker from '../components/AuthComponent/Register/VendorBusinessPicker';
 
 const RegisterDetails = () => {
   const navigation = useNavigation();
@@ -61,6 +62,7 @@ const RegisterDetails = () => {
     vendorType: '',
     businessProof: '',
     businessProofNumber: '',
+    uploadedProofDocument: '',
     aadhaar: '',
     aadhaarFrontImage: '',
     aadhaarBackImage: '',
@@ -137,9 +139,9 @@ const RegisterDetails = () => {
       Alert.alert('Success', 'OTP sent to your email.');
       setIsModalVisible(true);
       setShowResendOtp(false); // Reset resend visibility
-    setTimeout(() => {
-      setShowResendOtp(true); // Show the "Resend OTP" button after 1 minute
-    }, 6000);
+      setTimeout(() => {
+        setShowResendOtp(true); // Show the "Resend OTP" button after 1 minute
+      }, 6000);
     } catch (error) {
       Alert.alert('Error', 'Failed to send OTP.');
     }
@@ -176,6 +178,7 @@ const RegisterDetails = () => {
       [proofFieldMapping[formData.businessProof]]: formData.businessProofNumber,
       uploadaddharcardImage_front: formData.aadhaarFrontImage,
       uploadaddharcardImage_back: formData.aadhaarBackImage,
+      uploadBussinessproof: formData.uploadedProofDocument
     };
 
     setIsSubmitting(true);
@@ -198,13 +201,13 @@ const RegisterDetails = () => {
       }, 2000);
     } catch (error) {
       console.error('Registration error:', error);
-    
+
       let errorMessage = 'Failed to register vendor.'; // Default error message
-    
+
       // Check if the error is from Axios and contains a response
       if (error.response) {
-        const { status, data } = error.response;
-    
+        const {status, data} = error.response;
+
         // Handle specific status codes or backend messages
         if (status === 400) {
           errorMessage = data.message || 'Invalid data provided.';
@@ -222,11 +225,11 @@ const RegisterDetails = () => {
         // Handle unexpected errors (non-Axios errors)
         errorMessage = error.message || 'An error occurred.';
       }
-    
+
       // Show error toast
       setToastMessage(errorMessage);
       setToastVisible(true);
-    
+
       // Hide toast after 3 seconds
       setTimeout(() => {
         setToastVisible(false);
@@ -236,7 +239,6 @@ const RegisterDetails = () => {
     }
   };
 
-  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Profile Registration</Text>
@@ -321,38 +323,28 @@ const RegisterDetails = () => {
         onUploadBack={url => handleChange('aadhaarBackImage', url)}
       />
 
-      {/* Vendor Type */}
-      <Text style={styles.label}>Vendor Type *</Text>
-      <Picker
-        selectedValue={formData.vendorType}
-        onValueChange={value => handleChange('vendorType', value)}
-        style={styles.picker}>
-        <Picker.Item label="Select Vendor Type" value="" />
-        {vendorTypeOptions.map(type => (
-          <Picker.Item key={type} label={type} value={type} />
-        ))}
-      </Picker>
+      {/* Vendor Type and Business Proof Picker */}
+      {/* <VendorBusinessPicker
+        selectedVendorType={formData.vendorType}
+        selectedBusinessProof={formData.businessProof}
+        onVendorTypeChange={value => handleChange('vendorType', value)}
+        onBusinessProofChange={value => handleChange('businessProof', value)}
+        businessProofNumber={formData.businessProofNumber}
+        onBusinessProofNumberChange={value =>
+          handleChange('businessProofNumber', value)
+        }
+      /> */}
 
-      {/* Business Proof */}
-      <Text style={styles.label}>Business Proof *</Text>
-      <Picker
-        selectedValue={formData.businessProof}
-        onValueChange={value => handleChange('businessProof', value)}
-        style={styles.picker}>
-        <Picker.Item label="Select Business Proof" value="" />
-        {businessProofOptions.map(proof => (
-          <Picker.Item key={proof} label={proof} value={proof} />
-        ))}
-      </Picker>
+<VendorBusinessPicker
+  selectedVendorType={formData.vendorType}
+  selectedBusinessProof={formData.businessProof}
+  onVendorTypeChange={value => handleChange('vendorType', value)}  // Update vendorType in formData
+  onBusinessProofChange={value => handleChange('businessProof', value)} // Update businessProof in formData
+  businessProofNumber={formData.businessProofNumber}
+  onBusinessProofNumberChange={value => handleChange('businessProofNumber', value)} // Update businessProofNumber in formData
+  onUploadDocument={url => handleChange('uploadedProofDocument', url)}  // Update uploaded document in formData
+/>
 
-      {formData.businessProof && (
-        <TextInput
-          style={styles.input}
-          placeholder={`${formData.businessProof} Number`}
-          value={formData.businessProofNumber}
-          onChangeText={text => handleChange('businessProofNumber', text)}
-        />
-      )}
 
       <View style={{position: 'relative'}}>
         <Text style={styles.label}>Password *</Text>
@@ -407,52 +399,51 @@ const RegisterDetails = () => {
 
       {/* OTP Modal */}
       {otpSent && (
-  <Modal visible={isModalVisible} transparent animationType="slide">
-  <View style={styles.overlay}>
-    <View style={styles.modalContainer}>
-      <Text style={styles.modalTitle}>Enter OTP</Text>
-      <TextInput
-        style={styles.otpInput}
-        placeholder="Enter 6-digit OTP"
-        keyboardType="number-pad"
-        maxLength={6}
-        value={otp}
-        onChangeText={setOtp}
-      />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleVerifyOtp}
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Verify OTP</Text>
-        )}
-      </TouchableOpacity>
+        <Modal visible={isModalVisible} transparent animationType="slide">
+          <View style={styles.overlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Enter OTP</Text>
+              <TextInput
+                style={styles.otpInput}
+                placeholder="Enter 6-digit OTP"
+                keyboardType="number-pad"
+                maxLength={6}
+                value={otp}
+                onChangeText={setOtp}
+              />
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleVerifyOtp}
+                disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Verify OTP</Text>
+                )}
+              </TouchableOpacity>
 
-      {showResendOtp && (
-        <TouchableOpacity
-          style={styles.resendButton}
-          onPress={async () => {
-            try {
-              await dispatch(resendVendorOtp(formData.email)).unwrap();
-              Alert.alert('Success', 'New OTP sent to your email.');
-              setShowResendOtp(false); // Restart timer
-              setTimeout(() => {
-                setShowResendOtp(true);
-              }, 60000);
-            } catch (error) {
-              Alert.alert('Error', 'Failed to resend OTP.');
-            }
-          }}>
-          <Text style={styles.resendButtonText}>Resend OTP</Text>
-        </TouchableOpacity>
+              {showResendOtp && (
+                <TouchableOpacity
+                  style={styles.resendButton}
+                  onPress={async () => {
+                    try {
+                      await dispatch(resendVendorOtp(formData.email)).unwrap();
+                      Alert.alert('Success', 'New OTP sent to your email.');
+                      setShowResendOtp(false); // Restart timer
+                      setTimeout(() => {
+                        setShowResendOtp(true);
+                      }, 60000);
+                    } catch (error) {
+                      Alert.alert('Error', 'Failed to resend OTP.');
+                    }
+                  }}>
+                  <Text style={styles.resendButtonText}>Resend OTP</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </Modal>
       )}
-    </View>
-  </View>
-</Modal>
-)}
-
     </ScrollView>
   );
 };
@@ -577,7 +568,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', // Shadow for iOS
     shadowOpacity: 0.3,
     shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
+    shadowOffset: {width: 0, height: 5},
   },
   modalTitle: {
     fontSize: 20,
