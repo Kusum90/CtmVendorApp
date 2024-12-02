@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Platform, ToastAndroid, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
   loading: false,
@@ -100,6 +101,51 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
+// AsyncThunk to change password
+export const changePassword = createAsyncThunk(
+  'user/changePassword',
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+    console.log('Executing changePassword thunk with:', { oldPassword, newPassword });
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        throw new Error('Token is missing.');
+      }
+
+      const response = await axios.patch(
+        'https://cm-backend-yk2y.onrender.com/user/change-password', // Ensure this matches backend
+        { oldPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('Password changed successfully in thunk:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in changePassword thunk:', error);
+      if (error.response) {
+        console.error('Response error:', error.response.data);
+        return rejectWithValue(error.response.data.message || 'Failed to change password.');
+      } else if (error.request) {
+        console.error('Request error:', error.message);
+        return rejectWithValue('Network error. Please check your connection.');
+      } else {
+        console.error('Unexpected error:', error.message);
+        return rejectWithValue('Unexpected error occurred.');
+      }
+    }
+  }
+);
+
+
+
+
+
+
 
 
 const passwordSlice = createSlice({
@@ -159,6 +205,20 @@ const passwordSlice = createSlice({
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.successMessage = null;
+        state.errorMessage = null;
+      })
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message || 'Password changed successfully.';
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.errorMessage = action.payload;
       });
   },
 });

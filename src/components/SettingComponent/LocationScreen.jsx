@@ -1,24 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { wp,hp,FontSize } from '../../utils/responsiveUtils';
+import { wp, hp, FontSize } from '../../utils/responsiveUtils';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchVendor, updateVendor } from '../../redux/StoreSetting/Setting';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LocationScreen = ({ navigation }) => {  // Inject navigation prop
+const LocationScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
+  // Redux state for vendor data
+  const { vendorData, loading, errorMessage, successMessage } = useSelector(
+    (state) => state.vendor
+  );
+
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
+  const [city,setcity]=useState('');
   const [zip, setZip] = useState('');
+
+  // Fetch vendor data when the screen is mounted
+  useEffect(() => {
+    const fetchData = async () => {
+      await dispatch(fetchVendor());
+    };
+
+    fetchData();
+  }, [dispatch]);
+
+  // Fill in the form with fetched vendor data
+  useEffect(() => {
+    if (vendorData) {
+      setAddress1(vendorData?.address1 || '');
+      setAddress2(vendorData?.address2 || '');
+      setCountry(vendorData?.country || '');
+      setState(vendorData?.state || '');
+      setcity(vendorData?.city_town || '');
+      setZip(vendorData?.postcode_zip || '');
+    }
+  }, [vendorData]);
+
+
 
   const handlePrevious = () => {
     navigation.goBack(); // Navigate to the previous screen
   };
-  
 
   const handleNext = () => {
-    // Navigate to the PayScreen
     navigation.navigate('PayScreen');
+  }
+  
+
+  const handleSave = async () => {
+    const vendorDetails = { address1, address2, country, state,city, zip };
+   dispatch(updateVendor({ vendorDetails }));
   };
+    
 
   return (
     <ScrollView style={styles.container}>
@@ -60,6 +99,13 @@ const LocationScreen = ({ navigation }) => {  // Inject navigation prop
           onChangeText={setState}
           placeholder="Enter State"
         />
+        <Text style={styles.label}>City</Text>
+        <TextInput
+          style={styles.input}
+          value={city}
+          onChangeText={setcity}
+          placeholder="Enter City"
+        />
 
         <Text style={styles.label}>PostCode/Zip</Text>
         <TextInput
@@ -73,6 +119,10 @@ const LocationScreen = ({ navigation }) => {  // Inject navigation prop
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handlePrevious}>
             <Text style={styles.buttonText}>Previous</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={handleSave}>
+            <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={handleNext}>
@@ -139,4 +189,5 @@ const styles = StyleSheet.create({
     fontSize: FontSize(16), // Responsive font size
   },
 });
+
 export default LocationScreen;
